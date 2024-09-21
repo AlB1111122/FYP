@@ -1,3 +1,4 @@
 .cache
 .vscode
 build
+lib/pl_mpeg/pl_mpeg_player
