@@ -1,0 +1,1 @@
+the pointers being used in player to replace the mallocs need to be memset to 0
