@@ -148,7 +148,8 @@ typedef struct {
   uint8_t *rgb_data;
 } app_t;
 
-app_t *app_create(const char *filename, int texture_mode, plm_t *plm_holder);
+app_t *app_create(const char *filename, int texture_mode, plm_t *plm_holder,
+                  plm_demux_t *demux_ptr);
 void app_update(app_t *self);
 void app_destroy(app_t *self);
 
@@ -160,7 +161,8 @@ void app_update_texture(app_t *self, GLuint unit, GLuint texture,
 void app_on_video(plm_t *player, plm_frame_t *frame, void *user);
 void app_on_audio(plm_t *player, plm_samples_t *samples, void *user);
 
-app_t *app_create(const char *filename, int texture_mode, plm_t *plm_ptr) {
+app_t *app_create(const char *filename, int texture_mode, plm_t *plm_ptr,
+                  plm_demux_t *demux_ptr) {
   app_t *self = (app_t *)malloc(sizeof(app_t));
   memset(self, 0, sizeof(app_t));
 
@@ -168,7 +170,7 @@ app_t *app_create(const char *filename, int texture_mode, plm_t *plm_ptr) {
 
   // Initialize plmpeg, load the video file, install decode callbacks
 
-  self->plm = plm_create_with_filename(filename, plm_ptr);
+  self->plm = plm_create_with_filename(filename, plm_ptr, demux_ptr);
   if (!self->plm) {
     SDL_Log("Couldn't open %s", filename);
     exit(1);
@@ -411,7 +413,11 @@ int main(int argc, char *argv[]) {
       &plm_holder; // TODO remove where ptr is freed for gracefull exit :)
   memset(plm_ptr, 0, sizeof(plm_t));
 
-  app_t *app = app_create(argv[1], APP_TEXTURE_MODE_YCRCB, plm_ptr);
+  plm_demux_t demux;
+  plm_demux_t *demux_ptr = &demux;
+  memset(demux_ptr, 0, sizeof(plm_demux_t));
+
+  app_t *app = app_create(argv[1], APP_TEXTURE_MODE_YCRCB, plm_ptr, demux_ptr);
   while (!app->wants_to_quit) {
     app_update(app);
   }

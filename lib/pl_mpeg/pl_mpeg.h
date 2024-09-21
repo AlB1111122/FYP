@@ -265,12 +265,14 @@ typedef void (*plm_buffer_load_callback)(plm_buffer_t *self, void *user);
 // Create a plmpeg instance with a filename. Returns NULL if the file could not
 // be opened.
 
-plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr);
+plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr,
+                                plm_demux_t *demux);
 
 // Create a plmpeg instance with a file handle. Pass TRUE to close_when_done to
 // let plmpeg call fclose() on the handle when plm_destroy() is called.
 
-plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr);
+plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr,
+                            plm_demux_t *demux);
 
 // Create a plmpeg instance with a pointer to memory as source. This assumes the
 // whole file is in memory. The memory is not copied. Pass TRUE to
@@ -278,14 +280,15 @@ plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr);
 // is called.
 
 plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr);
+                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr,
+                              plm_demux_t *demux);
 
 // Create a plmpeg instance with a plm_buffer as source. Pass TRUE to
 // destroy_when_done to let plmpeg call plm_buffer_destroy() on the buffer when
 // plm_destroy() is called.
 
 void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
-                            plm_t *plm_ptr);
+                            plm_t *plm_ptr, plm_demux_t *demux);
 
 // Destroy a plmpeg instance and free all data.
 
@@ -538,7 +541,8 @@ static const int PLM_DEMUX_PACKET_VIDEO_1 = 0xE0;
 // Create a demuxer with a plm_buffer as source. This will also attempt to read
 // the pack and system headers from the buffer.
 
-plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done);
+plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done,
+                              plm_demux_t *self);
 
 // Destroy a demuxer and free all data.
 
@@ -777,35 +781,38 @@ void plm_read_video_packet(plm_buffer_t *buffer, void *user);
 void plm_read_audio_packet(plm_buffer_t *buffer, void *user);
 void plm_read_packets(plm_t *self, int requested_type);
 
-plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr) {
+plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr,
+                                plm_demux_t *demux) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);
   if (!buffer) {
     return NULL;
   }
 
-  plm_create_with_buffer(buffer, TRUE, plm_ptr);
+  plm_create_with_buffer(buffer, TRUE, plm_ptr, demux);
   return plm_ptr;
 }
 
-plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr) {
+plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr,
+                            plm_demux_t *demux) {
   plm_buffer_t *buffer = plm_buffer_create_with_file(fh, close_when_done);
 
-  plm_create_with_buffer(buffer, TRUE, plm_ptr);
+  plm_create_with_buffer(buffer, TRUE, plm_ptr, demux);
   return plm_ptr;
 }
 
 plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr) {
+                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr,
+                              plm_demux_t *demux) {
   plm_buffer_create_with_memory(bytes, length, free_when_done, buffer_ptr);
 
-  plm_create_with_buffer(buffer_ptr, TRUE, plm_ptr);
+  plm_create_with_buffer(buffer_ptr, TRUE, plm_ptr, demux);
   return plm_ptr;
 }
 
 void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
-                            plm_t *self) {
+                            plm_t *self, plm_demux_t *demux) {
 
-  self->demux = plm_demux_create(buffer, destroy_when_done);
+  self->demux = plm_demux_create(buffer, destroy_when_done, demux);
   self->video_enabled = TRUE;
   self->audio_enabled = TRUE;
   plm_init_decoders(self);
@@ -1287,6 +1294,27 @@ typedef struct {
   uint16_t value;
 } plm_vlc_uint_t;
 
+struct plm_demux_t {
+  plm_buffer_t *buffer;
+  int destroy_buffer_when_done;
+  double system_clock_ref;
+
+  size_t last_file_size;
+  double last_decoded_pts;
+  double start_time;
+  double duration;
+
+  int start_code;
+  int has_pack_header;
+  int has_system_header;
+  int has_headers;
+
+  int num_audio_streams;
+  int num_video_streams;
+  plm_packet_t current_packet;
+  plm_packet_t next_packet;
+};
+
 void plm_buffer_seek(plm_buffer_t *self, size_t pos);
 size_t plm_buffer_tell(plm_buffer_t *self);
 void plm_buffer_discard_read_bytes(plm_buffer_t *self);
@@ -1608,35 +1636,13 @@ static const int PLM_START_PACK = 0xBA;
 static const int PLM_START_END = 0xB9;
 static const int PLM_START_SYSTEM = 0xBB;
 
-struct plm_demux_t {
-  plm_buffer_t *buffer;
-  int destroy_buffer_when_done;
-  double system_clock_ref;
-
-  size_t last_file_size;
-  double last_decoded_pts;
-  double start_time;
-  double duration;
-
-  int start_code;
-  int has_pack_header;
-  int has_system_header;
-  int has_headers;
-
-  int num_audio_streams;
-  int num_video_streams;
-  plm_packet_t current_packet;
-  plm_packet_t next_packet;
-};
-
 void plm_demux_buffer_seek(plm_demux_t *self, size_t pos);
 double plm_demux_decode_time(plm_demux_t *self);
 plm_packet_t *plm_demux_decode_packet(plm_demux_t *self, int type);
 plm_packet_t *plm_demux_get_packet(plm_demux_t *self);
 
-plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done) {
-  plm_demux_t *self = (plm_demux_t *)PLM_MALLOC(sizeof(plm_demux_t));
-  memset(self, 0, sizeof(plm_demux_t));
+plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done,
+                              plm_demux_t *self) {
 
   self->buffer = buffer;
   self->destroy_buffer_when_done = destroy_when_done;
