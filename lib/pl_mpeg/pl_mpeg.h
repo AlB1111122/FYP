@@ -869,7 +869,6 @@ void plm_destroy(plm_t *self) {
   }
 
   plm_demux_destroy(self->demux);
-  // PLM_FREE(self);
 }
 
 int plm_get_audio_enabled(plm_t *self) { return self->audio_enabled; }
@@ -1659,7 +1658,6 @@ void plm_demux_destroy(plm_demux_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-  // PLM_FREE(self);
 }
 
 int plm_demux_has_headers(plm_demux_t *self) {
@@ -2576,12 +2574,6 @@ void plm_video_destroy(plm_video_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-
-  if (self->has_sequence_header) {
-    // PLM_FREE(self->frames_data);
-  }
-
-  // PLM_FREE(self);
 }
 
 double plm_video_get_framerate(plm_video_t *self) {
@@ -3637,9 +3629,11 @@ const plm_quantizer_spec_t *plm_audio_read_allocation(plm_audio_t *self, int sb,
 void plm_audio_read_samples(plm_audio_t *self, int ch, int sb, int part);
 void plm_audio_idct36(int s[32][3], int ss, float *d, int dp);
 
+plm_audio_t g_audio_holder;
+
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_audio_t *self = (plm_audio_t *)PLM_MALLOC(sizeof(plm_audio_t));
+  plm_audio_t *self = &g_audio_holder;
   memset(self, 0, sizeof(plm_audio_t));
 
   self->samples.count = PLM_AUDIO_SAMPLES_PER_FRAME;
@@ -3660,7 +3654,6 @@ void plm_audio_destroy(plm_audio_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-  PLM_FREE(self);
 }
 
 int plm_audio_has_header(plm_audio_t *self) {
