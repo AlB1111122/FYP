@@ -2553,9 +2553,11 @@ void plm_video_process_macroblock(plm_video_t *self, uint8_t *s, uint8_t *d,
 void plm_video_decode_block(plm_video_t *self, int block);
 void plm_video_idct(int *block);
 
+plm_video_t g_video_holder;
+
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_video_t *self = (plm_video_t *)PLM_MALLOC(sizeof(plm_video_t));
+  plm_video_t *self = &g_video_holder;
   memset(self, 0, sizeof(plm_video_t));
 
   self->buffer = buffer;
@@ -2579,7 +2581,7 @@ void plm_video_destroy(plm_video_t *self) {
     PLM_FREE(self->frames_data);
   }
 
-  PLM_FREE(self);
+  // PLM_FREE(self);
 }
 
 double plm_video_get_framerate(plm_video_t *self) {
