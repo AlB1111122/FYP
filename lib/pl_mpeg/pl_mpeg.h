@@ -447,7 +447,7 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 // The default size for buffers created from files or by the high-level API
 
 #ifndef PLM_BUFFER_DEFAULT_SIZE
-#define PLM_BUFFER_DEFAULT_SIZE (128 * 1024)
+#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
 #endif
 
 // Create a buffer instance with a filename. Returns NULL if the file could not
@@ -1279,7 +1279,7 @@ struct plm_buffer_t {
   FILE *fh;
   plm_buffer_load_callback load_callback;
   void *load_callback_user_data;
-  uint8_t *bytes;
+  uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
   enum plm_buffer_mode mode;
 };
 
@@ -1361,7 +1361,7 @@ void plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
   buffer_ptr->length = length;
   buffer_ptr->total_size = length;
   buffer_ptr->free_when_done = free_when_done;
-  buffer_ptr->bytes = bytes;
+  memcpy(buffer_ptr->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
   buffer_ptr->mode = PLM_BUFFER_MODE_FIXED_MEM;
   buffer_ptr->discard_read_bytes = FALSE;
 }
@@ -1371,7 +1371,6 @@ plm_buffer_t *plm_buffer_create_with_capacity(size_t capacity) {
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = capacity;
   self->free_when_done = TRUE;
-  self->bytes = (uint8_t *)PLM_MALLOC(capacity);
   self->mode = PLM_BUFFER_MODE_RING;
   self->discard_read_bytes = TRUE;
   return self;
@@ -1389,7 +1388,7 @@ void plm_buffer_destroy(plm_buffer_t *self) {
     fclose(self->fh);
   }
   if (self->free_when_done) {
-    PLM_FREE(self->bytes);
+    // PLM_FREE(self->bytes);
   }
   PLM_FREE(self);
 }
@@ -1418,8 +1417,8 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
     }
   }
 
-  // Do we have to resize to fit the new data?
-  size_t bytes_available = self->capacity - self->length;
+  // remove dynamic memory
+  /*size_t bytes_available = self->capacity - self->length;
   if (bytes_available < length) {
     size_t new_size = self->capacity;
     do {
@@ -1428,6 +1427,7 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
     self->bytes = (uint8_t *)PLM_REALLOC(self->bytes, new_size);
     self->capacity = new_size;
   }
+  */
 
   memcpy(self->bytes + self->length, bytes, length);
   self->length += length;
