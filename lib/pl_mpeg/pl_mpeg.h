@@ -869,7 +869,7 @@ void plm_destroy(plm_t *self) {
   }
 
   plm_demux_destroy(self->demux);
-  PLM_FREE(self);
+  // PLM_FREE(self);
 }
 
 int plm_get_audio_enabled(plm_t *self) { return self->audio_enabled; }
@@ -1659,7 +1659,7 @@ void plm_demux_destroy(plm_demux_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-  PLM_FREE(self);
+  // PLM_FREE(self);
 }
 
 int plm_demux_has_headers(plm_demux_t *self) {
