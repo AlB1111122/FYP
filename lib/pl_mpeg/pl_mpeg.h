@@ -2517,8 +2517,8 @@ struct plm_video_t {
   plm_frame_t frame_forward;
   plm_frame_t frame_backward;
 
-  uint8_t *frames_data;
-
+  uint8_t frames_data[4147200]; // expand if needed for video
+                                // 4147200 for intersection.mpg
   int block_data[64];
   uint8_t intra_quant_matrix[64];
   uint8_t non_intra_quant_matrix[64];
@@ -2578,7 +2578,7 @@ void plm_video_destroy(plm_video_t *self) {
   }
 
   if (self->has_sequence_header) {
-    PLM_FREE(self->frames_data);
+    // PLM_FREE(self->frames_data);
   }
 
   // PLM_FREE(self);
@@ -2701,6 +2701,8 @@ int plm_video_has_header(plm_video_t *self) {
   return TRUE;
 }
 
+// uint8_t g_frames_data[18446744];
+
 int plm_video_decode_sequence_header(plm_video_t *self) {
   int max_header_size = 64 + 2 * 64 * 8; // 64 bit header + 2x 64 byte matrix
   if (!plm_buffer_has(self->buffer, max_header_size)) {
@@ -2771,7 +2773,6 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
   size_t chroma_plane_size = self->chroma_width * self->chroma_height;
   size_t frame_data_size = (luma_plane_size + 2 * chroma_plane_size);
 
-  self->frames_data = (uint8_t *)PLM_MALLOC(frame_data_size * 3);
   plm_video_init_frame(self, &self->frame_current,
                        self->frames_data + frame_data_size * 0);
   plm_video_init_frame(self, &self->frame_forward,
