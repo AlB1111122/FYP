@@ -2551,7 +2551,7 @@ void plm_video_process_macroblock(plm_video_t *self, uint8_t *s, uint8_t *d,
 void plm_video_decode_block(plm_video_t *self, int block);
 void plm_video_idct(int *block);
 
-plm_video_t g_video_holder;
+static plm_video_t g_video_holder;
 
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
@@ -3629,7 +3629,7 @@ const plm_quantizer_spec_t *plm_audio_read_allocation(plm_audio_t *self, int sb,
 void plm_audio_read_samples(plm_audio_t *self, int ch, int sb, int part);
 void plm_audio_idct36(int s[32][3], int ss, float *d, int dp);
 
-plm_audio_t g_audio_holder;
+static plm_audio_t g_audio_holder;
 
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
