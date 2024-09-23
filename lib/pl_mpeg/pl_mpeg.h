@@ -265,12 +265,12 @@ typedef void (*plm_buffer_load_callback)(plm_buffer_t *self, void *user);
 // Create a plmpeg instance with a filename. Returns NULL if the file could not
 // be opened.
 
-plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr);
+plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr);
 
 // Create a plmpeg instance with a file handle. Pass TRUE to close_when_done to
 // let plmpeg call fclose() on the handle when plm_destroy() is called.
 
-plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr);
+plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *self_ptr);
 
 // Create a plmpeg instance with a pointer to memory as source. This assumes the
 // whole file is in memory. The memory is not copied. Pass TRUE to
@@ -278,14 +278,14 @@ plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr);
 // is called.
 
 plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr);
+                              plm_t *self_ptr);
 
 // Create a plmpeg instance with a plm_buffer as source. Pass TRUE to
 // destroy_when_done to let plmpeg call plm_buffer_destroy() on the buffer when
 // plm_destroy() is called.
 
 void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
-                            plm_t *plm_ptr);
+                            plm_t *self_ptr);
 
 // Destroy a plmpeg instance and free all data.
 
@@ -462,9 +462,8 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done);
 // free_when_done to let plmpeg call free() on the pointer when plm_destroy()
 // is called.
 
-void plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
-                                   int free_when_done,
-                                   plm_buffer_t *buffer_ptr);
+plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
+                                            int free_when_done);
 
 // Create an empty buffer with an initial capacity. The buffer will grow
 // as needed. Data that has already been read, will be discarded.
@@ -771,29 +770,30 @@ void plm_read_video_packet(plm_buffer_t *buffer, void *user);
 void plm_read_audio_packet(plm_buffer_t *buffer, void *user);
 void plm_read_packets(plm_t *self, int requested_type);
 
-plm_t *plm_create_with_filename(const char *filename, plm_t *plm_ptr) {
+plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);
   if (!buffer) {
     return NULL;
   }
 
-  plm_create_with_buffer(buffer, TRUE, plm_ptr);
-  return plm_ptr;
+  plm_create_with_buffer(buffer, TRUE, self_ptr);
+  return self_ptr;
 }
 
-plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *plm_ptr) {
+plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_file(fh, close_when_done);
 
-  plm_create_with_buffer(buffer, TRUE, plm_ptr);
-  return plm_ptr;
+  plm_create_with_buffer(buffer, TRUE, self_ptr);
+  return self_ptr;
 }
 
 plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-                              plm_t *plm_ptr, plm_buffer_t *buffer_ptr) {
-  plm_buffer_create_with_memory(bytes, length, free_when_done, buffer_ptr);
+                              plm_t *self_ptr) {
+  plm_buffer_t *buffer =
+      plm_buffer_create_with_memory(bytes, length, free_when_done);
 
-  plm_create_with_buffer(buffer_ptr, TRUE, plm_ptr);
-  return plm_ptr;
+  plm_create_with_buffer(buffer, TRUE, self_ptr);
+  return self_ptr;
 }
 
 void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
@@ -1320,16 +1320,18 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
   return self;
 }
 
-void plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
-                                   int free_when_done,
-                                   plm_buffer_t *buffer_ptr) {
-  buffer_ptr->capacity = length;
-  buffer_ptr->length = length;
-  buffer_ptr->total_size = length;
-  buffer_ptr->free_when_done = free_when_done;
-  memcpy(buffer_ptr->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
-  buffer_ptr->mode = PLM_BUFFER_MODE_FIXED_MEM;
-  buffer_ptr->discard_read_bytes = FALSE;
+plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
+                                            int free_when_done) {
+  plm_buffer_t *self = (plm_buffer_t *)PLM_MALLOC(sizeof(plm_buffer_t));
+  memset(self, 0, sizeof(plm_buffer_t));
+  self->capacity = length;
+  self->length = length;
+  self->total_size = length;
+  self->free_when_done = free_when_done;
+  memcpy(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
+  self->mode = PLM_BUFFER_MODE_FIXED_MEM;
+  self->discard_read_bytes = FALSE;
+  return self;
 }
 
 static plm_buffer_t static_buffer_hldr[3];
