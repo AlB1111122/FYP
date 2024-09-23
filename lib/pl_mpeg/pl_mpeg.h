@@ -155,7 +155,7 @@ including this library.
 
 You can also define PLM_MALLOC, PLM_REALLOC and PLM_FREE to provide your own
 memory management functions.
-
+NOT ANYMORE!!!!!!!!!!!
 
 See below for detailed the API documentation.
 
@@ -736,12 +736,6 @@ plm_samples_t *plm_audio_decode(plm_audio_t *self);
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
-#endif
-
-#ifndef PLM_MALLOC
-#define PLM_MALLOC(sz) malloc(sz)
-#define PLM_FREE(p) free(p)
-#define PLM_REALLOC(p, sz) realloc(p, sz)
 #endif
 
 #define PLM_UNUSED(expr) (void)(expr)
@@ -1366,8 +1360,12 @@ void plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
   buffer_ptr->discard_read_bytes = FALSE;
 }
 
+static plm_buffer_t static_buffer_hldr[3];
+int buffer_n = 0;
+
 plm_buffer_t *plm_buffer_create_with_capacity(size_t capacity) {
-  plm_buffer_t *self = (plm_buffer_t *)PLM_MALLOC(sizeof(plm_buffer_t));
+  plm_buffer_t *self = &static_buffer_hldr[buffer_n];
+  buffer_n++;
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = capacity;
   self->free_when_done = TRUE;
@@ -1387,10 +1385,6 @@ void plm_buffer_destroy(plm_buffer_t *self) {
   if (self->fh && self->close_when_done) {
     fclose(self->fh);
   }
-  if (self->free_when_done) {
-    // PLM_FREE(self->bytes);
-  }
-  PLM_FREE(self);
 }
 
 size_t plm_buffer_get_size(plm_buffer_t *self) {
@@ -1416,18 +1410,6 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
       self->total_size = 0;
     }
   }
-
-  // remove dynamic memory
-  /*size_t bytes_available = self->capacity - self->length;
-  if (bytes_available < length) {
-    size_t new_size = self->capacity;
-    do {
-      new_size *= 2;
-    } while (new_size - self->length < length);
-    self->bytes = (uint8_t *)PLM_REALLOC(self->bytes, new_size);
-    self->capacity = new_size;
-  }
-  */
 
   memcpy(self->bytes + self->length, bytes, length);
   self->length += length;
@@ -2551,11 +2533,11 @@ void plm_video_process_macroblock(plm_video_t *self, uint8_t *s, uint8_t *d,
 void plm_video_decode_block(plm_video_t *self, int block);
 void plm_video_idct(int *block);
 
-static plm_video_t g_video_holder;
+static plm_video_t static_video_holder;
 
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_video_t *self = &g_video_holder;
+  plm_video_t *self = &static_video_holder;
   memset(self, 0, sizeof(plm_video_t));
 
   self->buffer = buffer;
@@ -3629,11 +3611,11 @@ const plm_quantizer_spec_t *plm_audio_read_allocation(plm_audio_t *self, int sb,
 void plm_audio_read_samples(plm_audio_t *self, int ch, int sb, int part);
 void plm_audio_idct36(int s[32][3], int ss, float *d, int dp);
 
-static plm_audio_t g_audio_holder;
+static plm_audio_t static_audio_holder;
 
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_audio_t *self = &g_audio_holder;
+  plm_audio_t *self = &static_audio_holder;
   memset(self, 0, sizeof(plm_audio_t));
 
   self->samples.count = PLM_AUDIO_SAMPLES_PER_FRAME;
