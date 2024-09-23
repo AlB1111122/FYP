@@ -1320,9 +1320,11 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
   return self;
 }
 
+plm_buffer_t static_buffer_w_memory_holder;
+
 plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
                                             int free_when_done) {
-  plm_buffer_t *self = (plm_buffer_t *)PLM_MALLOC(sizeof(plm_buffer_t));
+  plm_buffer_t *self = &static_buffer_w_memory_holder;
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = length;
   self->length = length;
@@ -1334,11 +1336,11 @@ plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
   return self;
 }
 
-static plm_buffer_t static_buffer_hldr[3];
+static plm_buffer_t static_buffer_holder[3];
 int buffer_n = 0;
 
 plm_buffer_t *plm_buffer_create_with_capacity(size_t capacity) {
-  plm_buffer_t *self = &static_buffer_hldr[buffer_n];
+  plm_buffer_t *self = &static_buffer_holder[buffer_n];
   buffer_n++;
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = capacity;
