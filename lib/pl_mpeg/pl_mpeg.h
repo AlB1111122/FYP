@@ -1615,9 +1615,10 @@ double plm_demux_decode_time(plm_demux_t *self);
 plm_packet_t *plm_demux_decode_packet(plm_demux_t *self, int type);
 plm_packet_t *plm_demux_get_packet(plm_demux_t *self);
 
+static plm_demux_t static_demux_holder;
+
 plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done) {
-  plm_demux_t *self = (plm_demux_t *)PLM_MALLOC(sizeof(plm_demux_t));
-  memset(self, 0, sizeof(plm_demux_t));
+  plm_demux_t *self = &static_demux_holder;
 
   self->buffer = buffer;
   self->destroy_buffer_when_done = destroy_when_done;
