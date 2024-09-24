@@ -155,7 +155,7 @@ including this library.
 
 You can also define PLM_MALLOC, PLM_REALLOC and PLM_FREE to provide your own
 memory management functions.
-
+NOT ANYMORE!!!!!!!!!!!
 
 See below for detailed the API documentation.
 
@@ -444,7 +444,7 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 // The default size for buffers created from files or by the high-level API
 
 #ifndef PLM_BUFFER_DEFAULT_SIZE
-#define PLM_BUFFER_DEFAULT_SIZE (128 * 1024)
+#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
 #endif
 
 // Create a buffer instance with a filename. Returns NULL if the file could not
@@ -733,12 +733,6 @@ plm_samples_t *plm_audio_decode(plm_audio_t *self);
 #define FALSE 0
 #endif
 
-#ifndef PLM_MALLOC
-#define PLM_MALLOC(sz) malloc(sz)
-#define PLM_FREE(p) free(p)
-#define PLM_REALLOC(p, sz) realloc(p, sz)
-#endif
-
 #define PLM_UNUSED(expr) (void)(expr)
 
 // -----------------------------------------------------------------------------
@@ -862,7 +856,6 @@ void plm_destroy(plm_t *self) {
   }
 
   plm_demux_destroy(self->demux);
-  PLM_FREE(self);
 }
 
 int plm_get_audio_enabled(plm_t *self) { return self->audio_enabled; }
@@ -1273,7 +1266,7 @@ struct plm_buffer_t {
   FILE *fh;
   plm_buffer_load_callback load_callback;
   void *load_callback_user_data;
-  uint8_t *bytes;
+  uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
   enum plm_buffer_mode mode;
 };
 
@@ -1327,26 +1320,31 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
   return self;
 }
 
+plm_buffer_t static_buffer_w_memory_holder;
+
 plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
                                             int free_when_done) {
-  plm_buffer_t *self = (plm_buffer_t *)PLM_MALLOC(sizeof(plm_buffer_t));
+  plm_buffer_t *self = &static_buffer_w_memory_holder;
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = length;
   self->length = length;
   self->total_size = length;
   self->free_when_done = free_when_done;
-  self->bytes = bytes;
+  memcpy(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
   self->mode = PLM_BUFFER_MODE_FIXED_MEM;
   self->discard_read_bytes = FALSE;
   return self;
 }
 
+static plm_buffer_t static_buffer_holder[3];
+int buffer_n = 0;
+
 plm_buffer_t *plm_buffer_create_with_capacity(size_t capacity) {
-  plm_buffer_t *self = (plm_buffer_t *)PLM_MALLOC(sizeof(plm_buffer_t));
+  plm_buffer_t *self = &static_buffer_holder[buffer_n];
+  buffer_n++;
   memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = capacity;
   self->free_when_done = TRUE;
-  self->bytes = (uint8_t *)PLM_MALLOC(capacity);
   self->mode = PLM_BUFFER_MODE_RING;
   self->discard_read_bytes = TRUE;
   return self;
@@ -1363,10 +1361,6 @@ void plm_buffer_destroy(plm_buffer_t *self) {
   if (self->fh && self->close_when_done) {
     fclose(self->fh);
   }
-  if (self->free_when_done) {
-    PLM_FREE(self->bytes);
-  }
-  PLM_FREE(self);
 }
 
 size_t plm_buffer_get_size(plm_buffer_t *self) {
@@ -1391,17 +1385,6 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
     if (self->mode == PLM_BUFFER_MODE_RING) {
       self->total_size = 0;
     }
-  }
-
-  // Do we have to resize to fit the new data?
-  size_t bytes_available = self->capacity - self->length;
-  if (bytes_available < length) {
-    size_t new_size = self->capacity;
-    do {
-      new_size *= 2;
-    } while (new_size - self->length < length);
-    self->bytes = (uint8_t *)PLM_REALLOC(self->bytes, new_size);
-    self->capacity = new_size;
   }
 
   memcpy(self->bytes + self->length, bytes, length);
@@ -1636,9 +1619,10 @@ double plm_demux_decode_time(plm_demux_t *self);
 plm_packet_t *plm_demux_decode_packet(plm_demux_t *self, int type);
 plm_packet_t *plm_demux_get_packet(plm_demux_t *self);
 
+static plm_demux_t static_demux_holder;
+
 plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done) {
-  plm_demux_t *self = (plm_demux_t *)PLM_MALLOC(sizeof(plm_demux_t));
-  memset(self, 0, sizeof(plm_demux_t));
+  plm_demux_t *self = &static_demux_holder;
 
   self->buffer = buffer;
   self->destroy_buffer_when_done = destroy_when_done;
@@ -1655,7 +1639,6 @@ void plm_demux_destroy(plm_demux_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-  PLM_FREE(self);
 }
 
 int plm_demux_has_headers(plm_demux_t *self) {
@@ -2513,8 +2496,8 @@ struct plm_video_t {
   plm_frame_t frame_forward;
   plm_frame_t frame_backward;
 
-  uint8_t *frames_data;
-
+  uint8_t frames_data[4147200]; // expand if needed for video
+                                // 4147200 for intersection.mpg
   int block_data[64];
   uint8_t intra_quant_matrix[64];
   uint8_t non_intra_quant_matrix[64];
@@ -2549,9 +2532,11 @@ void plm_video_process_macroblock(plm_video_t *self, uint8_t *s, uint8_t *d,
 void plm_video_decode_block(plm_video_t *self, int block);
 void plm_video_idct(int *block);
 
+static plm_video_t static_video_holder;
+
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_video_t *self = (plm_video_t *)PLM_MALLOC(sizeof(plm_video_t));
+  plm_video_t *self = &static_video_holder;
   memset(self, 0, sizeof(plm_video_t));
 
   self->buffer = buffer;
@@ -2570,12 +2555,6 @@ void plm_video_destroy(plm_video_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-
-  if (self->has_sequence_header) {
-    PLM_FREE(self->frames_data);
-  }
-
-  PLM_FREE(self);
 }
 
 double plm_video_get_framerate(plm_video_t *self) {
@@ -2695,6 +2674,8 @@ int plm_video_has_header(plm_video_t *self) {
   return TRUE;
 }
 
+// uint8_t g_frames_data[18446744];
+
 int plm_video_decode_sequence_header(plm_video_t *self) {
   int max_header_size = 64 + 2 * 64 * 8; // 64 bit header + 2x 64 byte matrix
   if (!plm_buffer_has(self->buffer, max_header_size)) {
@@ -2765,7 +2746,6 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
   size_t chroma_plane_size = self->chroma_width * self->chroma_height;
   size_t frame_data_size = (luma_plane_size + 2 * chroma_plane_size);
 
-  self->frames_data = (uint8_t *)PLM_MALLOC(frame_data_size * 3);
   plm_video_init_frame(self, &self->frame_current,
                        self->frames_data + frame_data_size * 0);
   plm_video_init_frame(self, &self->frame_forward,
@@ -3630,9 +3610,11 @@ const plm_quantizer_spec_t *plm_audio_read_allocation(plm_audio_t *self, int sb,
 void plm_audio_read_samples(plm_audio_t *self, int ch, int sb, int part);
 void plm_audio_idct36(int s[32][3], int ss, float *d, int dp);
 
+static plm_audio_t static_audio_holder;
+
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
-  plm_audio_t *self = (plm_audio_t *)PLM_MALLOC(sizeof(plm_audio_t));
+  plm_audio_t *self = &static_audio_holder;
   memset(self, 0, sizeof(plm_audio_t));
 
   self->samples.count = PLM_AUDIO_SAMPLES_PER_FRAME;
@@ -3653,7 +3635,6 @@ void plm_audio_destroy(plm_audio_t *self) {
   if (self->destroy_buffer_when_done) {
     plm_buffer_destroy(self->buffer);
   }
-  PLM_FREE(self);
 }
 
 int plm_audio_has_header(plm_audio_t *self) {
