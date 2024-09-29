@@ -374,7 +374,6 @@ void app_update_texture(app_t *self, GLuint unit, GLuint texture,
 
 void app_on_video(plm_t *mpeg, plm_frame_t *frame, void *user) {
   app_t *self = (app_t *)user;
-
   // Hand the decoded data over to OpenGL. For the RGB texture mode, the
   // YCrCb->RGB conversion is done on the CPU.
 
@@ -407,11 +406,10 @@ int main(int argc, char *argv[]) {
   }
 
   plm_t plm_holder;
-  plm_t *plm_ptr =
-      &plm_holder; // TODO remove where ptr is freed for gracefull exit :)
+  plm_t *plm_ptr = &plm_holder;
   memset(plm_ptr, 0, sizeof(plm_t));
 
-  app_t *app = app_create(argv[1], APP_TEXTURE_MODE_YCRCB, plm_ptr);
+  app_t *app = app_create(argv[1], APP_TEXTURE_MODE_RGB, plm_ptr);
   while (!app->wants_to_quit) {
     app_update(app);
   }
