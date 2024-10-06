@@ -1,7 +1,35 @@
-#include "display_sdl.h"
+extern "C" {
+#include "../include/pl_mpeg/pl_mpeg.h"
+}
+#include <SDL2/SDL.h>
+
+#include <iostream>
+
+#include "filter.h"
+
+// change to be dynamic (plm_get_width(self->plm);) if changing video
+#define WIN_HEIGHT 720
+#define WIN_WIDTH 1280
+#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
+
+struct video_app {
+  plm_t *plm;
+  bool wants_to_quit;
+  double last_time;
+  uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
+  SDL_Texture *texture_rgb;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+  int win_height;
+  int win_width;
+};
+
+void createApp(video_app *self);
+void updateFrame(plm_t *player, plm_frame_t *frame, void *user);
+void updateVideo(video_app *self);
+void destroy(video_app *self);
 
 int main(int argc, char **argv) {
-
   if (argc < 2) {
     std::cout << "Run with pl_mpeg_player path/<file.mpg>";
     return 1;
@@ -20,17 +48,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  start_app(app_ptr);
+  createApp(app_ptr);
   while (!app_ptr->wants_to_quit) {
-    app_update(app_ptr);
+    updateVideo(app_ptr);
   }
+
+  destroy(app_ptr);
 }
 
-void start_app(video_app *self) {
+void createApp(video_app *self) {
   int samplerate = plm_get_samplerate(self->plm);
-  plm_set_video_decode_callback(self->plm, app_on_video, self);
+  plm_set_video_decode_callback(self->plm, updateFrame, self);
 
-  plm_set_loop(self->plm, TRUE); // loop video
+  plm_set_loop(self->plm, TRUE);  // loop video
   plm_set_audio_enabled(self->plm, FALSE);
 
   self->window = SDL_CreateWindow("pl_mpeg", SDL_WINDOWPOS_CENTERED,
@@ -49,17 +79,18 @@ void start_app(video_app *self) {
                         SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
 }
 
-void app_on_video(plm_t *mpeg, plm_frame_t *frame, void *user) {
+void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
-                   frame->width * 3); // can be hardware accelerated
+                   frame->width * 3);  // can be hardware accelerated
+  unv::Filter::grayscale(self->rgb_data, N_PIXELS);
   SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
 }
 
-void app_update(video_app *self) {
+void updateVideo(video_app *self) {
   double seek_to = -1;
 
   SDL_Event ev;
@@ -88,7 +119,7 @@ void app_update(video_app *self) {
   }
 }
 
-void app_destroy(video_app *self) {
+void destroy(video_app *self) {
   SDL_DestroyTexture(self->texture_rgb);
   SDL_DestroyRenderer(self->renderer);
   SDL_DestroyWindow(self->window);
