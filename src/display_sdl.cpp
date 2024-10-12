@@ -5,7 +5,7 @@ extern "C" {
 
 #include <iostream>
 
-#include "filter.h"
+#include "../include/filter.h"
 
 // change to be dynamic (plm_get_width(self->plm);) if changing video
 #define WIN_HEIGHT 720

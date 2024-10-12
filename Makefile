@@ -1,7 +1,8 @@
-VIDEO_NAME:=intersection
+clean:
+	rm -rf build && mkdir build;
 
-build-linuxv1:
-	g++ -o build/linuxv1 src/display_sdl.cpp src/filter.cpp `pkg-config --cflags --libs sdl2 glew`
+build: clean
+	cd build;cmake ..;make;
 
-linuxv1:
-	build/linuxv1 $(VIDEO_NAME).mpg
+run:
+	build/$(PROJ_NAME) $(VIDEO_NAME).mpg;
