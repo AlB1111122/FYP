@@ -1,5 +1,5 @@
 extern "C" {
-#include "../include/pl_mpeg/pl_mpeg.h"
+#include "../lib/pl_mpeg/pl_mpeg.h"
 }
 #include <SDL2/SDL.h>
 
