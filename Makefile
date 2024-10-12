@@ -1,2 +1,8 @@
-sdl:
-	g++ -o build/new_display src/display_sdl.cpp src/filter.cpp `pkg-config --cflags --libs sdl2 glew`
+clean:
+	rm -rf build && mkdir build;
+
+build: clean
+	cd build;cmake ..;make;
+
+run:
+	build/$(PROJ_NAME) $(VIDEO_NAME).mpg;
