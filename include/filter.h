@@ -1,6 +1,6 @@
-#ifndef FILTER_H
-#define FILTER_H
+#pragma once
 #include <stdint.h>
+
 namespace unv {
 class Filter {
  private:
@@ -11,4 +11,3 @@ class Filter {
   static void grayscale(uint8_t *rgb_data, int n_pixels);
 };
 }  // namespace unv
-#endif
