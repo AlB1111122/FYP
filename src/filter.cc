@@ -1,4 +1,3 @@
-#pragma once
 #include "../include/filter.h"
 
 #include <stdint.h>
@@ -14,5 +13,4 @@ void unv::Filter::grayscale(uint8_t *rgb_data, int n_pixels) {
     rgb_data[i + 1] = gray;  // Green
     rgb_data[i + 2] = gray;  // Blue
   }
-  void unv::Filter::sobelEdgeDetect(uint8_t * rgb_data, int n_pixels) {}
 }
