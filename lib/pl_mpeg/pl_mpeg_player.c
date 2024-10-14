@@ -52,6 +52,7 @@ steps combined.
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../../include/filter.h"
 #if defined(__APPLE__) && defined(__MACH__)
 // OSX
 #include <OpenGL/gl.h>
@@ -146,6 +147,7 @@ typedef struct {
 
   GLuint texture_rgb;
   uint8_t *rgb_data;
+  int num_pixels;
 } app_t;
 
 app_t *app_create(const char *filename, int texture_mode, plm_t *plm_holder);
@@ -253,8 +255,8 @@ app_t *app_create(const char *filename, int texture_mode, plm_t *plm_ptr) {
     self->texture_cr = app_create_texture(self, 2, "texture_cr");
   } else {
     self->texture_rgb = app_create_texture(self, 0, "texture_rgb");
-    int num_pixels = plm_get_width(self->plm) * plm_get_height(self->plm);
-    self->rgb_data = (uint8_t *)malloc(num_pixels * 3);
+    self->num_pixels = plm_get_width(self->plm) * plm_get_height(self->plm);
+    self->rgb_data = (uint8_t *)malloc(self->num_pixels * 3);
   }
 
   return self;
@@ -384,9 +386,13 @@ void app_on_video(plm_t *mpeg, plm_frame_t *frame, void *user) {
   } else {
     plm_frame_to_rgb(frame, self->rgb_data, frame->width * 3);
 
+    uint8_t new_rgb_data[self->num_pixels * 3];
+    unv::Filter::sobelEdgeDetect(self->rgb_data, self->num_pixels * 3,
+                                 frame->width * 3, new_rgb_data);
+
     glBindTexture(GL_TEXTURE_2D, self->texture_rgb);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame->width, frame->height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, self->rgb_data);
+                 GL_RGB, GL_UNSIGNED_BYTE, new_rgb_data);
   }
 }
 
