@@ -83,8 +83,10 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
                    frame->width * 3);  // can be hardware accelerated
-  unv::Filter::grayscale(self->rgb_data, N_PIXELS);
-  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
+  uint8_t new_rgb_data[N_PIXELS];
+  unv::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
+                               new_rgb_data);
+  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
