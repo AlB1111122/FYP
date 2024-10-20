@@ -3,7 +3,10 @@ extern "C" {
 }
 #include <SDL2/SDL.h>
 
+#include <array>
+#include <chrono>
 #include <iostream>
+#include <vector>
 
 #include "../include/filter.h"
 
@@ -11,6 +14,15 @@ extern "C" {
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
 #define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
+
+struct frame_rate_info {
+  double frame_ms;
+  int fps;
+  int total_frames;
+} frame_rate_info;
+
+std::vector<std::array<std::chrono::system_clock::time_point, 4>> ttr = {};
+unsigned long total_frames_completed;
 
 struct video_app {
   plm_t *plm;
@@ -53,6 +65,35 @@ int main(int argc, char **argv) {
     updateVideo(app_ptr);
   }
 
+  std::cout << "render times:\n";
+  double total_rgb_t, total_filter_t, total_render_t, total_display_t;
+  int dropped_frames = 0;
+  for (auto &times : ttr) {
+    std::chrono::duration<double, std::milli> ttrgb = times[1] - times[0];
+    std::chrono::duration<double, std::milli> ttf = times[2] - times[1];
+    std::chrono::duration<double, std::milli> ttr = times[3] - times[2];
+    std::chrono::duration<double, std::milli> ttd = times[3] - times[0];
+    total_rgb_t += ttrgb.count();
+    total_filter_t += ttf.count();
+    total_render_t += ttr.count();
+    total_display_t += ttd.count();
+
+    if (ttd.count() > frame_rate_info.frame_ms) {
+      dropped_frames++;
+    }
+  }
+
+  std::cout << "advrage to rgb: " << total_rgb_t / total_frames_completed
+            << "\nadvrage to filtered: "
+            << total_filter_t / total_frames_completed
+            << "\nadvrage to rendered: "
+            << total_render_t / total_frames_completed
+            << "\nadvrage to total time to display: "
+            << total_display_t / total_frames_completed;
+
+  std::cout << "\ntotal slow frames:" << dropped_frames << "\n";
+  std::cout << "\ntotal callbacks to render frames:" << total_frames_completed
+            << "\n";
   destroy(app_ptr);
 }
 
@@ -60,8 +101,21 @@ void createApp(video_app *self) {
   int samplerate = plm_get_samplerate(self->plm);
   plm_set_video_decode_callback(self->plm, updateFrame, self);
 
-  plm_set_loop(self->plm, TRUE);  // loop video
+  plm_set_loop(self->plm, FALSE);  // loop video
   plm_set_audio_enabled(self->plm, FALSE);
+
+  frame_rate_info.fps = plm_get_framerate(self->plm);
+  int duration = plm_get_duration(self->plm);
+  frame_rate_info.total_frames = duration * frame_rate_info.fps;
+  // get the amount of time a frame can be displayed in without being dropped in
+  // ms
+  frame_rate_info.frame_ms =
+      (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
+
+  // frame number true for intersection video
+  std::cout << frame_rate_info.total_frames << " total frames, "
+            << frame_rate_info.fps
+            << "FPS, max frame time: " << frame_rate_info.frame_ms << "\n";
 
   self->window = SDL_CreateWindow("pl_mpeg", SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT,
@@ -80,16 +134,25 @@ void createApp(video_app *self) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
+  auto start_time = std::chrono::high_resolution_clock::now();
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
-                   frame->width * 3);  // can be hardware accelerated
+                   frame->width * 3);  // can be hardware accelerated]
+
+  auto to_rgb = std::chrono::high_resolution_clock::now();
   uint8_t new_rgb_data[N_PIXELS];
   unv::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
                                new_rgb_data);
+  // unv::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+
+  auto to_filter = std::chrono::high_resolution_clock::now();
   SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
+  auto to_render = std::chrono::high_resolution_clock::now();
+  ttr.push_back({start_time, to_rgb, to_filter, to_render});
+  total_frames_completed++;
 }
 
 void updateVideo(video_app *self) {
@@ -103,7 +166,9 @@ void updateVideo(video_app *self) {
     }
   }
 
-  double current_time = (double)SDL_GetTicks() / 1000.0;
+  auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
+  double current_time =
+      now.count() / 1000.0;  // NB for BM ver:rpi system timer runs at 1MHz
   double elapsed_time = current_time - self->last_time;
   if (elapsed_time > 1.0 / 30.0) {
     elapsed_time = 1.0 / 30.0;
