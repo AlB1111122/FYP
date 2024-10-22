@@ -6,6 +6,7 @@ extern "C" {
 
 #include <array>
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -20,6 +21,7 @@ struct frame_rate_info {
   double frame_ms;
   int fps;
   int total_frames;
+  double total_t;
 } frame_rate_info;
 
 std::vector<std::array<std::chrono::system_clock::time_point, 4>> ttr = {};
@@ -63,6 +65,8 @@ int main(int argc, char **argv) {
 
   createApp(app_ptr);
   auto start = std::chrono::system_clock::now();
+
+  app_ptr->last_time = start;
   while (!app_ptr->wants_to_quit) {
     updateVideo(app_ptr);
   }
@@ -111,8 +115,8 @@ void createApp(video_app *self) {
   plm_set_audio_enabled(self->plm, FALSE);
 
   frame_rate_info.fps = plm_get_framerate(self->plm);
-  int duration = plm_get_duration(self->plm);
-  frame_rate_info.total_frames = duration * frame_rate_info.fps;
+  frame_rate_info.total_t = plm_get_duration(self->plm);
+  frame_rate_info.total_frames = frame_rate_info.total_t * frame_rate_info.fps;
   // get the amount of time a frame can be displayed in without being dropped in
   // ms
   frame_rate_info.frame_ms =
@@ -122,7 +126,7 @@ void createApp(video_app *self) {
   std::cout << frame_rate_info.total_frames << " total frames, "
             << frame_rate_info.fps
             << "FPS, max frame time ms: " << frame_rate_info.frame_ms << "\n";
-  std::cout << "correct play time sec: " << duration << "\n";
+  std::cout << "correct play time sec: " << frame_rate_info.total_t << "\n";
 
   self->window = SDL_CreateWindow("pl_mpeg", SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT,
@@ -141,38 +145,40 @@ void createApp(video_app *self) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
-  auto start_time = std::chrono::system_clock::now();
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
                    frame->width * 3);  // can be hardware accelerated]
-
-  auto to_rgb = std::chrono::system_clock::now();
-  uint8_t new_rgb_data[N_PIXELS];
-  /*unv::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
-                               new_rgb_data);*/
-  unv::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
-
-  auto to_filter = std::chrono::system_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
-  SDL_RenderClear(self->renderer);
-  SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
-  SDL_RenderPresent(self->renderer);
-  auto to_render = std::chrono::system_clock::now();
-  ttr.push_back({start_time, to_rgb, to_filter, to_render});
-  total_frames_completed++;
 }
 
 void updateVideo(video_app *self) {
+  auto plm_time = plm_get_time(self->plm);
+  if (plm_time >= frame_rate_info.total_t) {
+    self->wants_to_quit = true;
+  }
+  double seek_to = -1;
   auto now = std::chrono::system_clock::now();
 
   std::chrono::duration<double, std::milli> elapsed_tp = now - self->last_time;
   double elapsed_time = elapsed_tp.count();
 
   if (elapsed_time >= frame_rate_info.frame_ms) {
-    self->last_time = now;
-    elapsed_time = frame_rate_info.frame_ms / 1000.0;
+    std::cout << elapsed_time << "\n";
 
-    plm_decode(self->plm, elapsed_time);
+    if (elapsed_time > (frame_rate_info.frame_ms * 2)) {
+      std::cout << "tripped"
+                << "\n";
+      seek_to = plm_time +
+                ((elapsed_time - (frame_rate_info.frame_ms * 1.48)) / 1000.0);
+    }
+    if (seek_to != -1) {
+      plm_seek(self->plm, seek_to, TRUE);
+
+      self->last_time = now;
+      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+    } else {
+      self->last_time = now;
+      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+    }
   }
 
   if (plm_has_ended(self->plm)) {
@@ -186,7 +192,7 @@ void updateVideo(video_app *self) {
       self->wants_to_quit = true;
     }
   }
-}
+}  // functional but slower than nessesary
 
 void destroy(video_app *self) {
   SDL_DestroyTexture(self->texture_rgb);
