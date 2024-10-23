@@ -145,9 +145,25 @@ void createApp(video_app *self) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
+  auto start_time = std::chrono::high_resolution_clock::now();
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
                    frame->width * 3);  // can be hardware accelerated]
+
+  auto to_rgb = std::chrono::high_resolution_clock::now();
+  uint8_t new_rgb_data[N_PIXELS];
+  unv::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
+                               new_rgb_data);
+  // unv::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+
+  auto to_filter = std::chrono::high_resolution_clock::now();
+  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
+  SDL_RenderClear(self->renderer);
+  SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
+  SDL_RenderPresent(self->renderer);
+  auto to_render = std::chrono::high_resolution_clock::now();
+  ttr.push_back({start_time, to_rgb, to_filter, to_render});
+  total_frames_completed++;
 }
 
 void updateVideo(video_app *self) {
@@ -168,7 +184,7 @@ void updateVideo(video_app *self) {
       std::cout << "tripped"
                 << "\n";
       seek_to = plm_time +
-                ((elapsed_time - (frame_rate_info.frame_ms * 1.48)) / 1000.0);
+                ((elapsed_time - (frame_rate_info.frame_ms * 1.3)) / 1000.0);
     }
     if (seek_to != -1) {
       plm_seek(self->plm, seek_to, TRUE);
