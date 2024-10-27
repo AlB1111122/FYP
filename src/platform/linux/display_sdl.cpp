@@ -1,11 +1,11 @@
 extern "C" {
-#include "../lib/pl_mpeg/pl_mpeg.h"
+#include "../../../lib/pl_mpeg/pl_mpeg.h"
 }
 #include <SDL2/SDL.h>
 
 #include <iostream>
 
-#include "../include/filter.h"
+#include "../../../include/filter.h"
 
 // change to be dynamic (plm_get_width(self->plm);) if changing video
 #define WIN_HEIGHT 720
