@@ -1,3 +1,4 @@
+#bm
 SRC_DIR = src/platform/baremetal
 SRC_COMM_dir = src/common
 OBJ_DIR = build/bm
@@ -29,3 +30,20 @@ clean:
 
 build:
 	mkdir -p $(OBJ_DIR)/img
+
+#linux
+deep-clean-l:
+	rm -rf build && mkdir -p $(OBJ_DIR)/img;
+
+scratch-build-l:
+	cd build;cmake ..;make;
+
+run:
+	build/$(PROJ_NAME) $(VIDEO_NAME).mpg;
+
+.PHONY: rebuild
+rebuild:
+	cd build;make;
+
+clean-l:
+	cd build;make clean;

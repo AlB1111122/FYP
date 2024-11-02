@@ -12,8 +12,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
-    src/platform/linux/display_sdl.cpp
-    src/common/filter.cpp
+    src/platform/linux/display_sdl.cc
+    src/common/filter.cc
 )
 
 find_package(SDL2 REQUIRED)
