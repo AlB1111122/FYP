@@ -49,5 +49,6 @@ otg_mode=1
 dtoverlay=dwc2,dr_mode=host
 
 [all]
-core_freq_min=500
 enable_uart=1
+dtoverlay=disable-bt
+core_freq_min=500
