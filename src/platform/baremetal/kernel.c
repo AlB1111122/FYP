@@ -3,6 +3,7 @@
 void main() {
   uart_init();
   uart_writeText("Hello world!\n");
-  while (1)
-    ;
+  while (1) {
+    uart_writeText("Hello world!\n");
+  }
 }
