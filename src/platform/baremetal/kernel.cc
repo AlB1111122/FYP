@@ -1,10 +1,12 @@
 #include "../../../include/miniuart.h"
+#include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
-void main() {
+int main() {
   MiniUart mu = MiniUart();
+  etl::string<15> hello_str = "Hello world!";
   mu.init();
-  mu.writeText("Hello world!\n");
+  mu.writeText(hello_str);
   while (1) {
-    mu.writeText("Hello world!\n");
+    mu.writeText(hello_str);
   }
 }

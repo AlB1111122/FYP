@@ -7,7 +7,9 @@ CFG_DIR = src/platform/baremetal/config
 CFILES = $(wildcard $(SRC_DIR)/*.cc)
 OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(CFILES))
 
-GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/include/ 
+COMPFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions
+INCLFLAGS = -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/include -I/usr/share/etl/etl-20.39.4/include -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/lib/gcc/aarch64-none-elf/13.3.1/include -I./include
+GCCFLAGS = $(COMPFLAGS) $(INCLFLAGS)
 GCCPATH = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin
 
 all: clean kernel8.img

@@ -1,9 +1,11 @@
 #include "./gpio.h"
+#include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
+
 class MiniUart {
  public:
   MiniUart();
   void init();
-  void writeText(char *buffer);
+  void writeText(etl::string<255> buffer);
 
  private:
   enum {
