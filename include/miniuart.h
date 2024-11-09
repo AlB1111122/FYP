@@ -27,7 +27,6 @@ class MiniUart {
     UART_MAX_QUEUE = 16 * 1024
   };
 
-// does not mach docs??
 #define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
 
   unsigned char uart_output_queue[UART_MAX_QUEUE];
