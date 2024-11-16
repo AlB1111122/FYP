@@ -18,5 +18,7 @@ class Timer {
   };
 
  public:
-  static uint64_t readTimer();
+  uint64_t now();
+  uint64_t duration_since(uint64_t earlier);
+  bool did_counter_flip(uint64_t earlier,uint64_t later);
 };
