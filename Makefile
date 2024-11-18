@@ -4,21 +4,23 @@ SRC_COMM_dir = src/common
 OBJ_DIR = build/bm
 CFG_DIR = src/platform/baremetal/config
 
-CFILES = $(wildcard $(SRC_DIR)/*.c)
-OFILES = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(CFILES))
+CFILES = $(wildcard $(SRC_DIR)/*.cc)
+OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(CFILES))
 
-GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align
+COMPFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions
+INCLFLAGS = -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/include -I/usr/share/etl/etl-20.39.4/include -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/lib/gcc/aarch64-none-elf/13.3.1/include -I./include
+GCCFLAGS = $(COMPFLAGS) $(INCLFLAGS)
 GCCPATH = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin
 
 all: clean kernel8.img
 
 $(OBJ_DIR)/boot.o: $(CFG_DIR)/boot.S
 	mkdir -p $(OBJ_DIR)
-	$(GCCPATH)/aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
 	mkdir -p $(OBJ_DIR)
-	$(GCCPATH)/aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@
 
 kernel8.img: $(OBJ_DIR)/boot.o $(OFILES)
 	$(GCCPATH)/aarch64-none-elf-ld -nostdlib $(OBJ_DIR)/boot.o $(OFILES) -T $(CFG_DIR)/link.ld -o $(OBJ_DIR)/kernel8.elf
