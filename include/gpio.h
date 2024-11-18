@@ -1,3 +1,5 @@
+/*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
+ * borrowed heavily*/
 #pragma once
 #include "./peripheral_reg.h"
 class Gpio {

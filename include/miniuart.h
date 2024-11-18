@@ -1,3 +1,6 @@
+/*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
+ * borrowed heavily*/
+
 #include "./gpio.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
