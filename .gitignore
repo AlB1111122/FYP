@@ -1,6 +1,5 @@
 .cache
 .vscode
 .idea
-intersection.mpg
-soccer.mpg
 build
+*.mpg

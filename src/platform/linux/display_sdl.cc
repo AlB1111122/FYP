@@ -152,12 +152,12 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
 
   auto to_rgb = std::chrono::high_resolution_clock::now();
   uint8_t new_rgb_data[N_PIXELS];
-  com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
-                               new_rgb_data);
-  // com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
+                               //new_rgb_data);
+  //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
+  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
