@@ -23,6 +23,6 @@ class Timer {
   uint64_t now();
   uint64_t duration_since(uint64_t earlier);
   int get_hertz();
-  uint64_t to_sec(uint64_t time);
+  double to_sec(uint64_t time);
   uint64_t to_milli(uint64_t time);
 };
