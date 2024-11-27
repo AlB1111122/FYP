@@ -1,4 +1,5 @@
 #include "../../../include/timer.h"
+#include <stdlib.h>
 
 uint64_t Timer::now() {
   uint64_t time = 0x0;
@@ -32,7 +33,9 @@ bool Timer::did_counter_flip(uint64_t earlier, uint64_t later) {
 }
 
 int Timer::get_hertz() { return this->SYS_TIMER_Hz; }
-uint64_t Timer::to_sec(uint64_t time) { return (time / this->SYS_TIMER_Hz); }
-uint64_t Timer::to_milli(uint64_t time) {
+double Timer::to_sec(uint64_t time) { 
+    lldiv_t division_result = lldiv(time, this->SYS_TIMER_Hz);
+    return (double)division_result.quot + ((double)division_result.rem / (double)this->SYS_TIMER_Hz);}
+uint64_t Timer::to_milli(uint64_t time) { //cant return a double bc the biggest answers wouldnt fit
   return (time / (this->SYS_TIMER_Hz / 1000));
 }

@@ -6,7 +6,7 @@
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
-#include <math.h>
+#include <stdlib.h>
 
 static int nPrints=0;
 
@@ -15,30 +15,22 @@ void printN(T time, int y) {
   etl::string<100> i_str;
   etl::string<100> n_str;
   etl::to_string(nPrints, i_str);
-  etl::to_string(time, n_str,false);
+  etl::to_string(time, n_str, etl::format_spec().precision(6),false);
   drawString(100, y, n_str.data(), 0x0f);
   drawString(200, y, i_str.data(), 0x0f);
   nPrints++;
 }
 
 int main() {
-  etl::vector<int, 4> i[4];
-  etl::fill(i->begin(),i->end(),3);
-  printN(static_cast<uint64_t>(i->at(2)),2);
   MiniUart mu = MiniUart();
   Timer t = Timer();
   etl::string<15> hello_str = "Hello world!\n";
-  char hello_chars[] = "Hello world!\n";
-
-  char b_str[] = "b";
-  char c_str[] = "c";
-  char dr_str[] = "d";
   mu.init();
-  mu.writeText(hello_str);
+  mu.writeText(hello_str.data());
 
   fb_init();
 
-  drawString(100, 30, hello_chars, 0x0f);
+  drawString(100, 30, hello_str.data(), 0x0f);
   while (1) {
     mu.writeText(hello_str);
     uint64_t time = t.now();
@@ -78,21 +70,14 @@ int main() {
     }
     auto m = t.to_milli(time);
     printN(m, 240);
-    /*uint64_t fullDuration = t.duration_since(time);
-    long fullDL = static_cast<long>(fullDuration);
-    long double dur_to_dub= static_cast<long double>(fullDL);
+    uint64_t fullDuration = t.duration_since(time);
+    /*etl::string<100> text = "The result is ";
+    etl::to_string(fullDuration/1000000, text, etl::format_spec().precision(6),true);
+    drawString(100,260, text.data(), 0x0f);*/
+    ldiv_t division_result = ldiv(fullDuration, 1000000);
+    double res = division_result.quot + ((double)division_result.rem / (double)1000000);
     etl::string<100> text = "The result is ";
-    etl::to_string(dur_to_dub/1000000.0, text, etl::format_spec().precision(6),true);
-    drawString(100,260, n_str.data(), 0x0f);
-
-    etl::string<10> i_str;
-    etl::to_string(nPrints, i_str);
-    drawString(200,260, i_str.data(), 0x0f);
-    nPrints++;*/
-
-    etl::string<100> text = "The result is ";
-
-    etl::to_string(3.1415, text, etl::format_spec().precision(8), true);
+    etl::to_string(res, text, etl::format_spec().precision(6),true);
     drawString(100,260, text.data(), 0x0f);
   }
 }
