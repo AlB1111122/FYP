@@ -164,10 +164,10 @@ See below for detailed the API documentation.
 //#ifndef PL_MPEG_H
 //#define PL_MPEG_H
 
-#include <bits/types/FILE.h>
+//#include <bits/types/FILE.h>
 #include <stddef.h>
 #include <stdint.h>
-//#include <stdio.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

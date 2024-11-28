@@ -1,11 +1,12 @@
 #bm
 SRC_DIR = src/platform/baremetal
-SRC_COMM_dir = src/common
+SRC_COMM_DIR = src/common
 OBJ_DIR = build/bm
 CFG_DIR = src/platform/baremetal/config
 
-CFILES = $(wildcard $(SRC_DIR)/*.cc)
-OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(CFILES))
+CFILES = $(wildcard $(SRC_DIR)/*.cc) $(wildcard $(SRC_COMM_DIR)/*.cc)
+OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_DIR)/*.cc)) \
+         $(patsubst $(SRC_COMM_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_COMM_DIR)/*.cc))
 
 LINKLOCA = -L/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib
 LINKFLAG = -lc -lm
@@ -18,6 +19,10 @@ GCCPATH = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin
 all: clean kernel8.img
 
 $(OBJ_DIR)/boot.o: $(CFG_DIR)/boot.S
+	mkdir -p $(OBJ_DIR)
+	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
+
+$(OBJ_DIR)/%.o: $(SRC_COMM_DIR)/%.cc
 	mkdir -p $(OBJ_DIR)
 	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
 
