@@ -1,17 +1,17 @@
 #bm
 SRC_DIR = src/platform/baremetal
-SRC_COMM_dir = src/common
+SRC_COMM_DIR = src/common
 OBJ_DIR = build/bm
 CFG_DIR = src/platform/baremetal/config
 
-CFILES = $(wildcard $(SRC_DIR)/*.cc)
-OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(CFILES))
+CFILES = $(wildcard $(SRC_DIR)/*.cc) $(wildcard $(SRC_COMM_DIR)/*.cc)
+OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_DIR)/*.cc)) \
+         $(patsubst $(SRC_COMM_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_COMM_DIR)/*.cc))
 
 LINKLOCA = -L/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib
-LINKFLAG = -lc -lm
+LINKFLAG = -lc -lg -lm
 COMPFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions
 INCLFLAGS = -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/include -I/usr/share/etl/etl-20.39.4/include -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/lib/gcc/aarch64-none-elf/13.3.1/include -I./include
-ETLFLAGs = -DETL_USER_PROFILE="etl_profile.h"
 GCCFLAGS = $(LINKLOCA) $(COMPFLAGS) $(INCLFLAGS)
 GCCPATH = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin
 
@@ -22,6 +22,10 @@ $(OBJ_DIR)/boot.o: $(CFG_DIR)/boot.S
 	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
+	mkdir -p $(OBJ_DIR)
+	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
+
+$(OBJ_DIR)/%.o: $(SRC_COMM_DIR)/%.cc
 	mkdir -p $(OBJ_DIR)
 	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
 
