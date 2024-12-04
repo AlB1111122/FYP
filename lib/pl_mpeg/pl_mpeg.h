@@ -163,8 +163,12 @@ See below for detailed the API documentation.
 
 //#ifndef PL_MPEG_H
 //#define PL_MPEG_H
-
-#include <bits/types/FILE.h>
+#if __STDC_HOSTED__ == 1
+  #include <bits/types/FILE.h>
+#else
+  #pragma message ("compiling on bm")
+  #include <stdio.h>
+#endif
 #include <stddef.h>
 #include <stdint.h>
 //#include <stdio.h>
