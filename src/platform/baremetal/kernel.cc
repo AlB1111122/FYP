@@ -208,7 +208,9 @@ void destroy(video_app *self) {
 #include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
 #include <stdlib.h>
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
-//#include "../../../soccerBytes.h"
+// #include "../../../soccerBytes.h"
+
+#define SAFE_ADDRESS 0x00210000 // Somewhere safe to store a lot of data
 
 static int nPrints=0;
 
@@ -218,7 +220,7 @@ static int nPrints=0;
 #define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
 
 struct video_app {
-    plm_t *plm;
+    //plm_t *plm;
     bool wants_to_quit;
     uint64_t last_time;
     uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
@@ -226,6 +228,7 @@ struct video_app {
     int win_width;
 };
 
+struct video_app *app_ptr = (struct video_app *)SAFE_ADDRESS;
 template<typename T>
 void printN(T time, int y) {
   etl::string<100> i_str;
@@ -237,41 +240,6 @@ void printN(T time, int y) {
   nPrints++;
 }
 
-static struct video_app app = {
-    .plm = NULL,                          
-    .wants_to_quit = 0,               
-    .last_time = 0,                       
-    .rgb_data = {0},                      
-    .win_height = WIN_HEIGHT,             
-    .win_width = WIN_WIDTH
-};
-
-static struct plm_t plm_holder= {
-.demux = NULL,
-    .time = 0.0,
-    .has_ended = 0,
-    .loop = 0,
-    .has_decoders = 0,
-    
-    .video_enabled = 0,
-    .video_packet_type = 0,
-    .video_buffer = NULL,
-    .video_decoder = NULL,
-    
-    .audio_enabled = 0,
-    .audio_stream_index = -1,
-    .audio_packet_type = 0,
-    .audio_lead_time = 0.0,
-    .audio_buffer = NULL,
-    .audio_decoder = NULL,
-    
-    .video_decode_callback = NULL,
-    .video_decode_callback_user_data = NULL,
-    
-    .audio_decode_callback = NULL,
-    .audio_decode_callback_user_data = NULL
-};
-
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
@@ -280,11 +248,20 @@ int main() {
   mu.writeText(hello_str.data());
   fb_init();
 
+  //video_app app;
   //video_app *app_ptr = &app;
+  app_ptr->win_height = 4;
 
-  printN(app.win_height,5);
+  printN(app_ptr->win_height,5);
   // plm_t *plm_ptr = &plm_holder;
-  printN(plm_holder.loop,5);
+  // printN(plm_holder.loop,5);
+
+  // uint8_t *soccer_bytes = &soccer[0];
+  // app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
+  // int samplerate = plm_get_samplerate(app_ptr->plm);
+  
+ // printN(samplerate,5);
+
   drawString(100, 30, hello_str.data(), 0x0f);
   while (1) {
     mu.writeText(hello_str);
