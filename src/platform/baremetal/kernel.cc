@@ -208,31 +208,22 @@ void destroy(video_app *self) {
 #include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
 #include <stdlib.h>
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
-// #include "../../../soccerBytes.h"
-
-#define SAFE_ADDRESS 0x00210000 // Somewhere safe to store a lot of data
+#include "../../../soccerBytes.h"
 
 static int nPrints=0;
-long current_safe_addres = SAFE_ADDRESS;
 
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
 #define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
 
 struct video_app {
-    //plm_t *plm;
+    plm_t *plm;
     bool wants_to_quit;
     uint64_t last_time;
     uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
     int win_height;
     int win_width;
 };
-
-long get_safe_mem(size_t type_sz){
-  long old_safe_addres = current_safe_addres;
-  current_safe_addres = current_safe_addres + type_sz;
-  return old_safe_addres;
-}
 
 template<typename T>
 void printN(T time, int y) {
@@ -253,24 +244,21 @@ int main() {
   mu.writeText(hello_str.data());
   fb_init();
 
-  //video_app app;
-  //video_app *app_ptr = &app;
-
-  struct video_app *app_ptr = (struct video_app *)get_safe_mem(sizeof(video_app));
+  video_app app;
+  video_app *app_ptr = &app;
   app_ptr->win_height = 4;
-
   printN(app_ptr->win_height,5);
 
-  struct plm_t *plm_ptr = (struct plm_t *)get_safe_mem(sizeof(plm_t));
-  printN(plm_ptr->has_ended,5);
-  // plm_t *plm_ptr = &plm_holder;
-  // printN(plm_holder.loop,5);
+  plm_t plm_holder;
+  plm_t *plm_ptr = &plm_holder;
+  printN(plm_holder.loop,5);
 
-  // uint8_t *soccer_bytes = &soccer[0];
+  uint8_t *soccer_bytes = &soccer[0];
+  printN(1,5);
   // app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
+  // printN(2,5);
   // int samplerate = plm_get_samplerate(app_ptr->plm);
-  
- // printN(samplerate,5);
+  // printN(samplerate,5);
 
   drawString(100, 30, hello_str.data(), 0x0f);
   while (1) {

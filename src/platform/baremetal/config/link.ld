@@ -12,6 +12,13 @@ SECTIONS
         *(COMMON)
         __bss_end = .;
     }
+    .stack (NOLOAD) : {
+        . = ALIGN(16);
+        __stack_start = .;
+        . += 0x80000000;   /* Reserve 2GB for stack */
+        __stack_end = .;
+    }
+
     _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
