@@ -213,7 +213,7 @@ void destroy(video_app *self) {
 #define SAFE_ADDRESS 0x00210000 // Somewhere safe to store a lot of data
 
 static int nPrints=0;
-
+long current_safe_addres = SAFE_ADDRESS;
 
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
@@ -228,7 +228,12 @@ struct video_app {
     int win_width;
 };
 
-struct video_app *app_ptr = (struct video_app *)SAFE_ADDRESS;
+long get_safe_mem(size_t type_sz){
+  long old_safe_addres = current_safe_addres;
+  current_safe_addres = current_safe_addres + type_sz;
+  return old_safe_addres;
+}
+
 template<typename T>
 void printN(T time, int y) {
   etl::string<100> i_str;
@@ -250,9 +255,14 @@ int main() {
 
   //video_app app;
   //video_app *app_ptr = &app;
+
+  struct video_app *app_ptr = (struct video_app *)get_safe_mem(sizeof(video_app));
   app_ptr->win_height = 4;
 
   printN(app_ptr->win_height,5);
+
+  struct plm_t *plm_ptr = (struct plm_t *)get_safe_mem(sizeof(plm_t));
+  printN(plm_ptr->has_ended,5);
   // plm_t *plm_ptr = &plm_holder;
   // printN(plm_holder.loop,5);
 
