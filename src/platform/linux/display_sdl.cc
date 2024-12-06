@@ -11,6 +11,7 @@ extern "C" {
 #include <vector>
 
 #include "../../../include/filter.h"
+#include "../../../soccerBytes.h"
 
 // change to be dynamic (plm_get_width(self->plm);) if changing video
 #define WIN_HEIGHT 720
@@ -51,13 +52,16 @@ int main(int argc, char **argv) {
   }
   video_app app;
   video_app *app_ptr = &app;
-  std::fill_n(reinterpret_cast<char *>(app_ptr), sizeof(video_app), 0);
+  //std::fill_n(reinterpret_cast<char *>(app_ptr), sizeof(video_app), 0);
 
   plm_t plm_holder;
   plm_t *plm_ptr = &plm_holder;
-  std::fill_n(reinterpret_cast<char *>(plm_ptr), sizeof(plm_t), 0);
+  //std::fill_n(reinterpret_cast<char *>(plm_ptr), sizeof(plm_t), 0);
 
-  app_ptr->plm = plm_create_with_filename(argv[1], plm_ptr);
+  //app_ptr->plm = plm_create_with_filename(argv[1], plm_ptr);
+
+  uint8_t *soccer_bytes = &soccer[0];
+  app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   if (!app_ptr->plm) {
     std::cout << "Couldn't open " << argv[1];
     return 1;

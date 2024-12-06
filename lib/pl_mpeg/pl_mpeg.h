@@ -171,7 +171,6 @@ See below for detailed the API documentation.
 #endif
 #include <stddef.h>
 #include <stdint.h>
-//#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -450,7 +449,8 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 // The default size for buffers created from files or by the high-level API
 
 #ifndef PLM_BUFFER_DEFAULT_SIZE
-#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
+//#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
+#define PLM_BUFFER_DEFAULT_SIZE 15970304*2
 #endif
 
 // Create a buffer instance with a filename. Returns NULL if the file could not
