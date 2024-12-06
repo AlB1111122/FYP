@@ -1,0 +1,710 @@
+Archive member included to satisfy reference by file (symbol)
+
+/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+                              build/bm/timer.o (lldiv)
+/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+                              build/bm/pl_mpeg.o (memmove)
+
+Merging program properties
+
+Removed property 0xc0000000 to merge /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o) (0x3) and build/bm/boot.o (not found)
+
+Discarded input sections
+
+ .comment       0x0000000000000000       0x46 build/bm/fb.o
+ .comment       0x0000000000000000       0x46 build/bm/gpio.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0xc build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .group         0x0000000000000000        0x8 build/bm/kernel.o
+ .comment       0x0000000000000000       0x46 build/bm/kernel.o
+ .comment       0x0000000000000000       0x46 build/bm/mb.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/miniuart.o
+ .group         0x0000000000000000        0xc build/bm/miniuart.o
+ .text._ZN3etl12memory_clearEPVcm
+                0x0000000000000000       0x54 build/bm/miniuart.o
+ .text._ZNK3etl11string_base9is_secureEv
+                0x0000000000000000       0x24 build/bm/miniuart.o
+ .text._ZN3etl11string_baseC2Em
+                0x0000000000000000       0x3c build/bm/miniuart.o
+ .text._ZN3etl11string_base13set_truncatedEb
+                0x0000000000000000       0x2c build/bm/miniuart.o
+ .text._ZN3etl11string_baseD2Ev
+                0x0000000000000000       0x14 build/bm/miniuart.o
+ .text._ZN3etl6stringILm255EED2Ev
+                0x0000000000000000       0x20 build/bm/miniuart.o
+ .text._ZNK3etl5flagsIhLh255EE4testILh2EEEbv
+                0x0000000000000000       0x28 build/bm/miniuart.o
+ .text._ZN3etl5flagsIhLh255EEC2Ev
+                0x0000000000000000       0x1c build/bm/miniuart.o
+ .text._ZN3etl5flagsIhLh255EE3setILh1EEERS1_b
+                0x0000000000000000       0x5c build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcEC2EPcm
+                0x0000000000000000       0x38 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcED2Ev
+                0x0000000000000000       0x40 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcE10initialiseEv
+                0x0000000000000000       0x40 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcE6assignIPKcEEvT_S5_
+                0x0000000000000000       0xc8 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcE5beginEv
+                0x0000000000000000       0x18 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcE3endEv
+                0x0000000000000000       0x24 build/bm/miniuart.o
+ .text._ZN3etl6stringILm255EEC2EPKc
+                0x0000000000000000       0x68 build/bm/miniuart.o
+ .text._ZN3etl13ibasic_stringIcE7cleanupEv
+                0x0000000000000000       0x64 build/bm/miniuart.o
+ .text._ZN3etl11char_traitsIcE6lengthEPKc
+                0x0000000000000000       0x5c build/bm/miniuart.o
+ .text._ZN3etl8distanceIPVcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_
+                0x0000000000000000       0x24 build/bm/miniuart.o
+ .text._ZN3etl18memory_clear_rangeIcEEvPVT_S3_
+                0x0000000000000000       0x38 build/bm/miniuart.o
+ .text._ZN3etl15distance_helperIPVcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_NS_26random_access_iterator_tagE
+                0x0000000000000000       0x24 build/bm/miniuart.o
+ .text._ZN3etl18memory_clear_rangeIcEEvPVT_m
+                0x0000000000000000       0x28 build/bm/miniuart.o
+ .comment       0x0000000000000000       0x46 build/bm/miniuart.o
+ .group         0x0000000000000000        0x8 build/bm/pl_mpeg.o
+ .text._ZN3etl8absoluteIiEENS_9enable_ifIXsrNS_9is_signedIT_EE5valueES3_E4typeES3_
+                0x0000000000000000       0x1c build/bm/pl_mpeg.o
+ .comment       0x0000000000000000       0x46 build/bm/pl_mpeg.o
+ .comment       0x0000000000000000       0x46 build/bm/timer.o
+ .group         0x0000000000000000        0x8 build/bm/filter.o
+ .comment       0x0000000000000000       0x46 build/bm/filter.o
+ .comment       0x0000000000000000       0x46 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .note.gnu.property
+                0x0000000000000000       0x20 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+ .eh_frame      0x0000000000000000       0x28 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD build/bm/boot.o
+LOAD build/bm/fb.o
+LOAD build/bm/gpio.o
+LOAD build/bm/kernel.o
+LOAD build/bm/mb.o
+LOAD build/bm/miniuart.o
+LOAD build/bm/pl_mpeg.o
+LOAD build/bm/timer.o
+LOAD build/bm/filter.o
+                0x0000000000080000                . = 0x80000
+
+.text           0x0000000000080000     0xe6ec
+                0x0000000000080000                __start_text = .
+ *(.text.boot)
+ .text.boot     0x0000000000080000       0x50 build/bm/boot.o
+                0x0000000000080000                _start
+ *(.text .text.* .gnu.linkonce.t*)
+ .text          0x0000000000080050        0x0 build/bm/boot.o
+ .text          0x0000000000080050      0xa9c build/bm/fb.o
+                0x0000000000080050                fb_init()
+                0x0000000000080380                drawPixel(int, int, unsigned char)
+                0x00000000000803f0                drawRect(int, int, int, int, unsigned char, int)
+                0x00000000000804ec                drawLine(int, int, int, int, unsigned char)
+                0x00000000000805ec                drawCircle(int, int, int, unsigned char, int)
+                0x0000000000080928                drawChar(unsigned char, int, int, unsigned char)
+                0x0000000000080a44                drawString(int, int, char*, unsigned char)
+ .text          0x0000000000080aec      0x350 build/bm/gpio.o
+                0x0000000000080aec                Gpio::mmio_write(long, unsigned int)
+                0x0000000000080b14                Gpio::mmio_read(long)
+                0x0000000000080b30                Gpio::gpio_call(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+                0x0000000000080c4c                Gpio::gpio_set(unsigned int, unsigned int)
+                0x0000000000080c88                Gpio::gpio_clear(unsigned int, unsigned int)
+                0x0000000000080cc4                Gpio::gpio_pull(unsigned int, unsigned int)
+                0x0000000000080d00                Gpio::gpio_function(unsigned int, unsigned int)
+                0x0000000000080d38                Gpio::gpio_useAsAlt3(unsigned int)
+                0x0000000000080d74                Gpio::gpio_useAsAlt5(unsigned int)
+                0x0000000000080db0                Gpio::gpio_initOutputPinWithPullNone(unsigned int)
+                0x0000000000080dec                Gpio::gpio_setPinOutputBool(unsigned int, unsigned int)
+ .text          0x0000000000080e3c      0x434 build/bm/kernel.o
+                0x0000000000080e3c                plm_init_decoders(plm_t*)
+                0x0000000000081074                plm_create_with_buffer
+                0x00000000000810e4                plm_create_with_memory
+                0x0000000000081144                main
+ .text._ZN3etl12memory_clearEPVcm
+                0x0000000000081270       0x54 build/bm/kernel.o
+                0x0000000000081270                etl::memory_clear(char volatile*, unsigned long)
+ .text._ZNK3etl11string_base9is_secureEv
+                0x00000000000812c4       0x24 build/bm/kernel.o
+                0x00000000000812c4                etl::string_base::is_secure() const
+ .text._ZN3etl11string_baseC2Em
+                0x00000000000812e8       0x3c build/bm/kernel.o
+                0x00000000000812e8                etl::string_base::string_base(unsigned long)
+                0x00000000000812e8                etl::string_base::string_base(unsigned long)
+ .text._ZN3etl11string_base13set_truncatedEb
+                0x0000000000081324       0x2c build/bm/kernel.o
+                0x0000000000081324                etl::string_base::set_truncated(bool)
+ .text._ZN3etl11string_baseD2Ev
+                0x0000000000081350       0x14 build/bm/kernel.o
+                0x0000000000081350                etl::string_base::~string_base()
+                0x0000000000081350                etl::string_base::~string_base()
+ .text._ZN3etl3minImEERKT_S3_S3_
+                0x0000000000081364       0x24 build/bm/kernel.o
+                0x0000000000081364                unsigned long const& etl::min<unsigned long>(unsigned long const&, unsigned long const&)
+ .text._ZN3etl3minImNS_4lessImEEEERKT_S5_S5_T0_
+                0x0000000000081388       0x48 build/bm/kernel.o
+                0x0000000000081388                unsigned long const& etl::min<unsigned long, etl::less<unsigned long> >(unsigned long const&, unsigned long const&, etl::less<unsigned long>)
+ .text._ZNK3etl4lessImEclERKmS3_
+                0x00000000000813d0       0x34 build/bm/kernel.o
+                0x00000000000813d0                etl::less<unsigned long>::operator()(unsigned long const&, unsigned long const&) const
+ .text._ZN3etl6stringILm255EED2Ev
+                0x0000000000081404       0x20 build/bm/kernel.o
+                0x0000000000081404                etl::string<255ul>::~string()
+                0x0000000000081404                etl::string<255ul>::~string()
+ .text._ZNK3etl5flagsIhLh255EE4testILh2EEEbv
+                0x0000000000081424       0x28 build/bm/kernel.o
+                0x0000000000081424                bool etl::flags<unsigned char, (unsigned char)255>::test<(unsigned char)2>() const
+ .text._ZN3etl5flagsIhLh255EEC2Ev
+                0x000000000008144c       0x1c build/bm/kernel.o
+                0x000000000008144c                etl::flags<unsigned char, (unsigned char)255>::flags()
+                0x000000000008144c                etl::flags<unsigned char, (unsigned char)255>::flags()
+ .text._ZN3etl5flagsIhLh255EE3setILh1EEERS1_b
+                0x0000000000081468       0x5c build/bm/kernel.o
+                0x0000000000081468                etl::flags<unsigned char, (unsigned char)255>& etl::flags<unsigned char, (unsigned char)255>::set<(unsigned char)1>(bool)
+ .text._ZN3etl13ibasic_stringIcEC2EPcm
+                0x00000000000814c4       0x38 build/bm/kernel.o
+                0x00000000000814c4                etl::ibasic_string<char>::ibasic_string(char*, unsigned long)
+                0x00000000000814c4                etl::ibasic_string<char>::ibasic_string(char*, unsigned long)
+ .text._ZN3etl13ibasic_stringIcED2Ev
+                0x00000000000814fc       0x40 build/bm/kernel.o
+                0x00000000000814fc                etl::ibasic_string<char>::~ibasic_string()
+                0x00000000000814fc                etl::ibasic_string<char>::~ibasic_string()
+ .text._ZN3etl13ibasic_stringIcE10initialiseEv
+                0x000000000008153c       0x40 build/bm/kernel.o
+                0x000000000008153c                etl::ibasic_string<char>::initialise()
+ .text._ZN3etl13ibasic_stringIcE6assignIPKcEEvT_S5_
+                0x000000000008157c       0xc8 build/bm/kernel.o
+                0x000000000008157c                void etl::ibasic_string<char>::assign<char const*>(char const*, char const*)
+ .text._ZN3etl6stringILm100EED2Ev
+                0x0000000000081644       0x20 build/bm/kernel.o
+                0x0000000000081644                etl::string<100ul>::~string()
+                0x0000000000081644                etl::string<100ul>::~string()
+ .text._Z6printNIiEvT_
+                0x0000000000081664      0x118 build/bm/kernel.o
+                0x0000000000081664                void printN<int>(int)
+ .text._ZN3etl6stringILm15EEC2EPKc
+                0x000000000008177c       0x68 build/bm/kernel.o
+                0x000000000008177c                etl::string<15ul>::string(char const*)
+                0x000000000008177c                etl::string<15ul>::string(char const*)
+ .text._ZN3etl13ibasic_stringIcE4dataEv
+                0x00000000000817e4       0x18 build/bm/kernel.o
+                0x00000000000817e4                etl::ibasic_string<char>::data()
+ .text._ZN3etl6stringILm255EEC2EPKc
+                0x00000000000817fc       0x68 build/bm/kernel.o
+                0x00000000000817fc                etl::string<255ul>::string(char const*)
+                0x00000000000817fc                etl::string<255ul>::string(char const*)
+ .text._ZN3etl13ibasic_stringIcE7cleanupEv
+                0x0000000000081864       0x64 build/bm/kernel.o
+                0x0000000000081864                etl::ibasic_string<char>::cleanup()
+ .text._ZN3etl11char_traitsIcE6lengthEPKc
+                0x00000000000818c8       0x5c build/bm/kernel.o
+                0x00000000000818c8                etl::char_traits<char>::length(char const*)
+ .text._ZN3etl4fillIPccEEvT_S2_RKT0_
+                0x0000000000081924       0x50 build/bm/kernel.o
+                0x0000000000081924                void etl::fill<char*, char>(char*, char*, char const&)
+ .text._ZN3etl6stringILm100EEC2Ev
+                0x0000000000081974       0x3c build/bm/kernel.o
+                0x0000000000081974                etl::string<100ul>::string()
+                0x0000000000081974                etl::string<100ul>::string()
+ .text._ZN3etl17basic_format_specINS_13ibasic_stringIcEEEC2Ev
+                0x00000000000819b0       0x5c build/bm/kernel.o
+                0x00000000000819b0                etl::basic_format_spec<etl::ibasic_string<char> >::basic_format_spec()
+                0x00000000000819b0                etl::basic_format_spec<etl::ibasic_string<char> >::basic_format_spec()
+ .text._ZN3etl9to_stringIiEENS_9enable_ifIXaantsrNS_7is_sameIT_NS_13ibasic_stringIcEEEE5valuentsrNS2_IS3_NS_17basic_string_viewIcNS_11char_traitsIcEEEEEE5valueERKS5_E4typeES3_RS5_b
+                0x0000000000081a0c       0x44 build/bm/kernel.o
+                0x0000000000081a0c                etl::enable_if<(!etl::is_same<int, etl::ibasic_string<char> >::value)&&(!etl::is_same<int, etl::basic_string_view<char, etl::char_traits<char> > >::value), etl::ibasic_string<char> const&>::type etl::to_string<int>(int, etl::ibasic_string<char>&, bool)
+ .text._ZN3etl17basic_format_specINS_13ibasic_stringIcEEE9precisionEj
+                0x0000000000081a50       0x28 build/bm/kernel.o
+                0x0000000000081a50                etl::basic_format_spec<etl::ibasic_string<char> >::precision(unsigned int)
+ .text._ZN3etl9to_stringIiEENS_9enable_ifIXaantsrNS_7is_sameIT_NS_13ibasic_stringIcEEEE5valuentsrNS2_IS3_NS_17basic_string_viewIcNS_11char_traitsIcEEEEEE5valueERKS5_E4typeES3_RS5_RKNS_17basic_format_specIS5_EEb
+                0x0000000000081a78       0x34 build/bm/kernel.o
+                0x0000000000081a78                etl::enable_if<(!etl::is_same<int, etl::ibasic_string<char> >::value)&&(!etl::is_same<int, etl::basic_string_view<char, etl::char_traits<char> > >::value), etl::ibasic_string<char> const&>::type etl::to_string<int>(int, etl::ibasic_string<char>&, etl::basic_format_spec<etl::ibasic_string<char> > const&, bool)
+ .text._ZN3etl8distanceIPVcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_
+                0x0000000000081aac       0x24 build/bm/kernel.o
+                0x0000000000081aac                etl::iterator_traits<char volatile*, etl::enable_if<!etl::is_fundamental<char volatile*>::value, void>::type>::difference_type etl::distance<char volatile*>(char volatile*, char volatile*)
+ .text._ZN3etl18memory_clear_rangeIcEEvPVT_S3_
+                0x0000000000081ad0       0x38 build/bm/kernel.o
+                0x0000000000081ad0                void etl::memory_clear_range<char>(char volatile*, char volatile*)
+ .text._ZN3etl13ibasic_stringIcE5beginEv
+                0x0000000000081b08       0x18 build/bm/kernel.o
+                0x0000000000081b08                etl::ibasic_string<char>::begin()
+ .text._ZN3etl17private_to_string9to_stringIiNS_13ibasic_stringIcEEEENS_9enable_ifIXaaaasrNS_11is_integralIT_EE5valuentsrNS_7is_sameIS6_bEE5valuentsrNS_9is_one_ofIS6_lJmEEE5valueERKT0_E4typeES6_RSC_RKNS_17basic_format_specISC_EEb
+                0x0000000000081b20       0x48 build/bm/kernel.o
+                0x0000000000081b20                etl::enable_if<(etl::is_integral<int>::value&&(!etl::is_same<int, bool>::value))&&(!etl::is_one_of<int, long, unsigned long>::value), etl::ibasic_string<char> const&>::type etl::private_to_string::to_string<int, etl::ibasic_string<char> >(int, etl::ibasic_string<char>&, etl::basic_format_spec<etl::ibasic_string<char> > const&, bool)
+ .text._ZN3etl15distance_helperIPVcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_NS_26random_access_iterator_tagE
+                0x0000000000081b68       0x24 build/bm/kernel.o
+                0x0000000000081b68                etl::iterator_traits<char volatile*, etl::enable_if<!etl::is_fundamental<char volatile*>::value, void>::type>::difference_type etl::distance_helper<char volatile*>(char volatile*, char volatile*, etl::random_access_iterator_tag)
+ .text._ZN3etl18memory_clear_rangeIcEEvPVT_m
+                0x0000000000081b8c       0x28 build/bm/kernel.o
+                0x0000000000081b8c                void etl::memory_clear_range<char>(char volatile*, unsigned long)
+ .text._ZN3etl11is_negativeIiEENS_9enable_ifIXsrNS_9is_signedIT_EE5valueEbE4typeES3_
+                0x0000000000081bb4       0x1c build/bm/kernel.o
+                0x0000000000081bb4                etl::enable_if<etl::is_signed<int>::value, bool>::type etl::is_negative<int>(int)
+ .text._ZN3etl17private_to_string12add_integralIiNS_13ibasic_stringIcEEEEvT_RT0_RKNS_17basic_format_specIS5_EEbb
+                0x0000000000081bd0      0x2a4 build/bm/kernel.o
+                0x0000000000081bd0                void etl::private_to_string::add_integral<int, etl::ibasic_string<char> >(int, etl::ibasic_string<char>&, etl::basic_format_spec<etl::ibasic_string<char> > const&, bool, bool)
+ .text._ZN3etl13ibasic_stringIcE5clearEv
+                0x0000000000081e74       0x20 build/bm/kernel.o
+                0x0000000000081e74                etl::ibasic_string<char>::clear()
+ .text._ZN3etl13ibasic_stringIcE3endEv
+                0x0000000000081e94       0x24 build/bm/kernel.o
+                0x0000000000081e94                etl::ibasic_string<char>::end()
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE8get_baseEv
+                0x0000000000081eb8       0x18 build/bm/kernel.o
+                0x0000000000081eb8                etl::basic_format_spec<etl::ibasic_string<char> >::get_base() const
+ .text._ZN3etl13ibasic_stringIcE9push_backEc
+                0x0000000000081ed0       0x88 build/bm/kernel.o
+                0x0000000000081ed0                etl::ibasic_string<char>::push_back(char)
+ .text._ZN3etl8absoluteIiEENS_9enable_ifIXsrNS_9is_signedIT_EE5valueES3_E4typeES3_
+                0x0000000000081f58       0x1c build/bm/kernel.o
+                0x0000000000081f58                etl::enable_if<etl::is_signed<int>::value, int>::type etl::absolute<int>(int)
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE13is_upper_caseEv
+                0x0000000000081f74       0x18 build/bm/kernel.o
+                0x0000000000081f74                etl::basic_format_spec<etl::ibasic_string<char> >::is_upper_case() const
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE12is_show_baseEv
+                0x0000000000081f8c       0x18 build/bm/kernel.o
+                0x0000000000081f8c                etl::basic_format_spec<etl::ibasic_string<char> >::is_show_base() const
+ .text._ZN3etl7reverseIPcEENS_9enable_ifIXsrNS_10is_pointerIT_EE5valueEvE4typeES4_S4_
+                0x0000000000081fa4       0x74 build/bm/kernel.o
+                0x0000000000081fa4                etl::enable_if<etl::is_pointer<char*>::value, void>::type etl::reverse<char*>(char*, char*)
+ .text._ZN3etl17private_to_string13add_alignmentINS_13ibasic_stringIcEEEEvRT_NS4_8iteratorERKNS_17basic_format_specIS4_EE
+                0x0000000000082018       0xf0 build/bm/kernel.o
+                0x0000000000082018                void etl::private_to_string::add_alignment<etl::ibasic_string<char> >(etl::ibasic_string<char>&, etl::ibasic_string<char>::iterator, etl::basic_format_spec<etl::ibasic_string<char> > const&)
+ .text._ZN3etl9iter_swapIPcS1_EEvT_T0_
+                0x0000000000082108       0x30 build/bm/kernel.o
+                0x0000000000082108                void etl::iter_swap<char*, char*>(char*, char*)
+ .text._ZN3etl8distanceIPcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS3_EE5valueEvE4typeEE15difference_typeES3_S3_
+                0x0000000000082138       0x24 build/bm/kernel.o
+                0x0000000000082138                etl::iterator_traits<char*, etl::enable_if<!etl::is_fundamental<char*>::value, void>::type>::difference_type etl::distance<char*>(char*, char*)
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE9get_widthEv
+                0x000000000008215c       0x18 build/bm/kernel.o
+                0x000000000008215c                etl::basic_format_spec<etl::ibasic_string<char> >::get_width() const
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE7is_leftEv
+                0x0000000000082174       0x18 build/bm/kernel.o
+                0x0000000000082174                etl::basic_format_spec<etl::ibasic_string<char> >::is_left() const
+ .text._ZNK3etl17basic_format_specINS_13ibasic_stringIcEEE8get_fillEv
+                0x000000000008218c       0x18 build/bm/kernel.o
+                0x000000000008218c                etl::basic_format_spec<etl::ibasic_string<char> >::get_fill() const
+ .text._ZN3etl13ibasic_stringIcE6insertEPKcmc
+                0x00000000000821a4      0x244 build/bm/kernel.o
+                0x00000000000821a4                etl::ibasic_string<char>::insert(char const*, unsigned long, char)
+ .text._ZN3etl17private_algorithm9swap_implILb1EE7do_swapIPcS4_EEvT_T0_
+                0x00000000000823e8       0x28 build/bm/kernel.o
+                0x00000000000823e8                void etl::private_algorithm::swap_impl<true>::do_swap<char*, char*>(char*, char*)
+ .text._ZN3etl15distance_helperIPcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS3_EE5valueEvE4typeEE15difference_typeES3_S3_NS_26random_access_iterator_tagE
+                0x0000000000082410       0x24 build/bm/kernel.o
+                0x0000000000082410                etl::iterator_traits<char*, etl::enable_if<!etl::is_fundamental<char*>::value, void>::type>::difference_type etl::distance_helper<char*>(char*, char*, etl::random_access_iterator_tag)
+ .text._ZNK3etl13ibasic_stringIcE11to_iteratorEPKc
+                0x0000000000082434       0x18 build/bm/kernel.o
+                0x0000000000082434                etl::ibasic_string<char>::to_iterator(char const*) const
+ .text._ZNK3etl13ibasic_stringIcE6cbeginEv
+                0x000000000008244c       0x18 build/bm/kernel.o
+                0x000000000008244c                etl::ibasic_string<char>::cbegin() const
+ .text._ZN3etl8distanceIPKcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_
+                0x0000000000082464       0x24 build/bm/kernel.o
+                0x0000000000082464                etl::iterator_traits<char const*, etl::enable_if<!etl::is_fundamental<char const*>::value, void>::type>::difference_type etl::distance<char const*>(char const*, char const*)
+ .text._ZN3etl13copy_backwardIPcS1_EET0_T_S3_S2_
+                0x0000000000082488       0x58 build/bm/kernel.o
+                0x0000000000082488                char* etl::copy_backward<char*, char*>(char*, char*, char*)
+ .text._ZN3etl4swapIcEEvRT_S2_
+                0x00000000000824e0       0x54 build/bm/kernel.o
+                0x00000000000824e0                void etl::swap<char>(char&, char&)
+ .text._ZN3etl15distance_helperIPKcEENS_15iterator_traitsIT_NS_9enable_ifIXntsrNS_14is_fundamentalIS4_EE5valueEvE4typeEE15difference_typeES4_S4_NS_26random_access_iterator_tagE
+                0x0000000000082534       0x24 build/bm/kernel.o
+                0x0000000000082534                etl::iterator_traits<char const*, etl::enable_if<!etl::is_fundamental<char const*>::value, void>::type>::difference_type etl::distance_helper<char const*>(char const*, char const*, etl::random_access_iterator_tag)
+ .text._ZN3etl4moveIRcEEONS_16remove_referenceIT_E4typeEOS3_
+                0x0000000000082558       0x14 build/bm/kernel.o
+                0x0000000000082558                etl::remove_reference<char&>::type&& etl::move<char&>(char&)
+ .text          0x000000000008256c       0xec build/bm/mb.o
+                0x000000000008256c                mbox_call(unsigned char)
+ .text          0x0000000000082658      0x544 build/bm/miniuart.o
+                0x0000000000082658                MiniUart::MiniUart()
+                0x0000000000082658                MiniUart::MiniUart()
+                0x0000000000082684                MiniUart::init()
+                0x00000000000827c0                MiniUart::isOutputQueueEmpty()
+                0x00000000000827f4                MiniUart::isReadByteReady()
+                0x0000000000082824                MiniUart::isWriteByteReady()
+                0x0000000000082854                MiniUart::readByte()
+                0x00000000000828a8                MiniUart::writeByteBlockingActual(unsigned char)
+                0x0000000000082908                MiniUart::loadOutputFifo()
+                0x00000000000829a4                MiniUart::writeByteBlocking(unsigned char)
+                0x0000000000082a28                MiniUart::writeText(etl::string<255ul>)
+                0x0000000000082ac0                MiniUart::drainOutputQueue()
+                0x0000000000082b08                MiniUart::update()
+ .text          0x0000000000082b9c     0xb258 build/bm/pl_mpeg.o
+                0x0000000000082bdc                plm_create_with_filename
+                0x0000000000082c28                plm_create_with_file
+                0x0000000000082c68                plm_destroy
+                0x0000000000082cc4                plm_get_audio_enabled
+                0x0000000000082cdc                plm_has_headers
+                0x0000000000082db0                plm_probe
+                0x0000000000082e14                plm_set_audio_enabled
+                0x0000000000082e8c                plm_set_audio_stream
+                0x0000000000082ee4                plm_get_video_enabled
+                0x0000000000082efc                plm_set_video_enabled
+                0x0000000000082f6c                plm_get_num_video_streams
+                0x0000000000082f8c                plm_get_width
+                0x0000000000082fd4                plm_get_height
+                0x000000000008301c                plm_get_framerate
+                0x0000000000083064                plm_get_pixel_aspect_ratio
+                0x00000000000830ac                plm_get_num_audio_streams
+                0x00000000000830cc                plm_get_samplerate
+                0x0000000000083114                plm_get_audio_lead_time
+                0x000000000008312c                plm_set_audio_lead_time
+                0x0000000000083150                plm_get_time
+                0x0000000000083168                plm_get_duration
+                0x000000000008318c                plm_rewind
+                0x00000000000831f0                plm_get_loop
+                0x0000000000083208                plm_set_loop
+                0x000000000008322c                plm_has_ended
+                0x0000000000083244                plm_set_video_decode_callback
+                0x0000000000083278                plm_set_audio_decode_callback
+                0x00000000000832ac                plm_decode
+                0x0000000000083564                plm_decode_video
+                0x0000000000083618                plm_decode_audio
+                0x00000000000836cc                plm_handle_end(plm_t*)
+                0x000000000008370c                plm_read_video_packet(plm_buffer_t*, void*)
+                0x0000000000083744                plm_read_audio_packet(plm_buffer_t*, void*)
+                0x000000000008377c                plm_read_packets(plm_t*, int)
+                0x00000000000838b8                plm_seek_frame
+                0x0000000000083a94                plm_seek
+                0x0000000000083c54                plm_buffer_create_with_filename
+                0x0000000000083c68                plm_buffer_create_with_file
+                0x0000000000083c80                plm_buffer_create_with_memory
+                0x0000000000083d14                plm_buffer_create_with_capacity
+                0x0000000000083dac                plm_buffer_create_for_appending
+                0x0000000000083df0                plm_buffer_destroy
+                0x0000000000083e10                plm_buffer_get_size
+                0x0000000000083e50                plm_buffer_get_remaining
+                0x0000000000083e78                plm_buffer_write
+                0x0000000000083f38                plm_buffer_signal_end
+                0x0000000000083f5c                plm_buffer_set_load_callback
+                0x0000000000083f90                plm_buffer_rewind
+                0x0000000000083fb4                plm_buffer_seek(plm_buffer_t*, unsigned long)
+                0x0000000000083fcc                plm_buffer_tell(plm_buffer_t*)
+                0x0000000000083fe8                plm_buffer_discard_read_bytes(plm_buffer_t*)
+                0x00000000000840b0                plm_buffer_load_file_callback(plm_buffer_t*, void*)
+                0x00000000000840c8                plm_buffer_has_ended
+                0x00000000000840e0                plm_buffer_has(plm_buffer_t*, unsigned long)
+                0x00000000000841b4                plm_buffer_read(plm_buffer_t*, int)
+                0x00000000000842e8                plm_buffer_align(plm_buffer_t*)
+                0x0000000000084314                plm_buffer_skip(plm_buffer_t*, unsigned long)
+                0x000000000008436c                plm_buffer_skip_bytes(plm_buffer_t*, unsigned char)
+                0x0000000000084408                plm_buffer_next_start_code(plm_buffer_t*)
+                0x00000000000844f0                plm_buffer_find_start_code(plm_buffer_t*, int)
+                0x0000000000084538                plm_buffer_has_start_code(plm_buffer_t*, int)
+                0x000000000008459c                plm_buffer_peek_non_zero(plm_buffer_t*, int)
+                0x000000000008461c                plm_buffer_read_vlc(plm_buffer_t*, plm_vlc_t const*)
+                0x000000000008468c                plm_buffer_read_vlc_uint(plm_buffer_t*, plm_vlc_uint_t const*)
+                0x00000000000846b8                plm_demux_create
+                0x0000000000084724                plm_demux_destroy
+                0x0000000000084758                plm_demux_has_headers
+                0x00000000000849c4                plm_demux_probe
+                0x0000000000084b70                plm_demux_get_num_video_streams
+                0x0000000000084ba4                plm_demux_get_num_audio_streams
+                0x0000000000084bd8                plm_demux_rewind
+                0x0000000000084c18                plm_demux_has_ended
+                0x0000000000084c38                plm_demux_buffer_seek(plm_demux_t*, unsigned long)
+                0x0000000000084c80                plm_demux_get_start_time
+                0x0000000000084d58                plm_demux_get_duration
+                0x0000000000084f14                plm_demux_seek
+                0x0000000000085350                plm_demux_decode
+                0x00000000000854bc                plm_demux_decode_time(plm_demux_t*)
+                0x0000000000085578                plm_demux_decode_packet(plm_demux_t*, int)
+                0x000000000008576c                plm_demux_get_packet(plm_demux_t*)
+                0x0000000000085828                plm_video_create_with_buffer
+                0x000000000008589c                plm_video_destroy
+                0x00000000000858d0                plm_video_get_framerate
+                0x0000000000085904                plm_video_get_pixel_aspect_ratio
+                0x0000000000085938                plm_video_get_width
+                0x000000000008596c                plm_video_get_height
+                0x00000000000859a0                plm_video_set_no_delay
+                0x00000000000859c8                plm_video_get_time
+                0x00000000000859e0                plm_video_set_time
+                0x0000000000085a20                plm_video_rewind
+                0x0000000000085a6c                plm_video_has_ended
+                0x0000000000085a8c                plm_video_decode
+                0x0000000000085ccc                plm_video_has_header
+                0x0000000000085d68                plm_video_decode_sequence_header(plm_video_t*)
+                0x0000000000086184                plm_video_init_frame(plm_video_t*, plm_frame_t*, unsigned char*)
+                0x00000000000862b4                plm_video_decode_picture(plm_video_t*)
+                0x0000000000086588                plm_video_decode_slice(plm_video_t*, int)
+                0x00000000000866d4                plm_video_decode_macroblock(plm_video_t*)
+                0x0000000000086b00                plm_video_decode_motion_vectors(plm_video_t*)
+                0x0000000000086c04                plm_video_decode_motion_vector(plm_video_t*, int, int)
+                0x0000000000086d34                plm_video_predict_macroblock(plm_video_t*)
+                0x0000000000086e74                plm_video_copy_macroblock(plm_video_t*, plm_frame_t*, int, int)
+                0x0000000000086f68                plm_video_interpolate_macroblock(plm_video_t*, plm_frame_t*, int, int)
+                0x000000000008705c                plm_video_process_macroblock(plm_video_t*, unsigned char*, unsigned char*, int, int, int, int)
+                0x0000000000087a68                plm_video_decode_block(plm_video_t*, int)
+                0x0000000000088398                plm_video_idct(int*)
+                0x0000000000088c38                plm_frame_to_rgb
+                0x0000000000089108                plm_frame_to_bgr
+                0x00000000000895d8                plm_frame_to_rgba
+                0x0000000000089aa8                plm_frame_to_bgra
+                0x0000000000089f78                plm_frame_to_argb
+                0x000000000008a458                plm_frame_to_abgr
+                0x000000000008a938                plm_audio_create_with_buffer
+                0x000000000008a9e8                plm_audio_destroy
+                0x000000000008aa1c                plm_audio_has_header
+                0x000000000008aa64                plm_audio_get_samplerate
+                0x000000000008aaa8                plm_audio_get_time
+                0x000000000008aac0                plm_audio_set_time
+                0x000000000008ab14                plm_audio_rewind
+                0x000000000008ab50                plm_audio_has_ended
+                0x000000000008ab70                plm_audio_decode
+                0x000000000008aca4                plm_audio_find_frame_sync(plm_audio_t*)
+                0x000000000008ad74                plm_audio_decode_header(plm_audio_t*)
+                0x000000000008b0b0                plm_audio_decode_frame(plm_audio_t*)
+                0x000000000008bbe4                plm_audio_read_allocation(plm_audio_t*, int, int)
+                0x000000000008bca8                plm_audio_read_samples(plm_audio_t*, int, int, int)
+                0x000000000008c094                plm_audio_idct36(int (*) [3], int, float*, int)
+ .text          0x000000000008ddf4      0x1d0 build/bm/timer.o
+                0x000000000008ddf4                Timer::now()
+                0x000000000008de80                Timer::duration_since(unsigned long)
+                0x000000000008dee0                Timer::did_counter_flip(unsigned long, unsigned long)
+                0x000000000008df0c                Timer::get_hertz()
+                0x000000000008df24                Timer::to_sec(unsigned long)
+                0x000000000008df80                Timer::to_milli(unsigned long)
+ .text          0x000000000008dfc4      0x494 build/bm/filter.o
+                0x000000000008dfc4                sqrt(double, float)
+                0x000000000008e05c                com::Filter::grayscale(unsigned char*, int, unsigned char*)
+                0x000000000008e144                com::Filter::sobelEdgeDetect(unsigned char*, int, int, unsigned char*)
+ .text._ZN3etl8absoluteIdEENS_9enable_ifIXsrNS_9is_signedIT_EE5valueES3_E4typeES3_
+                0x000000000008e458       0x30 build/bm/filter.o
+                0x000000000008e458                etl::enable_if<etl::is_signed<double>::value, double>::type etl::absolute<double>(double)
+ .text          0x000000000008e488        0x0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ *fill*         0x000000000008e488        0x8 
+ .text.lldiv    0x000000000008e490       0x10 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+                0x000000000008e490                lldiv
+ *fill*         0x000000000008e4a0       0x20 
+ .text          0x000000000008e4c0      0x22c /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+                0x000000000008e4c0                memmove
+                0x000000000008e4c0                memcpy
+                0x000000000008e6ec                __end_text = .
+
+.iplt           0x000000000008e6ec        0x0
+ .iplt          0x000000000008e6ec        0x0 build/bm/boot.o
+
+.rodata         0x000000000008e6f0   0x2a5ba4
+                0x000000000008e6f0                __start_rodata = .
+ *(.rodata .rodata.* .gnu.linkonce.r*)
+ .rodata        0x000000000008e6f0        0xc build/bm/gpio.o
+ *fill*         0x000000000008e6fc        0x4 
+ .rodata        0x000000000008e700   0x2a45a0 build/bm/kernel.o
+ .rodata        0x0000000000332ca0        0xc build/bm/mb.o
+ *fill*         0x0000000000332cac        0x4 
+ .rodata        0x0000000000332cb0       0x52 build/bm/miniuart.o
+ *fill*         0x0000000000332d02        0x6 
+ .rodata        0x0000000000332d08     0x14f3 build/bm/pl_mpeg.o
+ *fill*         0x00000000003341fb        0x1 
+ .rodata        0x00000000003341fc        0xc build/bm/timer.o
+ .rodata        0x0000000000334208       0x8c build/bm/filter.o
+                0x0000000000334294                __end_rodata = .
+                [!provide]                        PROVIDE (_data = .)
+
+.rela.dyn       0x0000000000334298        0x0
+ .rela.iplt     0x0000000000334298        0x0 build/bm/boot.o
+ .rela.text.boot
+                0x0000000000334298        0x0 build/bm/boot.o
+
+.data           0x0000000000334298      0x7b0
+                0x0000000000334298                __start_data = .
+ *(.data .data.* .gnu.linkonce.d*)
+ .data          0x0000000000334298        0x0 build/bm/boot.o
+ .data          0x0000000000334298      0x740 build/bm/fb.o
+                0x0000000000334298                vgapal
+                0x00000000003342d8                font
+ .data          0x00000000003349d8        0x0 build/bm/gpio.o
+ .data          0x00000000003349d8       0x38 build/bm/kernel.o
+ .data          0x0000000000334a10        0x0 build/bm/mb.o
+ .data          0x0000000000334a10        0x0 build/bm/miniuart.o
+ .data          0x0000000000334a10       0x38 build/bm/pl_mpeg.o
+ .data          0x0000000000334a48        0x0 build/bm/timer.o
+ .data          0x0000000000334a48        0x0 build/bm/filter.o
+ .data          0x0000000000334a48        0x0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .data          0x0000000000334a48        0x0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+                0x0000000000334a48                __end_data = .
+
+.igot.plt       0x0000000000334a48        0x0
+ .igot.plt      0x0000000000334a48        0x0 build/bm/boot.o
+
+.bss            0x0000000000334a50  0xfba546c
+                0x0000000000334a50                . = ALIGN (0x10)
+                0x0000000000334a50                __bss_start = .
+ *(.bss .bss.*)
+ .bss           0x0000000000334a50        0x0 build/bm/boot.o
+ .bss           0x0000000000334a50       0x18 build/bm/fb.o
+                0x0000000000334a50                width
+                0x0000000000334a54                height
+                0x0000000000334a58                pitch
+                0x0000000000334a5c                isrgb
+                0x0000000000334a60                fb
+ .bss           0x0000000000334a68        0x0 build/bm/gpio.o
+ .bss           0x0000000000334a68  0x7dd29e0 build/bm/kernel.o
+ *fill*         0x0000000008107448        0x8 
+ .bss           0x0000000008107450       0x90 build/bm/mb.o
+                0x0000000008107450                mbox
+ .bss           0x00000000081074e0        0x0 build/bm/miniuart.o
+ .bss           0x00000000081074e0  0x7dd29dc build/bm/pl_mpeg.o
+ .bss           0x000000000fed9ebc        0x0 build/bm/timer.o
+ .bss           0x000000000fed9ebc        0x0 build/bm/filter.o
+ .bss           0x000000000fed9ebc        0x0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .bss           0x000000000fed9ebc        0x0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+ *(COMMON)
+                0x000000000fed9ebc                __bss_end = .
+                0x0000000040000000                . = 0x40000000
+
+.stack          0x0000000040000000 0x20000000
+                0x0000000040000000                . = ALIGN (0x10)
+                0x0000000040000000                __stack_start = .
+                0x0000000060000000                . = (. + 0x20000000)
+ *fill*         0x0000000040000000 0x20000000 
+                0x0000000060000000                __stack_end = .
+                0x0000000060000000                _end = .
+
+/DISCARD/
+ *(.comment)
+ *(.gnu*)
+ *(.note*)
+ *(.eh_frame*)
+                0x0000000001f74a8d                __bss_size = ((__bss_end - __bss_start) >> 0x3)
+                0x0000000000000001                ASSERT ((__stack_start >= __bss_end), Stack overlaps BSS)
+                0x0000000000000001                ASSERT ((__stack_end <= 0x100000000), Stack exceeds available memory)
+                0x0000000000000001                ASSERT ((__start_text <= __start_data), Text overlaps data section)
+                0x0000000000000001                ASSERT ((__end_data <= __bss_start), Data overlaps BSS section)
+                0x0000000000000001                ASSERT ((__bss_end <= __stack_start), BSS overlaps stack section)
+                0x0000000000000001                ASSERT ((__stack_end <= 0x100000000), Stack exceeds available memory)
+LOAD /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a
+LOAD /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libg.a
+LOAD /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libm.a
+OUTPUT(build/bm/kernel8.elf elf64-littleaarch64)
+LOAD linker stubs
+
+.debug_info     0x0000000000000000      0x144
+ .debug_info    0x0000000000000000      0x109 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .debug_info    0x0000000000000109       0x3b /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_abbrev   0x0000000000000000       0xd6
+ .debug_abbrev  0x0000000000000000       0xae /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .debug_abbrev  0x00000000000000ae       0x28 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_loclists
+                0x0000000000000000       0x78
+ .debug_loclists
+                0x0000000000000000       0x78 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+
+.debug_aranges  0x0000000000000000       0x60
+ .debug_aranges
+                0x0000000000000000       0x30 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .debug_aranges
+                0x0000000000000030       0x30 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_rnglists
+                0x0000000000000000       0x17
+ .debug_rnglists
+                0x0000000000000000       0x17 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+
+.debug_line     0x0000000000000000      0x144
+ .debug_line    0x0000000000000000       0x71 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+ .debug_line    0x0000000000000071       0xd3 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_str      0x0000000000000000      0x1cd
+ .debug_str     0x0000000000000000      0x1cd /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+                                        0x126 (size before relaxing)
+ .debug_str     0x00000000000001cd       0xe0 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_line_str
+                0x0000000000000000      0x1d3
+ .debug_line_str
+                0x0000000000000000      0x1d3 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+                                        0x1e6 (size before relaxing)
+ .debug_line_str
+                0x00000000000001d3       0xcb /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-memcpy.o)
+
+.debug_frame    0x0000000000000000       0x28
+ .debug_frame   0x0000000000000000       0x28 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)

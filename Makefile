@@ -30,7 +30,7 @@ $(OBJ_DIR)/%.o: $(SRC_COMM_DIR)/%.cc
 	$(GCCPATH)/aarch64-none-elf-g++ $(GCCFLAGS) -c $< -o $@ $(LINKFLAG)
 
 kernel8.img: $(OBJ_DIR)/boot.o $(OFILES)
-	$(GCCPATH)/aarch64-none-elf-ld $(LINKLOCA) -nostdlib $(OBJ_DIR)/boot.o $(OFILES) -T $(CFG_DIR)/link.ld -o $(OBJ_DIR)/kernel8.elf $(LINKFLAG)
+	$(GCCPATH)/aarch64-none-elf-ld $(LINKLOCA) -nostdlib $(OBJ_DIR)/boot.o $(OFILES) -T $(CFG_DIR)/link.ld -o $(OBJ_DIR)/kernel8.elf $(LINKFLAG) -Map=build/bm/output.map
 	$(GCCPATH)/aarch64-none-elf-objcopy -O binary $(OBJ_DIR)/kernel8.elf $(OBJ_DIR)/img/kernel8.img
 
 .PHONY: clean build
