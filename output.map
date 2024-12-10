@@ -708,3 +708,81 @@ LOAD linker stubs
 
 .debug_frame    0x0000000000000000       0x28
  .debug_frame   0x0000000000000000       0x28 /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib/libc.a(libc_a-lldiv.o)
+
+.section ".text.boot"  // Make sure the linker puts this at the start of the kernel image
+
+.global _start  // Execution starts here
+
+_start:
+    // Check processor ID is zero (executing on main core), else hang
+    mrs     x1, mpidr_el1
+    and     x1, x1, #3
+    cbz     x1, 2f
+    // We're not on the main core, so hang in an infinite wait loop
+1:  wfe
+    b       1b
+2:  // We're on the main core!
+
+    // Set stack to start below our code
+    //ldr     x1, =_start
+    // mov     sp, x1
+    ldr     x1, =__stack_end   // Load the end of the stack space to get the 1 gig stack
+    mov     sp, x1
+
+    // Clean the BSS section
+    ldr     x1, =__bss_start     // Start address
+    ldr     w2, =__bss_size      // Size of the section
+3:  cbz     w2, 4f               // Quit loop if zero
+    str     xzr, [x1], #8
+    sub     w2, w2, #1
+    cbnz    w2, 3b               // Loop if non-zero
+
+    // Jump to our main() routine in C (make sure it doesn't return)
+4:  bl      main
+    // In case it does return, halt the master core too
+    b       1b
+
+SECTIONS
+{
+    . = 0x80000;     /* Kernel load address for AArch64 */
+    .text : {
+        __start_text = .;
+        KEEP(*(.text.boot)) *(.text .text.* .gnu.linkonce.t*)
+        __end_text = .;
+        }
+    .rodata : { 
+        __start_rodata = .;
+        *(.rodata .rodata.* .gnu.linkonce.r*) 
+        __end_rodata = .;
+        }
+    PROVIDE(_data = .);
+    .data : {
+        __start_data = .;
+        *(.data .data.* .gnu.linkonce.d*) 
+        __end_data = .;}
+    .bss (NOLOAD) : {
+        . = ALIGN(16);
+        __bss_start = .;
+        *(.bss .bss.*)
+        *(COMMON)
+        __bss_end = .;
+    }
+    . = 0x40000000;
+    .stack (NOLOAD) : {
+        . = ALIGN(16);
+        __stack_start = .;
+        . += 0x30000000;   /* Reserve 512MB for stack */
+        __stack_end = .;
+    }
+    _end = .;
+
+   /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
+}
+
+__bss_size = (__bss_end - __bss_start)>>3;
+/*ASSERT(__stack_start >= __bss_end, "Stack overlaps BSS");
+ASSERT(__stack_end <= 0x100000000, "Stack exceeds available memory");
+ASSERT(__start_text <= __start_data, "Text overlaps data section");
+ASSERT(__end_data <= __bss_start, "Data overlaps BSS section");
+ASSERT(__bss_end <= __stack_start, "BSS overlaps stack section");
+ASSERT(__stack_end <= 0x100000000, "Stack exceeds available memory");

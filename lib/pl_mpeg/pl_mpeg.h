@@ -450,7 +450,7 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 
 #ifndef PLM_BUFFER_DEFAULT_SIZE
 //#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
-#define PLM_BUFFER_DEFAULT_SIZE 15970304*2
+#define PLM_BUFFER_DEFAULT_SIZE 15970304
 #endif
 
 // Create a buffer instance with a filename. Returns NULL if the file could not

@@ -112,11 +112,11 @@ int main(int argc, char **argv) {
 }
 
 void createApp(video_app *self) {
-  int samplerate = plm_get_samplerate(self->plm);
   plm_set_video_decode_callback(self->plm, updateFrame, self);
 
   plm_set_loop(self->plm, FALSE);  // loop video
   plm_set_audio_enabled(self->plm, FALSE);
+  std::cout << plm_get_samplerate(self->plm)<< std::endl;
 
   frame_rate_info.fps = plm_get_framerate(self->plm);
   frame_rate_info.total_t = plm_get_duration(self->plm);

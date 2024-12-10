@@ -686,7 +686,8 @@ int plm_buffer_read(plm_buffer_t *self, int count) {
 }
 
 void plm_buffer_align(plm_buffer_t *self) {
-  self->bit_index = ((self->bit_index + 7) >> 3) << 3;  // Align to next byte
+  //self->bit_index = ((self->bit_index + 7) >> 3) << 3;  // Align to next byte
+  self->bit_index = ((self->bit_index + 15) >> 4) << 4;
 }
 
 void plm_buffer_skip(plm_buffer_t *self, size_t count) {
@@ -705,32 +706,32 @@ int plm_buffer_skip_bytes(plm_buffer_t *self, uint8_t v) {
   return skipped;
 }
 
-int plm_buffer_next_start_code(plm_buffer_t *self) {
-  plm_buffer_align(self);
+// int plm_buffer_next_start_code(plm_buffer_t *self) {
+//   plm_buffer_align(self);
 
-  while (plm_buffer_has(self, (5 << 3))) {
-    size_t byte_index = (self->bit_index) >> 3;
-    if (self->bytes[byte_index] == 0x00 &&
-        self->bytes[byte_index + 1] == 0x00 &&
-        self->bytes[byte_index + 2] == 0x01) {
-      self->bit_index = (byte_index + 4) << 3;
-      return self->bytes[byte_index + 3];
-    }
-    self->bit_index += 8;
-  }
-  return -1;
-}
+//   while (plm_buffer_has(self, (5 << 3))) {
+//     size_t byte_index = (self->bit_index) >> 3;
+//     if (self->bytes[byte_index] == 0x00 &&
+//         self->bytes[byte_index + 1] == 0x00 &&
+//         self->bytes[byte_index + 2] == 0x01) {
+//       self->bit_index = (byte_index + 4) << 3;
+//       return self->bytes[byte_index + 3];
+//     }
+//     self->bit_index += 8;
+//   }
+//   return -1;
+// }
 
-int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
-  int current = 0;
-  while (TRUE) {
-    current = plm_buffer_next_start_code(self);
-    if (current == code || current == -1) {
-      return current;
-    }
-  }
-  return -1;
-}
+// int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
+//   int current = 0;
+//   while (TRUE) {
+//     current = plm_buffer_next_start_code(self);
+//     if (current == code || current == -1) {
+//       return current;
+//     }
+//   }
+//   return -1;
+// }
 
 int plm_buffer_has_start_code(plm_buffer_t *self, int code) {
   size_t previous_bit_index = self->bit_index;
@@ -1206,22 +1207,22 @@ plm_packet_t *plm_demux_get_packet(plm_demux_t *self) {
 }
 
 
-plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
-                                          int destroy_when_done) {
-  plm_video_t *self = &static_video_holder;
-  //memset(self, 0, sizeof(plm_video_t));
+// plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
+//                                           int destroy_when_done) {
+//   plm_video_t *self = &static_video_holder;
+//   //memset(self, 0, sizeof(plm_video_t));
 
-  self->buffer = buffer;
-  self->destroy_buffer_when_done = destroy_when_done;
+//   self->buffer = buffer;
+//   self->destroy_buffer_when_done = destroy_when_done;
 
-  // Attempt to decode the sequence header
-  self->start_code =
-      plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
-  if (self->start_code != -1) {
-    plm_video_decode_sequence_header(self);
-  }
-  return self;
-}
+//   // Attempt to decode the sequence header
+//   self->start_code =
+//       plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
+//   if (self->start_code != -1) {
+//     plm_video_decode_sequence_header(self);
+//   }
+//   return self;
+// }
 
 void plm_video_destroy(plm_video_t *self) {
   if (self->destroy_buffer_when_done) {

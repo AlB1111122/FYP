@@ -236,6 +236,76 @@ void printN(T time) {
   nPrints++;
 }
 
+int plm_buffer_next_start_code(plm_buffer_t *self) {
+  printN(61);
+  plm_buffer_align(self);
+printN(62);
+  while (plm_buffer_has(self, (5 << 3))) {
+    printN(63);
+    size_t byte_index = (self->bit_index) >> 3;
+    if (self->bytes[byte_index] == 0x00 &&
+        self->bytes[byte_index + 1] == 0x00 &&
+        self->bytes[byte_index + 2] == 0x01) {
+          printN(64);
+      self->bit_index = (byte_index + 16) << 3;
+      printN(65);
+      printN(sizeof(self->bytes));
+      printN(byte_index);
+      printN(self->bytes[byte_index + 3]);
+      int ret_val = self->bytes[byte_index + 3];
+      return ret_val;
+    }
+    printN(66);
+    self->bit_index += 16;
+  }
+  printN(67);
+  return -1;
+}
+
+int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
+printN(51);
+  int current = 0;
+  while (TRUE) {
+
+printN(52);
+    current = plm_buffer_next_start_code(self);
+    printN(current);
+
+printN(53);
+    if (current == code || current == -1) {
+
+printN(54);
+      return current;
+    }
+  }
+
+printN(55);
+  return -1;
+}
+
+plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
+                                          int destroy_when_done) {
+                                            printN(40);
+  plm_video_t *self = &static_video_holder;
+  //memset(self, 0, sizeof(plm_video_t));
+printN(41);
+  self->buffer = buffer;
+  self->destroy_buffer_when_done = destroy_when_done;
+printN(42);
+  // Attempt to decode the sequence header
+  self->start_code =
+      plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
+      printN(43);
+  if (self->start_code != -1) {
+    printN(44);
+    plm_video_decode_sequence_header(self);
+    printN(45);
+  }
+  printN(46);
+  return self;
+}
+
+
 int plm_init_decoders(plm_t *self) {
   printN(21);
   if (self->has_decoders) {
@@ -344,7 +414,7 @@ plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
     .audio_decode_callback_user_data = NULL
 };
 
-  video_app app = {// int lists and memset break why???
+  video_app app = {// init lists and memset break why???
     .plm = NULL,
     .wants_to_quit = false,
     .last_time = 0,
@@ -361,6 +431,7 @@ int main() {
   mu.writeText(hello_str.data());
   fb_init();
   
+  //video_app app;
   video_app *app_ptr = &app;
   app_ptr->win_height = 4;
   printN(app_ptr->win_height);
@@ -372,60 +443,80 @@ int main() {
   printN(1);
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5); //last thing working 17:29
-  int samplerate = plm_get_samplerate(app_ptr->plm);
-  printN(samplerate);
 
-  drawString(100, 300, hello_str.data(), 0x0f);
-  while(1){
-    ;
-  }
-  // while (1) {
-  //   mu.writeText(hello_str);
-  //   uint64_t time = t.now();
-  //   printN(t.to_sec(time), 50);
+  //plm_set_video_decode_callback(app_ptr->plm, updateFrame, self);
+  plm_set_loop(app_ptr->plm, FALSE);  // loop video
+  plm_set_audio_enabled(app_ptr->plm, FALSE);
 
-  //   etl::string<32> n_str;
-  //   etl::to_string(time, n_str);
-  //   uint64_t duration_since = t.duration_since(time);
-  //   printN(t.to_sec(duration_since), 70);
+  double fps = plm_get_framerate(app_ptr->plm);
+  double total_time_per_f  = plm_get_duration(app_ptr->plm);
+  int total_frames = total_time_per_f * fps;
+  double frame_ms =
+      (1.0 / static_cast<double>(fps)) * 1000;
+  double play_time = plm_get_duration(app_ptr->plm);
 
-  //   auto secTime = t.get_hertz();
-  //   etl::string<32> sec_str;
-  //   etl::to_string(secTime, sec_str);
-  //   printN(secTime,130);
-  //   while (t.duration_since(time) < 10000000) {
-  //     ;
-  //   }
-  //   int b = 4000 / 1000;
-  //   printN(b, 150);
-  //   while (t.duration_since(time) < 15000000) {
-  //     ;
-  //   }
-  //   int c = 54382589 / 1000;
-  //   printN(c, 180);
-  //   while (t.duration_since(time) < 20000000) {
-  //     ;
-  //   }
-  //   int d = 1 / 1000;
-  //   printN(d, 200);
-  //   while (t.duration_since(time) < 25000000) {
-  //     ;
-  //   }
-  //   auto a = t.to_sec(time);
-  //   printN(a, 220);
-  //   while (t.duration_since(time) < 30000000) {
-  //     ;
-  //   }
-  //   auto m = t.to_milli(time);
-  //   printN(m, 240);
-  //   uint64_t fullDuration = t.duration_since(time);
-  //   /*etl::string<100> text = "The result is ";
-  //   etl::to_string(fullDuration/1000000, text, etl::format_spec().precision(6),true);
-  //   drawString(100,260, text.data(), 0x0f);*/
-  //   ldiv_t division_result = ldiv(fullDuration, 1000000);
-  //   double res = division_result.quot + ((double)division_result.rem / (double)1000000);
-  //   etl::string<100> text = "The result is ";
-  //   etl::to_string(res, text, etl::format_spec().precision(6),true);
-  //   drawString(100,260, text.data(), 0x0f);
+  etl::string<64> frame_stats = "Total frames: ";
+  etl::to_string(total_frames, frame_stats,etl::format_spec().precision(6),true);
+  drawString(400, 10, frame_stats.data(), 0x0f);
+  etl::string<64> fps_stats = "FPS: ";
+  etl::to_string(fps, fps_stats,etl::format_spec().precision(6),true);
+  drawString(400, 20, fps_stats.data(), 0x0f);
+  etl::string<64> framt = "Max frame time ms: ";
+  etl::to_string(total_time_per_f, framt,etl::format_spec().precision(6),true);
+  drawString(400, 30, framt.data(), 0x0f);
+  etl::string<64> plt = "Correct play time sec: ";
+  etl::to_string(play_time, plt,etl::format_spec().precision(6),true);
+  drawString(400, 40, plt.data(), 0x0f);
+  // while(1){
+  //   ;
   // }
+  while (1) {
+    mu.writeText(hello_str);
+    uint64_t time = t.now();
+    printN(t.to_sec(time));
+
+    etl::string<32> n_str;
+    etl::to_string(time, n_str);
+    uint64_t duration_since = t.duration_since(time);
+    printN(t.to_sec(duration_since));
+
+    auto secTime = t.get_hertz();
+    etl::string<32> sec_str;
+    etl::to_string(secTime, sec_str);
+    printN(secTime);
+    while (t.duration_since(time) < 10000000) {
+      ;
+    }
+    int b = 4000 / 1000;
+    printN(b);
+    while (t.duration_since(time) < 15000000) {
+      ;
+    }
+    int c = 54382589 / 1000;
+    printN(c);
+    while (t.duration_since(time) < 20000000) {
+      ;
+    }
+    int d = 1 / 1000;
+    printN(d);
+    while (t.duration_since(time) < 25000000) {
+      ;
+    }
+    auto a = t.to_sec(time);
+    printN(a);
+    while (t.duration_since(time) < 30000000) {
+      ;
+    }
+    auto m = t.to_milli(time);
+    printN(m);
+    uint64_t fullDuration = t.duration_since(time);
+    /*etl::string<100> text = "The result is ";
+    etl::to_string(fullDuration/1000000, text, etl::format_spec().precision(6),true);
+    drawString(100,260, text.data(), 0x0f);*/
+    ldiv_t division_result = ldiv(fullDuration, 1000000);
+    double res = division_result.quot + ((double)division_result.rem / (double)1000000);
+    etl::string<100> text = "The result is ";
+    etl::to_string(res, text, etl::format_spec().precision(6),true);
+    drawString(100,260, text.data(), 0x0f);
+  }
 }

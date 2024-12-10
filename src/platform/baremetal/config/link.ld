@@ -23,11 +23,10 @@ SECTIONS
         *(COMMON)
         __bss_end = .;
     }
-    . = 0x40000000;
     .stack (NOLOAD) : {
         . = ALIGN(16);
         __stack_start = .;
-        . += 0x20000000;   /* Reserve 512MB for stack */
+        . += 0x40000000;
         __stack_end = .;
     }
     _end = .;
