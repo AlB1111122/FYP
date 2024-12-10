@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);
@@ -708,6 +709,8 @@ int plm_buffer_next_start_code(plm_buffer_t *self) {
         self->bytes[byte_index + 1] == 0x00 &&
         self->bytes[byte_index + 2] == 0x01) {
       self->bit_index = (byte_index + 4) << 3;
+
+      std::cout<< byte_index <<std::endl;
       return self->bytes[byte_index + 3];
     }
     self->bit_index += 8;

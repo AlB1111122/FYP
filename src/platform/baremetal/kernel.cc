@@ -236,31 +236,31 @@ void printN(T time) {
   nPrints++;
 }
 
-int plm_buffer_next_start_code(plm_buffer_t *self) {
-  printN(61);
-  plm_buffer_align(self);
-printN(62);
-  while (plm_buffer_has(self, (5 << 3))) {
-    printN(63);
-    size_t byte_index = (self->bit_index) >> 3;
-    if (self->bytes[byte_index] == 0x00 &&
-        self->bytes[byte_index + 1] == 0x00 &&
-        self->bytes[byte_index + 2] == 0x01) {
-          printN(64);
-      self->bit_index = (byte_index + 16) << 3;
-      printN(65);
-      printN(sizeof(self->bytes));
-      printN(byte_index);
-      printN(self->bytes[byte_index + 3]);
-      int ret_val = self->bytes[byte_index + 3];
-      return ret_val;
-    }
-    printN(66);
-    self->bit_index += 16;
-  }
-  printN(67);
-  return -1;
-}
+// int plm_buffer_next_start_code(plm_buffer_t *self) {
+//   printN(61);
+//   plm_buffer_align(self);
+// printN(62);
+//   while (plm_buffer_has(self, (5 << 3))) {
+//     printN(63);
+//     size_t byte_index = (self->bit_index) >> 3;
+//     if (self->bytes[byte_index] == 0x00 &&
+//         self->bytes[byte_index + 1] == 0x00 &&
+//         self->bytes[byte_index + 2] == 0x01) {
+//           printN(64);
+//       self->bit_index = (byte_index + 4) << 3;
+//       printN(65);
+//       printN(sizeof(self->bytes));
+//       printN(byte_index);
+//       printN(self->bytes[byte_index + 3]);
+//       int ret_val = self->bytes[byte_index + 3];
+//       return ret_val;
+//     }
+//     printN(66);
+//     self->bit_index += 8;
+//   }
+//   printN(67);
+//   return -1;
+// }
 
 int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
 printN(51);
@@ -268,7 +268,19 @@ printN(51);
   while (TRUE) {
 
 printN(52);
-    current = plm_buffer_next_start_code(self);
+      plm_buffer_align(self);
+
+  while (plm_buffer_has(self, (5 << 3))) {
+    size_t byte_index = (self->bit_index) >> 3;
+    if (self->bytes[byte_index] == 0x00 &&
+        self->bytes[byte_index + 1] == 0x00 &&
+        self->bytes[byte_index + 2] == 0x01) {
+      self->bit_index = (byte_index + 4) << 3;
+      current = self->bytes[byte_index + 3];
+    }
+    self->bit_index += 8;
+  }
+  current =  -1;
     printN(current);
 
 printN(53);
