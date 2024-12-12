@@ -9,10 +9,11 @@ extern "C" {
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include "../../../include/filter.h"
 
-// change to be dynamic (plm_get_width(self->plm);) if changing video
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
 #define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
@@ -24,13 +25,12 @@ struct frame_rate_info {
   double total_t;
 } frame_rate_info;
 
-std::vector<std::array<std::chrono::system_clock::time_point, 4>> ttr = {};
+std::vector<std::array<std::chrono::system_clock::time_point, 5>> ttr = {};
 unsigned long total_frames_completed;
 
 struct video_app {
   plm_t *plm;
   bool wants_to_quit;
-  std::chrono::time_point<std::chrono::system_clock> last_time;
   uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
   SDL_Texture *texture_rgb;
   SDL_Window *window;
@@ -39,10 +39,13 @@ struct video_app {
   int win_width;
 };
 
+std::chrono::time_point<std::chrono::system_clock> last_time;
+
 void createApp(video_app *self);
 void updateFrame(plm_t *player, plm_frame_t *frame, void *user);
 void updateVideo(video_app *self);
 void destroy(video_app *self);
+void make_stat_file(std::chrono::system_clock::time_point start);
 
 int main(int argc, char **argv) {
   if (argc < 2) {
@@ -66,46 +69,14 @@ int main(int argc, char **argv) {
   createApp(app_ptr);
   auto start = std::chrono::system_clock::now();
 
-  app_ptr->last_time = start;
+  last_time = start;
   while (!app_ptr->wants_to_quit) {
     updateVideo(app_ptr);
   }
-  auto finish = std::chrono::system_clock::now();
-
-  std::chrono::duration<double> duration = finish - start;
-  std::cout << "render times:\n";
-  double total_rgb_t, total_filter_t, total_render_t, total_display_t;
-  int dropped_frames = 0;
-  for (auto &times : ttr) {
-    std::chrono::duration<double, std::milli> ttrgb = times[1] - times[0];
-    std::chrono::duration<double, std::milli> ttf = times[2] - times[1];
-    std::chrono::duration<double, std::milli> ttr = times[3] - times[2];
-    std::chrono::duration<double, std::milli> ttd = times[3] - times[0];
-    total_rgb_t += ttrgb.count();
-    total_filter_t += ttf.count();
-    total_render_t += ttr.count();
-    total_display_t += ttd.count();
-
-    if (ttd.count() > frame_rate_info.frame_ms) {
-      dropped_frames++;
-    }
-  }
-
-  std::cout << "average to rgb: " << total_rgb_t / total_frames_completed
-            << "ms\naverage to filtered: "
-            << total_filter_t / total_frames_completed
-            << "ms\naverage to rendered: "
-            << total_render_t / total_frames_completed
-            << "ms\naverage total time to display: "
-            << total_display_t / total_frames_completed;
-
-  std::cout << "ms\n\ntotal slow frames:" << dropped_frames
-            << "\ntotal callbacks to render frames:" << total_frames_completed
-            << "\ntotal play time: " << duration.count()
-            << "sec\nFPS: " << (total_frames_completed / duration.count());
-
+  
+  make_stat_file(start);
   destroy(app_ptr);
-}
+  }
 
 void createApp(video_app *self) {
   int samplerate = plm_get_samplerate(self->plm);
@@ -162,7 +133,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
   auto to_render = std::chrono::high_resolution_clock::now();
-  ttr.push_back({start_time, to_rgb, to_filter, to_render});
+  ttr.push_back({last_time,start_time, to_rgb, to_filter, to_render});
   total_frames_completed++;
 }
 
@@ -174,7 +145,7 @@ void updateVideo(video_app *self) {
   double seek_to = -1;
   auto now = std::chrono::system_clock::now();
 
-  std::chrono::duration<double, std::milli> elapsed_tp = now - self->last_time;
+  std::chrono::duration<double, std::milli> elapsed_tp = now - last_time;
   double elapsed_time = elapsed_tp.count();
 
   if (elapsed_time >= frame_rate_info.frame_ms) {
@@ -189,10 +160,10 @@ void updateVideo(video_app *self) {
     if (seek_to != -1) {
       plm_seek(self->plm, seek_to, TRUE);
 
-      self->last_time = now;
+      last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
     } else {
-      self->last_time = now;
+      last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
     }
   }
@@ -216,4 +187,72 @@ void destroy(video_app *self) {
   SDL_DestroyWindow(self->window);
   SDL_Quit();
   plm_destroy(self->plm);
+}
+
+void make_stat_file(std::chrono::system_clock::time_point start){
+  std::string filename = "results.csv";
+  std::ofstream file(filename);
+
+  if (!file.is_open()) {
+    std::cerr << "Failed to open file for writing: " << filename << std::endl;
+    return;
+  }
+
+  auto finish = std::chrono::system_clock::now();
+
+  std::chrono::duration<double> duration = finish - start;
+  std::cout << "render times:\n";
+  double total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t;
+
+  std::vector<std::array<double, 5>> durations = {};
+  int dropped_frames = 0;
+  for (auto &times : ttr) {
+    std::chrono::duration<double, std::milli> ttplmd = times[1] - times[0];
+    std::chrono::duration<double, std::milli> ttrgb = times[2] - times[1];
+    std::chrono::duration<double, std::milli> ttf = times[3] - times[2];
+    std::chrono::duration<double, std::milli> ttr = times[4] - times[3];
+    std::chrono::duration<double, std::milli> ttd = times[4] - times[0];
+    durations.push_back({ttplmd.count(),ttrgb.count(),ttf.count(),ttr.count(),ttd.count()});
+    plm_d_t += ttplmd.count();
+    total_rgb_t += ttrgb.count();
+    total_filter_t += ttf.count();
+    total_render_t += ttr.count();
+    total_display_t += ttd.count();
+
+    if (ttd.count() > frame_rate_info.frame_ms) {
+      dropped_frames++;
+    }
+    
+}
+    // Write header row (optional)
+    file << "decode,convert to rgb,filter,display,total time,"
+          << "avg_to_decoded,avg_to_rgb,avg_to_filtered,avg_to_rendered,"
+          << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
+          << "total_play_time,actual_fps\n";
+    
+    // Iterate through the vector and write each entry as a row in the CSV
+    int flag = 0;
+    for (const auto& arr : durations) {
+        file << arr[0] << ","
+             << arr[1] << ","
+             << arr[2] << ","
+             << arr[3] << ","
+             << arr[4];
+             if(flag < 1){
+              flag++;
+            file << plm_d_t / total_frames_completed << ","
+             << total_rgb_t / total_frames_completed << ","
+             << total_filter_t / total_frames_completed << ","
+             << total_render_t / total_frames_completed << ","
+             << total_display_t / total_frames_completed << ","
+             << dropped_frames << ","
+             << total_frames_completed << ","
+             << duration.count() << ","
+             << total_frames_completed / duration.count() << "\n";
+             }else{
+              file << std::endl;
+             }
+    }
+    file.close();
+    std::cout << "Data written to " << filename << std::endl;
 }
