@@ -21,64 +21,64 @@ plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *self_ptr) {
   return self_ptr;
 }
 
-// plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-//                               plm_t *self_ptr) {
-//   plm_buffer_t *buffer =
-//       plm_buffer_create_with_memory(bytes, length, free_when_done);
+plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
+                              plm_t *self_ptr) {
+  plm_buffer_t *buffer =
+      plm_buffer_create_with_memory(bytes, length, free_when_done);
 
-//   plm_create_with_buffer(buffer, TRUE, self_ptr);
-//   return self_ptr;
-// }
+  plm_create_with_buffer(buffer, TRUE, self_ptr);
+  return self_ptr;
+}
 
-// void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
-//                             plm_t *self) {
-//   self->demux = plm_demux_create(buffer, destroy_when_done);
-//   self->video_enabled = TRUE;
-//   self->audio_enabled = TRUE;
-//   plm_init_decoders(self);
-// }
+void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
+                            plm_t *self) {
+  self->demux = plm_demux_create(buffer, destroy_when_done);
+  self->video_enabled = TRUE;
+  self->audio_enabled = TRUE;
+  plm_init_decoders(self);
+}
 
-// int plm_init_decoders(plm_t *self) {
-//   if (self->has_decoders) {
-//     return TRUE;
-//   }
+int plm_init_decoders(plm_t *self) {
+  if (self->has_decoders) {
+    return TRUE;
+  }
 
-//   if (!plm_demux_has_headers(self->demux)) {
-//     return FALSE;
-//   }
+  if (!plm_demux_has_headers(self->demux)) {
+    return FALSE;
+  }
 
-//   if (plm_demux_get_num_video_streams(self->demux) > 0) {
-//     if (self->video_enabled) {
-//       self->video_packet_type = PLM_DEMUX_PACKET_VIDEO_1;
-//     }
-//     if (!self->video_decoder) {
-//       self->video_buffer =
-//           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-//       plm_buffer_set_load_callback(self->video_buffer, plm_read_video_packet,
-//                                    self);
-//       self->video_decoder =
-//           plm_video_create_with_buffer(self->video_buffer, TRUE);
-//     }
-//   }
+  if (plm_demux_get_num_video_streams(self->demux) > 0) {
+    if (self->video_enabled) {
+      self->video_packet_type = PLM_DEMUX_PACKET_VIDEO_1;
+    }
+    if (!self->video_decoder) {
+      self->video_buffer =
+          plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
+      plm_buffer_set_load_callback(self->video_buffer, plm_read_video_packet,
+                                   self);
+      self->video_decoder =
+          plm_video_create_with_buffer(self->video_buffer, TRUE);
+    }
+  }
 
-//   if (plm_demux_get_num_audio_streams(self->demux) > 0) {
-//     if (self->audio_enabled) {
-//       self->audio_packet_type =
-//           PLM_DEMUX_PACKET_AUDIO_1 + self->audio_stream_index;
-//     }
-//     if (!self->audio_decoder) {
-//       self->audio_buffer =
-//           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-//       plm_buffer_set_load_callback(self->audio_buffer, plm_read_audio_packet,
-//                                    self);
-//       self->audio_decoder =
-//           plm_audio_create_with_buffer(self->audio_buffer, TRUE);
-//     }
-//   }
+  if (plm_demux_get_num_audio_streams(self->demux) > 0) {
+    if (self->audio_enabled) {
+      self->audio_packet_type =
+          PLM_DEMUX_PACKET_AUDIO_1 + self->audio_stream_index;
+    }
+    if (!self->audio_decoder) {
+      self->audio_buffer =
+          plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
+      plm_buffer_set_load_callback(self->audio_buffer, plm_read_audio_packet,
+                                   self);
+      self->audio_decoder =
+          plm_audio_create_with_buffer(self->audio_buffer, TRUE);
+    }
+  }
 
-//   self->has_decoders = TRUE;
-//   return TRUE;
-//}
+  self->has_decoders = TRUE;
+  return TRUE;
+}
 
 void plm_destroy(plm_t *self) {
   if (self->video_decoder) {
@@ -585,6 +585,9 @@ void plm_buffer_set_load_callback(plm_buffer_t *self,
 void plm_buffer_rewind(plm_buffer_t *self) { plm_buffer_seek(self, 0); }
 
 void plm_buffer_seek(plm_buffer_t *self, size_t pos) {
+  if (pos < self->length) {
+    self->bit_index = pos << 3;
+  }
  /* self->has_ended = FALSE;
 
   if (self->mode == PLM_BUFFER_MODE_FILE) {
@@ -605,7 +608,6 @@ void plm_buffer_seek(plm_buffer_t *self, size_t pos) {
 }
 
 size_t plm_buffer_tell(plm_buffer_t *self) {
-  //buffer mode cant be file
   return self->bit_index >> 3;
   // return self->mode == PLM_BUFFER_MODE_FILE
   //            ? ftell(self->fh) + (self->bit_index >> 3) - self->length
@@ -721,16 +723,16 @@ int plm_buffer_next_start_code(plm_buffer_t *self) {
   return -1;
 }
 
-// int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
-//   int current = 0;
-//   while (TRUE) {
-//     current = plm_buffer_next_start_code(self);
-//     if (current == code || current == -1) {
-//       return current;
-//     }
-//   }
-//   return -1;
-// }
+int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
+  int current = 0;
+  while (TRUE) {
+    current = plm_buffer_next_start_code(self);
+    if (current == code || current == -1) {
+      return current;
+    }
+  }
+  return -1;
+}
 
 int plm_buffer_has_start_code(plm_buffer_t *self, int code) {
   size_t previous_bit_index = self->bit_index;
@@ -1206,22 +1208,22 @@ plm_packet_t *plm_demux_get_packet(plm_demux_t *self) {
 }
 
 
-// plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
-//                                           int destroy_when_done) {
-//   plm_video_t *self = &static_video_holder;
-//   //memset(self, 0, sizeof(plm_video_t));
+plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
+                                          int destroy_when_done) {
+  plm_video_t *self = &static_video_holder;
+  //memset(self, 0, sizeof(plm_video_t));
 
-//   self->buffer = buffer;
-//   self->destroy_buffer_when_done = destroy_when_done;
+  self->buffer = buffer;
+  self->destroy_buffer_when_done = destroy_when_done;
 
-//   // Attempt to decode the sequence header
-//   self->start_code =
-//       plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
-//   if (self->start_code != -1) {
-//     plm_video_decode_sequence_header(self);
-//   }
-//   return self;
-// }
+  // Attempt to decode the sequence header
+  self->start_code =
+      plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
+  if (self->start_code != -1) {
+    plm_video_decode_sequence_header(self);
+  }
+  return self;
+}
 
 void plm_video_destroy(plm_video_t *self) {
   if (self->destroy_buffer_when_done) {
