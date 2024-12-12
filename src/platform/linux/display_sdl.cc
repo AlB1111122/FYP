@@ -26,6 +26,7 @@ struct frame_rate_info {
 } frame_rate_info;
 
 std::vector<std::array<std::chrono::system_clock::time_point, 5>> ttr = {};
+std::vector<double> between_update_video_loops = {};
 unsigned long total_frames_completed;
 
 struct video_app {
@@ -125,10 +126,10 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint8_t new_rgb_data[N_PIXELS];
   //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
                                //new_rgb_data);
-  //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
+  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
@@ -142,30 +143,15 @@ void updateVideo(video_app *self) {
   if (plm_time >= frame_rate_info.total_t) {
     self->wants_to_quit = true;
   }
-  double seek_to = -1;
   auto now = std::chrono::system_clock::now();
 
   std::chrono::duration<double, std::milli> elapsed_tp = now - last_time;
   double elapsed_time = elapsed_tp.count();
 
   if (elapsed_time >= frame_rate_info.frame_ms) {
-    std::cout << elapsed_time << "\n";
-
-    if (elapsed_time > (frame_rate_info.frame_ms * 2)) {
-      std::cout << "tripped"
-                << "\n";
-      seek_to = plm_time +
-                ((elapsed_time - (frame_rate_info.frame_ms * 1.3)) / 1000.0);
-    }
-    if (seek_to != -1) {
-      plm_seek(self->plm, seek_to, TRUE);
-
+    between_update_video_loops.push_back(elapsed_time);
       last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
-    } else {
-      last_time = now;
-      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
-    }
   }
 
   if (plm_has_ended(self->plm)) {
@@ -179,7 +165,7 @@ void updateVideo(video_app *self) {
       self->wants_to_quit = true;
     }
   }
-}  // functional but slower than nessesary
+}
 
 void destroy(video_app *self) {
   SDL_DestroyTexture(self->texture_rgb);
@@ -223,32 +209,31 @@ void make_stat_file(std::chrono::system_clock::time_point start){
       dropped_frames++;
     }
     
-}
-    // Write header row (optional)
-    file << "decode,convert to rgb,filter,display,total time,"
+}   //headers
+    file << "between_update_video_loops,decode,convert to rgb,filter,display,total time,"
           << "avg_to_decoded,avg_to_rgb,avg_to_filtered,avg_to_rendered,"
           << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
           << "total_play_time,actual_fps\n";
     
-    // Iterate through the vector and write each entry as a row in the CSV
     int flag = 0;
-    for (const auto& arr : durations) {
-        file << arr[0] << ","
-             << arr[1] << ","
-             << arr[2] << ","
-             << arr[3] << ","
-             << arr[4];
+    for (int i =0; i< total_frames_completed; i++) {
+        file << between_update_video_loops[i]<<","
+            << durations[i][0] << ","
+             << durations[i][1] << ","
+             << durations[i][2] << ","
+             << durations[i][3] << ","
+             << durations[i][4];
              if(flag < 1){
               flag++;
-            file << plm_d_t / total_frames_completed << ","
-             << total_rgb_t / total_frames_completed << ","
-             << total_filter_t / total_frames_completed << ","
-             << total_render_t / total_frames_completed << ","
-             << total_display_t / total_frames_completed << ","
-             << dropped_frames << ","
-             << total_frames_completed << ","
-             << duration.count() << ","
-             << total_frames_completed / duration.count() << "\n";
+              file << plm_d_t / total_frames_completed << ","
+              << total_rgb_t / total_frames_completed << ","
+              << total_filter_t / total_frames_completed << ","
+              << total_render_t / total_frames_completed << ","
+              << total_display_t / total_frames_completed << ","
+              << dropped_frames << ","
+              << total_frames_completed << ","
+              << duration.count() << ","
+              << total_frames_completed / duration.count() << "\n";
              }else{
               file << std::endl;
              }
