@@ -213,9 +213,8 @@ void make_stat_file(std::chrono::system_clock::time_point start){
     file << "between_update_video_loops,decode,convert to rgb,filter,display,total time,"
           << "avg_to_decoded,avg_to_rgb,avg_to_filtered,avg_to_rendered,"
           << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
-          << "total_play_time,actual_fps\n";
+          << "total_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
     
-    int flag = 0;
     for (int i =0; i< total_frames_completed; i++) {
         file << between_update_video_loops[i]<<","
             << durations[i][0] << ","
@@ -223,8 +222,7 @@ void make_stat_file(std::chrono::system_clock::time_point start){
              << durations[i][2] << ","
              << durations[i][3] << ","
              << durations[i][4];
-             if(flag < 1){
-              flag++;
+             if(i < 1){
               file << plm_d_t / total_frames_completed << ","
               << total_rgb_t / total_frames_completed << ","
               << total_filter_t / total_frames_completed << ","
@@ -233,7 +231,11 @@ void make_stat_file(std::chrono::system_clock::time_point start){
               << dropped_frames << ","
               << total_frames_completed << ","
               << duration.count() << ","
-              << total_frames_completed / duration.count() << "\n";
+              << total_frames_completed / duration.count() << ","
+              << frame_rate_info.total_frames<<","
+              << frame_rate_info.fps <<","
+              << frame_rate_info.frame_ms<<","
+              << frame_rate_info.total_t <<"\n";
              }else{
               file << std::endl;
              }
