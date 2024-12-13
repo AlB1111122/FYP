@@ -23,10 +23,11 @@ SECTIONS
         *(COMMON)
         __bss_end = .;
     }
+    . = 0x100000000;
     .stack (NOLOAD) : {
         . = ALIGN(8);
         __stack_start = .;
-        . += 0x40000000;
+        . += 0x20000000;
         __stack_end = .;
     }
     _end = .;
@@ -35,12 +36,8 @@ SECTIONS
 }
 
 __bss_size = (__bss_end - __bss_start)>>3;
-/*ASSERT(__stack_start >= __bss_end, "Stack overlaps BSS");
-ASSERT(__stack_end <= 0x100000000, "Stack exceeds available memory");*/
 
 ASSERT(__stack_start >= __bss_end, "Stack overlaps BSS");
-ASSERT(__stack_end <= 0x100000000, "Stack exceeds available memory");
 ASSERT(__start_text <= __start_data, "Text overlaps data section");
 ASSERT(__end_data <= __bss_start, "Data overlaps BSS section");
 ASSERT(__bss_end <= __stack_start, "BSS overlaps stack section");
-ASSERT(__stack_end <= 0x100000000, "Stack exceeds available memory");

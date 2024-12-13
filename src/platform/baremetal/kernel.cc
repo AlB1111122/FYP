@@ -400,41 +400,43 @@ void printN(T time) {
 //   printN(4);
 //   return self_ptr;
 // }
-  plm_t plm_holder = {
-    .demux = NULL,
-    .time = 0.0,
-    .has_ended = 0,
-    .loop = 0,
-    .has_decoders = 0,
+//   plm_t plm_holder = {
+//     .demux = NULL,
+//     .time = 0.0,
+//     .has_ended = 0,
+//     .loop = 0,
+//     .has_decoders = 0,
 
-    .video_enabled = 0,
-    .video_packet_type = 0,
-    .video_buffer = NULL,
-    .video_decoder = NULL,
+//     .video_enabled = 0,
+//     .video_packet_type = 0,
+//     .video_buffer = NULL,
+//     .video_decoder = NULL,
 
-    .audio_enabled = 0,
-    .audio_stream_index = 0,
-    .audio_packet_type = 0,
-    .audio_lead_time = 0.0,
-    .audio_buffer = NULL,
-    .audio_decoder = NULL,
+//     .audio_enabled = 0,
+//     .audio_stream_index = 0,
+//     .audio_packet_type = 0,
+//     .audio_lead_time = 0.0,
+//     .audio_buffer = NULL,
+//     .audio_decoder = NULL,
 
-    .video_decode_callback = NULL,
-    .video_decode_callback_user_data = NULL,
+//     .video_decode_callback = NULL,
+//     .video_decode_callback_user_data = NULL,
 
-    .audio_decode_callback = NULL,
-    .audio_decode_callback_user_data = NULL
-};
+//     .audio_decode_callback = NULL,
+//     .audio_decode_callback_user_data = NULL
+// };
 
-  video_app app = {// init lists and memset break why???
-    .plm = NULL,
-    .wants_to_quit = false,
-    .last_time = 0,
-    .rgb_data = {0}, 
-    .win_height = 0,
-    .win_width = 0
-  };
+//   video_app app = {// init lists and memset break why???
+//     .plm = NULL,
+//     .wants_to_quit = false,
+//     .last_time = 0,
+//     .rgb_data = {0}, 
+//     .win_height = 0,
+//     .win_width = 0
+//   };
 
+plm_t plm_holder;
+video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
