@@ -17,14 +17,14 @@ SECTIONS
         *(.data .data.* .gnu.linkonce.d*) 
         __end_data = .;}
     .bss (NOLOAD) : {
-        . = ALIGN(16);
+        . = ALIGN(8);
         __bss_start = .;
         *(.bss .bss.*)
         *(COMMON)
         __bss_end = .;
     }
     .stack (NOLOAD) : {
-        . = ALIGN(16);
+        . = ALIGN(8);
         __stack_start = .;
         . += 0x40000000;
         __stack_end = .;
