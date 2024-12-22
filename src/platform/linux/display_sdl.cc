@@ -210,7 +210,7 @@ void make_stat_file(std::chrono::system_clock::time_point start){
     }
     
 }   //headers
-    file << "between_update_video_loops,decode,convert to rgb,filter,display,total time,"
+    file << "between_update_video_loops,decode,convert to rgb,filter,display,total time in plm callback,"
           << "avg_to_decoded,avg_to_rgb,avg_to_filtered,avg_to_rendered,"
           << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
           << "total_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
