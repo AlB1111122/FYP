@@ -236,213 +236,11 @@ void printN(T time) {
   nPrints++;
 }
 
-// // int plm_buffer_next_start_code(plm_buffer_t *self) {
-// //   printN(61);
-// //   plm_buffer_align(self);
-// // printN(62);
-// //   while (plm_buffer_has(self, (5 << 3))) {
-// //     printN(63);
-// //     size_t byte_index = (self->bit_index) >> 3;
-// //     if (self->bytes[byte_index] == 0x00 &&
-// //         self->bytes[byte_index + 1] == 0x00 &&
-// //         self->bytes[byte_index + 2] == 0x01) {
-// //           printN(64);
-// //       self->bit_index = (byte_index + 4) << 3;
-// //       printN(65);
-// //       printN(sizeof(self->bytes));
-// //       printN(byte_index);
-// //       printN(self->bytes[byte_index + 3]);
-// //       int ret_val = self->bytes[byte_index + 3];
-// //       return ret_val;
-// //     }
-// //     printN(66);
-// //     self->bit_index += 8;
-// //   }
-// //   printN(67);
-// //   return -1;
-// // }
-
-// int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
-// printN(51);
-//   int current = 0;
-//   while (TRUE) {
-
-// printN(52);
-//       plm_buffer_align(self);
-
-//   while (plm_buffer_has(self, (5 << 3))) {
-//     size_t byte_index = (self->bit_index) >> 3;
-//     if (self->bytes[byte_index] == 0x00 &&
-//         self->bytes[byte_index + 1] == 0x00 &&
-//         self->bytes[byte_index + 2] == 0x01) {
-//       self->bit_index = (byte_index + 4) << 3;
-//       current = self->bytes[byte_index + 3];
-//     }
-//     self->bit_index += 8;
-//   }
-//   current =  -1;
-//     printN(current);
-
-// printN(53);
-//     if (current == code || current == -1) {
-
-// printN(54);
-//       return current;
-//     }
-//   }
-
-// printN(55);
-//   return -1;
-// }
-
-// plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
-//                                           int destroy_when_done) {
-//                                             printN(40);
-//   plm_video_t *self = &static_video_holder;
-//   //memset(self, 0, sizeof(plm_video_t));
-// printN(41);
-//   self->buffer = buffer;
-//   self->destroy_buffer_when_done = destroy_when_done;
-// printN(42);
-//   // Attempt to decode the sequence header
-//   self->start_code =
-//       plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
-//       printN(43);
-//   if (self->start_code != -1) {
-//     printN(44);
-//     plm_video_decode_sequence_header(self);
-//     printN(45);
-//   }
-//   printN(46);
-//   return self;
-// }
-
-
-// int plm_init_decoders(plm_t *self) {
-//   printN(21);
-//   if (self->has_decoders) {
-//     return TRUE;
-//   }
-// printN(22);
-//   if (!plm_demux_has_headers(self->demux)) {
-//     return FALSE;
-//   }
-//   printN(23);
-
-//   if (plm_demux_get_num_video_streams(self->demux) > 0) {
-//     printN(24);
-//     if (self->video_enabled) {
-//       self->video_packet_type = PLM_DEMUX_PACKET_VIDEO_1;
-//     }
-//     if (!self->video_decoder) {
-//       printN(25);
-//       self->video_buffer =
-//           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-
-//                                    printN(26);
-//       plm_buffer_set_load_callback(self->video_buffer, plm_read_video_packet,
-//                                    self);
-//                                    printN(26);
-//       self->video_decoder =
-//           plm_video_create_with_buffer(self->video_buffer, TRUE);
-//           printN(27);
-//     }
-//   }
-//   printN(28);
-
-//   if (plm_demux_get_num_audio_streams(self->demux) > 0) {
-//     printN(29);
-//     if (self->audio_enabled) {
-//       self->audio_packet_type =
-//           PLM_DEMUX_PACKET_AUDIO_1 + self->audio_stream_index;
-//           printN(30);
-//     }
-//     printN(31);
-//     if (!self->audio_decoder) {
-//       printN(32);
-//       self->audio_buffer =
-//           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-//       printN(33);
-//       plm_buffer_set_load_callback(self->audio_buffer, plm_read_audio_packet,
-//                                    self);
-//                                    printN(34);
-//       self->audio_decoder =
-//           plm_audio_create_with_buffer(self->audio_buffer, TRUE);
-//     }
-//     printN(35);
-//   }
-// printN(36);
-//   self->has_decoders = TRUE;
-//   printN(37);
-//   return TRUE;
-// }
-
-// void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
-//                             plm_t *self) {
-//                               printN(10);
-//   self->demux = plm_demux_create(buffer, destroy_when_done);
-//   printN(11);
-//   self->video_enabled = TRUE;
-//   self->audio_enabled = TRUE;
-//   printN(12);
-//   plm_init_decoders(self);
-// }
-
-// plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
-//                               plm_t *self_ptr) {
-//   printN(2);//gets here
-//   plm_buffer_t *buffer =
-//       plm_buffer_create_with_memory(bytes, length, free_when_done);
-
-//   printN(3);
-//   plm_create_with_buffer(buffer, TRUE, self_ptr);
-
-//   printN(4);
-//   return self_ptr;
-// }
-//   plm_t plm_holder = {
-//     .demux = NULL,
-//     .time = 0.0,
-//     .has_ended = 0,
-//     .loop = 0,
-//     .has_decoders = 0,
-
-//     .video_enabled = 0,
-//     .video_packet_type = 0,
-//     .video_buffer = NULL,
-//     .video_decoder = NULL,
-
-//     .audio_enabled = 0,
-//     .audio_stream_index = 0,
-//     .audio_packet_type = 0,
-//     .audio_lead_time = 0.0,
-//     .audio_buffer = NULL,
-//     .audio_decoder = NULL,
-
-//     .video_decode_callback = NULL,
-//     .video_decode_callback_user_data = NULL,
-
-//     .audio_decode_callback = NULL,
-//     .audio_decode_callback_user_data = NULL
-// };
-
-//   video_app app = {// init lists and memset break why???
-//     .plm = NULL,
-//     .wants_to_quit = false,
-//     .last_time = 0,
-//     .rgb_data = {0}, 
-//     .win_height = 0,
-//     .win_width = 0
-//   };
-
 plm_t plm_holder;
 video_app app;
 int main() {
-  MiniUart mu = MiniUart();
   Timer t = Timer();
   etl::string<15> hello_str = "Hello world!\n";
-  mu.init();
-  mu.writeText(hello_str.data());
   fb_init();
   
   //video_app app;
@@ -456,7 +254,7 @@ int main() {
   uint8_t *soccer_bytes = &soccer[0];
   printN(1);
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
-  printN(5); //last thing working 17:29
+  printN(5);
 
   //plm_set_video_decode_callback(app_ptr->plm, updateFrame, self);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
@@ -481,11 +279,7 @@ int main() {
   etl::string<64> plt = "Correct play time sec: ";
   etl::to_string(play_time, plt,etl::format_spec().precision(6),true);
   drawString(400, 40, plt.data(), 0x0f);
-  // while(1){
-  //   ;
-  // }
   while (1) {
-    mu.writeText(hello_str);
     uint64_t time = t.now();
     printN(t.to_sec(time));
 

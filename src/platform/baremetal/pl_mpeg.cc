@@ -1,8 +1,36 @@
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
-//#include <stdlib.h>
 #include "/usr/share/etl/etl-20.39.4/include/etl/absolute.h"
-#include <string.h>
-//#include <stdio.h>
+
+void memcpyRDef(void *dest, void *src, size_t n)
+{ 
+  // Typecast src and dest addresses to (char *) 
+  char *csrc = (char *)src; 
+  char *cdest = (char *)dest;
+
+  // Copy contents of src[] to dest[] 
+  for (int i=0; i<n; i++) {
+      cdest[i] = csrc[i]; 
+  }
+}
+
+void memmoveRDef(void* dest, const void* src, unsigned int n)
+{
+    char *pDest = (char *)dest;
+    const char *pSrc =( const char*)src;
+    //allocate memory for tmp array
+    char *tmp[n];
+        unsigned int i = 0;
+        // copy src to tmp array
+        for(i =0; i < n ; ++i)
+        {
+            *(tmp + i) = *(pSrc + i);
+        }
+        //copy tmp to dest
+        for(i =0 ; i < n ; ++i)
+        {
+            *(pDest + i) = *(tmp + i);
+        }
+}
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);
@@ -512,7 +540,7 @@ plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
   self->length = length;
   self->total_size = length;
   self->free_when_done = free_when_done;
-  memcpy(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
+  memcpyRDef(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
   self->mode = PLM_BUFFER_MODE_FIXED_MEM;
   self->discard_read_bytes = FALSE;
   return self;
@@ -566,7 +594,7 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
     }
   }
 
-  memcpy(self->bytes + self->length, bytes, length);
+  memcpyRDef(self->bytes + self->length, bytes, length);
   self->length += length;
   self->has_ended = FALSE;
   return length;
@@ -620,7 +648,7 @@ void plm_buffer_discard_read_bytes(plm_buffer_t *self) {
     self->bit_index = 0;
     self->length = 0;
   } else if (byte_pos > 0) {
-    memmove(self->bytes, self->bytes + byte_pos, self->length - byte_pos);
+    memmoveRDef(self->bytes, self->bytes + byte_pos, self->length - byte_pos);
     self->bit_index -= byte_pos << 3;
     self->length -= byte_pos;
   }
@@ -1392,7 +1420,7 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
       self->intra_quant_matrix[idx] = plm_buffer_read(self->buffer, 8);
     }
   } else {
-    memcpy(self->intra_quant_matrix, PLM_VIDEO_INTRA_QUANT_MATRIX, 64);
+    memcpyRDef(self->intra_quant_matrix, PLM_VIDEO_INTRA_QUANT_MATRIX, 64);
   }
 
   // Load custom non intra quant matrix?
@@ -1402,7 +1430,7 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
       self->non_intra_quant_matrix[idx] = plm_buffer_read(self->buffer, 8);
     }
   } else {
-    memcpy(self->non_intra_quant_matrix, PLM_VIDEO_NON_INTRA_QUANT_MATRIX, 64);
+    memcpyRDef(self->non_intra_quant_matrix, PLM_VIDEO_NON_INTRA_QUANT_MATRIX, 64);
   }
 
   self->mb_width = (self->width + 15) >> 4;
@@ -2030,8 +2058,8 @@ plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
   self->destroy_buffer_when_done = destroy_when_done;
   self->samplerate_index = 3;  // Indicates 0
 
-  memcpy(self->D, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
-  memcpy(self->D + 512, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
+  memcpyRDef(self->D, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
+  memcpyRDef(self->D + 512, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
 
   // Attempt to decode first header
   self->next_frame_data_size = plm_audio_decode_header(self);
