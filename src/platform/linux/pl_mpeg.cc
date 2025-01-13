@@ -709,8 +709,6 @@ int plm_buffer_next_start_code(plm_buffer_t *self) {
         self->bytes[byte_index + 1] == 0x00 &&
         self->bytes[byte_index + 2] == 0x01) {
       self->bit_index = (byte_index + 4) << 3;
-
-      std::cout<< byte_index <<std::endl;
       return self->bytes[byte_index + 3];
     }
     self->bit_index += 8;

@@ -168,6 +168,8 @@ See below for detailed the API documentation.
 #else
   #pragma message ("compiling on bm")
   #include <stdio.h>
+  void memcpyRDef(void *dest, void *src, size_t n);
+  void memmoveRDef(void* dest, const void* src, unsigned int n);
 #endif
 #include <stddef.h>
 #include <stdint.h>
@@ -269,9 +271,6 @@ typedef void (*plm_buffer_load_callback)(plm_buffer_t *self, void *user);
 
 // Create a plmpeg instance with a filename. Returns NULL if the file could not
 // be opened.
-
-void memcpyRDef(void *dest, void *src, size_t n);
-void memmoveRDef(void* dest, const void* src, unsigned int n);
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr);
 

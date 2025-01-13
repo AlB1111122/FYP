@@ -182,7 +182,6 @@ void updateVideo(video_app *self) {
   double elapsed_time = elapsed_tp.count();
 
   if (elapsed_time >= frame_rate_info.frame_ms) {
-    std::cout << elapsed_time << "\n";
 
     if (elapsed_time > (frame_rate_info.frame_ms * 2)) {
       std::cout << "tripped"

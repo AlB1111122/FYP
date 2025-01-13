@@ -236,6 +236,10 @@ void printN(T time) {
   nPrints++;
 }
 
+void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
+  printN(1234);
+}
+
 plm_t plm_holder;
 video_app app;
 int main() {
@@ -256,7 +260,7 @@ int main() {
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5);
 
-  //plm_set_video_decode_callback(app_ptr->plm, updateFrame, self);
+  plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
   plm_set_audio_enabled(app_ptr->plm, FALSE);
 
