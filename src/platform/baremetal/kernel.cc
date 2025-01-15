@@ -237,7 +237,16 @@ void printN(T time) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
-  printN(1234);
+  video_app *self = static_cast<video_app *>(user);
+  plm_frame_to_rgb(frame, self->rgb_data,
+                   frame->width * 3);  // can be hardware accelerated]
+
+  uint8_t new_rgb_data[N_PIXELS];
+  //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
+                               //new_rgb_data);
+  //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+
+  //TODO: display
 }
 
 plm_t plm_holder;
