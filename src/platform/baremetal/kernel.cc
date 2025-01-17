@@ -7,6 +7,7 @@
 #include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
 #include <stdlib.h>
+#include <stdint.h>
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
 
@@ -24,6 +25,7 @@ struct video_app {
     int win_height;
     int win_width;
     uint64_t ttr[400][4];
+    int total_frames_completed=0;
 };
 
 template<typename T>
@@ -38,23 +40,34 @@ void printN(T time) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
+  uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
   plm_frame_to_rgb(frame, self->rgb_data,
                    frame->width * 3);  // can be hardware accelerated]
+  uint64_t to_rgb = Timer::now();
 
   uint8_t new_rgb_data[N_PIXELS];
   //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
                                //new_rgb_data);
   //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  uint64_t to_filtered = Timer::now();
 
   //TODO: display
+  uint64_t to_rendered = Timer::now();
+  self->ttr[self->total_frames_completed][0] = start_time;
+  self->ttr[self->total_frames_completed][1] = to_rgb;
+  self->ttr[self->total_frames_completed][2] = to_filtered;
+  self->ttr[self->total_frames_completed][3] = to_rendered;
+  self->total_frames_completed++;
 }
 
 plm_t plm_holder;
 video_app app;
 int main() {
+  MiniUart mu = MiniUart();
   Timer t = Timer();
   etl::string<15> hello_str = "Hello world!\n";
+  mu.init();
   fb_init();
   
   //video_app app;
@@ -94,7 +107,7 @@ int main() {
   etl::to_string(play_time, plt,etl::format_spec().precision(6),true);
   drawString(400, 40, plt.data(), 0x0f);
   while (1) {
-    uint64_t time = t.now();
+    uint64_t time = Timer::now();
     printN(t.to_sec(time));
 
     etl::string<32> n_str;
