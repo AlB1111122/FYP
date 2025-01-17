@@ -28,6 +28,13 @@ struct video_app {
     int total_frames_completed=0;
 };
 
+struct frame_rate_info {
+  double frame_ms;
+  double fps;
+  int total_frames;
+  double total_t_exp;
+} frame_rate_info;
+
 template<typename T>
 void printN(T time) {
   etl::string<100> i_str;
@@ -87,24 +94,31 @@ int main() {
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
   plm_set_audio_enabled(app_ptr->plm, FALSE);
 
-  double fps = plm_get_framerate(app_ptr->plm);
-  double total_time_per_f  = plm_get_duration(app_ptr->plm);
-  int total_frames = total_time_per_f * fps;
-  double frame_ms =
-      (1.0 / static_cast<double>(fps)) * 1000;
-  double play_time = plm_get_duration(app_ptr->plm);
+  // double fps = plm_get_framerate(app_ptr->plm);
+  // frame_rate_info.fps = fps;
+  // double total_time_exp  = plm_get_duration(app_ptr->plm);
+  // frame_rate_info.total_t_exp = total_time_exp;
+  // int total_frames = total_time_exp * fps;
+  // frame_rate_info.total_frames = total_frames;
+  // double frame_ms =
+  //     (1.0 / static_cast<double>(fps)) * 1000;
+  // frame_rate_info.frame_ms = frame_ms;
+  frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
+  frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
+  frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
+  frame_rate_info.frame_ms = (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
 
   etl::string<64> frame_stats = "Total frames: ";
-  etl::to_string(total_frames, frame_stats,etl::format_spec().precision(6),true);
+  etl::to_string(frame_rate_info.total_frames, frame_stats,etl::format_spec().precision(6),true);
   drawString(400, 10, frame_stats.data(), 0x0f);
   etl::string<64> fps_stats = "FPS: ";
-  etl::to_string(fps, fps_stats,etl::format_spec().precision(6),true);
+  etl::to_string(frame_rate_info.fps, fps_stats,etl::format_spec().precision(6),true);
   drawString(400, 20, fps_stats.data(), 0x0f);
   etl::string<64> framt = "Max frame time ms: ";
-  etl::to_string(frame_ms, framt,etl::format_spec().precision(6),true);
+  etl::to_string(frame_rate_info.frame_ms, framt,etl::format_spec().precision(6),true);
   drawString(400, 30, framt.data(), 0x0f);
   etl::string<64> plt = "Correct play time sec: ";
-  etl::to_string(play_time, plt,etl::format_spec().precision(6),true);
+  etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
   drawString(400, 40, plt.data(), 0x0f);
   while (1) {
     uint64_t time = Timer::now();

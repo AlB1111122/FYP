@@ -21,13 +21,15 @@ SECTIONS
         __bss_start = .;
         *(.bss .bss.*)
         *(COMMON)
+        . = ALIGN(8);
         __bss_end = .;
     }
     . = 0x100000000;
     .stack (NOLOAD) : {
         . = ALIGN(8);
         __stack_start = .;
-        . += 0x20000000;
+        . += 0x20000000; /*half gig*/
+        . = ALIGN(8);
         __stack_end = .;
     }
     _end = .;
