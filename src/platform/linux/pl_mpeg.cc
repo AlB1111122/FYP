@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);
