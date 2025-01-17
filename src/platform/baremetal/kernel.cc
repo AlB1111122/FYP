@@ -94,15 +94,6 @@ int main() {
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
   plm_set_audio_enabled(app_ptr->plm, FALSE);
 
-  // double fps = plm_get_framerate(app_ptr->plm);
-  // frame_rate_info.fps = fps;
-  // double total_time_exp  = plm_get_duration(app_ptr->plm);
-  // frame_rate_info.total_t_exp = total_time_exp;
-  // int total_frames = total_time_exp * fps;
-  // frame_rate_info.total_frames = total_frames;
-  // double frame_ms =
-  //     (1.0 / static_cast<double>(fps)) * 1000;
-  // frame_rate_info.frame_ms = frame_ms;
   frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
   frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
   frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
@@ -159,9 +150,6 @@ int main() {
     auto m = t.to_milli(time);
     printN(m);
     uint64_t fullDuration = t.duration_since(time);
-    /*etl::string<100> text = "The result is ";
-    etl::to_string(fullDuration/1000000, text, etl::format_spec().precision(6),true);
-    drawString(100,260, text.data(), 0x0f);*/
     ldiv_t division_result = ldiv(fullDuration, 1000000);
     double res = division_result.quot + ((double)division_result.rem / (double)1000000);
     etl::string<100> text = "The result is ";
