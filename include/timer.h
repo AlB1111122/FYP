@@ -2,7 +2,7 @@
 extern "C" {
 #include <stdint.h>
 }
-#include "peripheral_reg.h"
+#include "peripheralReg.h"
 
 class Timer {
  private:

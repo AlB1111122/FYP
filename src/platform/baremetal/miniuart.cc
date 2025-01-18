@@ -1,6 +1,6 @@
 #include "../../../include/miniuart.h"
 
-#include "../../../include/peripheral_reg.h"
+#include "../../../include/peripheralReg.h"
 
 constexpr int STR_SZ = 255;
 
