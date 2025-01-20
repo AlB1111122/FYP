@@ -47,6 +47,46 @@ void printN(T time) {
   nPrints++;
 }
 
+// plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
+//                               plm_t *self_ptr) {
+//                                 printN(2);
+//   plm_buffer_t *buffer =
+//       plm_buffer_create_with_memory(bytes, length, free_when_done);
+
+//                                 printN(3);
+//   plm_create_with_buffer(buffer, TRUE, self_ptr);
+//   printN(22222222222);
+
+//   printN(soccer[0]);
+//   printN(self_ptr->video_buffer->bytes[0]);
+//   printN(soccer[1]);
+//   printN(self_ptr->video_buffer->bytes[1]);
+//   printN(soccer[2]);
+//   printN(self_ptr->video_buffer->bytes[2]);
+//   printN(soccer[3]);
+//   printN(self_ptr->video_buffer->bytes[3]);
+//   printN(soccer[4]);
+//   printN(self_ptr->video_buffer->bytes[4]);
+//   printN(soccer[5]);
+//   printN(self_ptr->video_buffer->bytes[5]);
+//   printN(999999);
+//   printN(soccer[15970303]);
+//   printN(self_ptr->video_buffer->bytes[15970303]);
+//   printN(soccer[15970302]);
+//   printN(self_ptr->video_buffer->bytes[15970302]);
+//   printN(soccer[15970301]);
+//   printN(self_ptr->video_buffer->bytes[15970301]);
+//   printN(soccer[15970300]);
+//   printN(self_ptr->video_buffer->bytes[15970300]);
+//   printN(soccer[15970299]);
+//   printN(self_ptr->video_buffer->bytes[15970299]);
+//   printN(soccer[15970298]);
+//   printN(self_ptr->video_buffer->bytes[15970298]);
+
+// printN(22222222222);
+//   return self_ptr;
+// }
+
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
@@ -93,7 +133,6 @@ int main() {
   etl::string<15> hello_str = "Hello world!\n";
   mu.init();
   fb_init();
-  
   //video_app app;
   video_app *app_ptr = &app;
   app_ptr->win_height = 4;
@@ -119,7 +158,7 @@ int main() {
   printN(app_ptr->plm->video_buffer->bytes[4]);
   printN(soccer[5]);
   printN(app_ptr->plm->video_buffer->bytes[5]);
-  printN(soccer[999999]);
+  printN(999999);
   printN(soccer[15970303]);
   printN(app_ptr->plm->video_buffer->bytes[15970303]);
   printN(soccer[15970302]);
