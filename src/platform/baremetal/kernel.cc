@@ -26,6 +26,7 @@ struct video_app {
     int win_width;
     uint64_t ttr[400][4];
     int total_frames_completed=0;
+    uint64_t between_update_video_loops[400];
 };
 
 struct frame_rate_info {
@@ -61,11 +62,27 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
 
   //TODO: display
   uint64_t to_rendered = Timer::now();
-  self->ttr[self->total_frames_completed][0] = start_time;
-  self->ttr[self->total_frames_completed][1] = to_rgb;
-  self->ttr[self->total_frames_completed][2] = to_filtered;
-  self->ttr[self->total_frames_completed][3] = to_rendered;
+  self->ttr[self->total_frames_completed][0] = self->last_time;
+  self->ttr[self->total_frames_completed][1] = start_time;
+  self->ttr[self->total_frames_completed][2] = to_rgb;
+  self->ttr[self->total_frames_completed][3] = to_filtered;
+  self->ttr[self->total_frames_completed][4] = to_rendered;
   self->total_frames_completed++;
+}
+
+void updateVideo(video_app *self, Timer& t) {
+  auto now = Timer::now();
+  uint64_t elapsed_time = t.to_milli(t.duration_since(self->last_time));
+
+  if (elapsed_time >= frame_rate_info.frame_ms) {
+    self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
+      self->last_time = now;
+      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+  }
+
+  if (plm_has_ended(self->plm)) {
+    self->wants_to_quit = true;
+  }
 }
 
 plm_t plm_holder;
@@ -90,6 +107,33 @@ int main() {
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5);
 
+  printN(soccer[0]);
+  printN(app_ptr->plm->video_buffer->bytes[0]);
+  printN(soccer[1]);
+  printN(app_ptr->plm->video_buffer->bytes[1]);
+  printN(soccer[2]);
+  printN(app_ptr->plm->video_buffer->bytes[2]);
+  printN(soccer[3]);
+  printN(app_ptr->plm->video_buffer->bytes[3]);
+  printN(soccer[4]);
+  printN(app_ptr->plm->video_buffer->bytes[4]);
+  printN(soccer[5]);
+  printN(app_ptr->plm->video_buffer->bytes[5]);
+  printN(soccer[999999]);
+  printN(soccer[15970303]);
+  printN(app_ptr->plm->video_buffer->bytes[15970303]);
+  printN(soccer[15970302]);
+  printN(app_ptr->plm->video_buffer->bytes[15970302]);
+  printN(soccer[15970301]);
+  printN(app_ptr->plm->video_buffer->bytes[15970301]);
+  printN(soccer[15970300]);
+  printN(app_ptr->plm->video_buffer->bytes[15970300]);
+  printN(soccer[15970299]);
+  printN(app_ptr->plm->video_buffer->bytes[15970299]);
+  printN(soccer[15970298]);
+  printN(app_ptr->plm->video_buffer->bytes[15970298]);
+
+
   plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
   plm_set_audio_enabled(app_ptr->plm, FALSE);
@@ -111,6 +155,17 @@ int main() {
   etl::string<64> plt = "Correct play time sec: ";
   etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
   drawString(400, 40, plt.data(), 0x0f);
+
+  //app created
+
+  uint64_t start = Timer::now();
+  app_ptr->last_time = start;
+  
+  while (!app_ptr->wants_to_quit) {
+    printN(app_ptr->total_frames_completed);
+    updateVideo(app_ptr, t);
+  }
+
   while (1) {
     uint64_t time = Timer::now();
     printN(t.to_sec(time));
