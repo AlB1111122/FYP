@@ -78,11 +78,100 @@ void updateVideo(video_app *self, Timer& t) {
     self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
       self->last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+      printN(self->total_frames_completed);
   }
 
-  if (plm_has_ended(self->plm)) {
+  if (plm_has_ended(self->plm) || self->total_frames_completed > 5) {
     self->wants_to_quit = true;
   }
+}
+
+void make_stat_file(uint64_t start_time, video_app *self, Timer& t){
+
+  uint64_t duration = t.duration_since(start_time);
+  //std::cout << "render times:\n";
+  uint64_t total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t = 0;
+
+  //std::vector<std::array<double, 5>> durations = {};
+  uint64_t durations[400][5];
+  int dropped_frames = 0;
+  for (int i = 0;i < self->total_frames_completed;i++) {
+    uint64_t ttplmd = self->ttr[i][1] - self->ttr[i][0];
+    uint64_t ttrgb = self->ttr[i][2] - self->ttr[i][1];
+    uint64_t ttf = self->ttr[i][3] - self->ttr[i][2];
+    uint64_t ttr = self->ttr[i][4] - self->ttr[i][3];
+    uint64_t ttd = self->ttr[i][4] - self->ttr[i][0];
+    self->ttr[i][0] = ttplmd;
+    self->ttr[i][1] = ttrgb;
+    self->ttr[i][2] = ttf;
+    self->ttr[i][3] = ttr;
+    self->ttr[i][4] = ttd;
+    plm_d_t += ttplmd;
+    total_rgb_t += ttrgb;
+    total_filter_t += ttf;
+    total_render_t += ttr;
+    total_display_t += ttd;
+
+    if (ttd > frame_rate_info.frame_ms) {
+      dropped_frames++;
+    }
+    
+  }
+    drawString(300, 100, "between_loops", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<100> n_str;
+      etl::to_string(plm_d_t / self->between_update_video_loops[i], n_str, etl::format_spec().precision(6),false);
+      drawString(300, 100 + (i*10),n_str.data(), 0x0f);
+    }
+    drawString(600, 100, "decode", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<100> n_str;
+      etl::to_string(plm_d_t / durations[i][0], n_str, etl::format_spec().precision(6),false);
+      drawString(600, 100 + (i*10), n_str.data(), 0x0f);
+    }
+    drawString(800, 100, "convert_rgb", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<800> n_str;
+      etl::to_string(plm_d_t / durations[i][1], n_str, etl::format_spec().precision(6),false);
+      drawString(500, 100 + (i*10), n_str.data(), 0x0f);
+    }
+    drawString(1000, 100, "filter", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<100> n_str;
+      etl::to_string(plm_d_t / durations[i][2], n_str, etl::format_spec().precision(6),false);
+      drawString(1000, 100 + (i*10), n_str.data(), 0x0f);
+    }
+    drawString(1200, 100, "display", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<100> n_str;
+      etl::to_string(plm_d_t / durations[i][3], n_str, etl::format_spec().precision(6),false);
+      drawString(1200, 100 + (i*10), n_str.data(), 0x0f);
+    }
+    drawString(1400, 800, "callback_time", 0x0f);
+    for(int i =1; i <= self->total_frames_completed; i++){
+      etl::string<100> n_str;
+      etl::to_string(plm_d_t / durations[i][4], n_str, etl::format_spec().precision(6),false);
+      drawString(1400, 100 + (i*10), n_str.data(), 0x0f);
+    }
+    drawString(300, 00, "avg_to_decoded", 0x0f);
+    etl::string<100> n_str;
+    etl::to_string(plm_d_t / self->total_frames_completed, n_str, etl::format_spec().precision(6),false);
+    drawString(300, 810, n_str.data(), 0x0f);
+    
+    drawString(500, 800, "avg_to_rgb", 0x0f);
+    etl::string<100> n_stra;
+    etl::to_string(total_rgb_t / self->total_frames_completed, n_stra, etl::format_spec().precision(6),false);
+    drawString(500, 810, n_str.data(), 0x0f);
+    
+    drawString(700, 800, "avg_to_filtered", 0x0f);
+    etl::string<100> n_strb;
+    etl::to_string(total_filter_t / self->total_frames_completed, n_strb, etl::format_spec().precision(6),false);
+    drawString(700, 810, n_str.data(), 0x0f);
+    
+    drawString(900, 800, "total_render_t", 0x0f);
+    etl::string<100> n_strc;
+    etl::to_string(total_render_t / self->total_frames_completed, n_strc, etl::format_spec().precision(6),false);
+    drawString(900, 810, n_str.data(), 0x0f);
 }
 
 plm_t plm_holder;
@@ -94,7 +183,6 @@ int main() {
   mu.init();
   fb_init();
   
-  //video_app app;
   video_app *app_ptr = &app;
   app_ptr->win_height = 4;
   printN(app_ptr->win_height);
@@ -107,32 +195,6 @@ int main() {
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5);
 
-  printN(soccer[0]);
-  printN(app_ptr->plm->video_buffer->bytes[0]);
-  printN(soccer[1]);
-  printN(app_ptr->plm->video_buffer->bytes[1]);
-  printN(soccer[2]);
-  printN(app_ptr->plm->video_buffer->bytes[2]);
-  printN(soccer[3]);
-  printN(app_ptr->plm->video_buffer->bytes[3]);
-  printN(soccer[4]);
-  printN(app_ptr->plm->video_buffer->bytes[4]);
-  printN(soccer[5]);
-  printN(app_ptr->plm->video_buffer->bytes[5]);
-  printN(soccer[999999]);
-  printN(soccer[15970303]);
-  printN(app_ptr->plm->video_buffer->bytes[15970303]);
-  printN(soccer[15970302]);
-  printN(app_ptr->plm->video_buffer->bytes[15970302]);
-  printN(soccer[15970301]);
-  printN(app_ptr->plm->video_buffer->bytes[15970301]);
-  printN(soccer[15970300]);
-  printN(app_ptr->plm->video_buffer->bytes[15970300]);
-  printN(soccer[15970299]);
-  printN(app_ptr->plm->video_buffer->bytes[15970299]);
-  printN(soccer[15970298]);
-  printN(app_ptr->plm->video_buffer->bytes[15970298]);
-
 
   plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
@@ -143,18 +205,18 @@ int main() {
   frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
   frame_rate_info.frame_ms = (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
 
-  etl::string<64> frame_stats = "Total frames: ";
-  etl::to_string(frame_rate_info.total_frames, frame_stats,etl::format_spec().precision(6),true);
-  drawString(400, 10, frame_stats.data(), 0x0f);
-  etl::string<64> fps_stats = "FPS: ";
-  etl::to_string(frame_rate_info.fps, fps_stats,etl::format_spec().precision(6),true);
-  drawString(400, 20, fps_stats.data(), 0x0f);
-  etl::string<64> framt = "Max frame time ms: ";
-  etl::to_string(frame_rate_info.frame_ms, framt,etl::format_spec().precision(6),true);
-  drawString(400, 30, framt.data(), 0x0f);
-  etl::string<64> plt = "Correct play time sec: ";
-  etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
-  drawString(400, 40, plt.data(), 0x0f);
+  // etl::string<64> frame_stats = "Total frames: ";
+  // etl::to_string(frame_rate_info.total_frames, frame_stats,etl::format_spec().precision(6),true);
+  // drawString(400, 10, frame_stats.data(), 0x0f);
+  // etl::string<64> fps_stats = "FPS: ";
+  // etl::to_string(frame_rate_info.fps, fps_stats,etl::format_spec().precision(6),true);
+  // drawString(400, 20, fps_stats.data(), 0x0f);
+  // etl::string<64> framt = "Max frame time ms: ";
+  // etl::to_string(frame_rate_info.frame_ms, framt,etl::format_spec().precision(6),true);
+  // drawString(400, 30, framt.data(), 0x0f);
+  // etl::string<64> plt = "Correct play time sec: ";
+  // etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
+  // drawString(400, 40, plt.data(), 0x0f);
 
   //app created
 
@@ -162,53 +224,9 @@ int main() {
   app_ptr->last_time = start;
   
   while (!app_ptr->wants_to_quit) {
-    printN(app_ptr->total_frames_completed);
     updateVideo(app_ptr, t);
   }
+  make_stat_file(start, app_ptr, t);
 
-  while (1) {
-    uint64_t time = Timer::now();
-    printN(t.to_sec(time));
-
-    etl::string<32> n_str;
-    etl::to_string(time, n_str);
-    uint64_t duration_since = t.duration_since(time);
-    printN(t.to_sec(duration_since));
-
-    auto secTime = t.get_hertz();
-    etl::string<32> sec_str;
-    etl::to_string(secTime, sec_str);
-    printN(secTime);
-    while (t.duration_since(time) < 10000000) {
-      ;
-    }
-    int b = 4000 / 1000;
-    printN(b);
-    while (t.duration_since(time) < 15000000) {
-      ;
-    }
-    int c = 54382589 / 1000;
-    printN(c);
-    while (t.duration_since(time) < 20000000) {
-      ;
-    }
-    int d = 1 / 1000;
-    printN(d);
-    while (t.duration_since(time) < 25000000) {
-      ;
-    }
-    auto a = t.to_sec(time);
-    printN(a);
-    while (t.duration_since(time) < 30000000) {
-      ;
-    }
-    auto m = t.to_milli(time);
-    printN(m);
-    uint64_t fullDuration = t.duration_since(time);
-    ldiv_t division_result = ldiv(fullDuration, 1000000);
-    double res = division_result.quot + ((double)division_result.rem / (double)1000000);
-    etl::string<100> text = "The result is ";
-    etl::to_string(res, text, etl::format_spec().precision(6),true);
-    drawString(100,260, text.data(), 0x0f);
-  }
+//void make_stat_file(uint64_t start_time, video_app *self, Timer& t){
 }
