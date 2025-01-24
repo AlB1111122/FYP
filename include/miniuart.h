@@ -4,11 +4,13 @@
 #include "./gpio.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
+constexpr int STR_SZ = 1020;
+
 class MiniUart {
  public:
   MiniUart();
   void init();
-  void writeText(etl::string<510> buffer);
+  void writeText(etl::string<STR_SZ> buffer);
 
  private:
   enum {

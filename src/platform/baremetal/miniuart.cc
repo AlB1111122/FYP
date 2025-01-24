@@ -2,8 +2,6 @@
 
 #include "../../../include/peripheralReg.h"
 
-constexpr int STR_SZ = 510;
-
 MiniUart::MiniUart() { this->gpio = Gpio(); }
 void MiniUart::init() {
   this->gpio.mmio_write(AUX_ENABLES, 1);      // enable UART1
@@ -62,6 +60,8 @@ void MiniUart::writeByteBlocking(unsigned char ch) {
 
   uart_output_queue[uart_output_queue_write] = ch;
   uart_output_queue_write = next;
+  // try empty FIFO immediatly to stop them getting eaten
+  this->loadOutputFifo();
 }
 
 void MiniUart::writeText(etl::string<STR_SZ> buffer) {
@@ -71,6 +71,8 @@ void MiniUart::writeText(etl::string<STR_SZ> buffer) {
     }
     this->writeByteBlocking(c);
   }
+  //force que to empty to prevent overwrites from next call to uart
+  this->drainOutputQueue();
 }
 
 void MiniUart::drainOutputQueue() {

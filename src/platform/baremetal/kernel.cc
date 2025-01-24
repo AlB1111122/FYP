@@ -118,9 +118,25 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu
   }
 
   printN(888);
-
-  etl::string<510> headersStr = "btwn_frame_loops,decode,convert_rgb,filter,display,total_callback_time,avg_decoded,avg_rgb,avg_filtered,avg_rendered,avg_total_time_to_display,total_slow_frames,total_callbacks,real_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
-  mu.writeText(headersStr);
+  mu.writeText("btwn_frame_loops,");
+  mu.writeText("decode,");
+  mu.writeText("convert_rgb,");
+  mu.writeText("filter,");
+  mu.writeText("display,");
+  mu.writeText("total_callback_time,");
+  mu.writeText("avg_decoded,");
+  mu.writeText("avg_rgb,");
+  mu.writeText("avg_filtered,");
+  mu.writeText("avg_rendered,");
+  mu.writeText("avg_total_time_to_display,");
+  mu.writeText("total_slow_frames,");
+  mu.writeText("total_callbacks,");
+  mu.writeText("real_play_time,");
+  mu.writeText("actual_fps,");
+  mu.writeText("total_video_frames,");
+  mu.writeText("default_fps,");
+  mu.writeText("max_frame_time(ms),");
+  mu.writeText("correct_play_time,\n");
   for (int i =0; i< self->total_frames_completed; i++) {
 
   printN(777);
@@ -199,9 +215,10 @@ video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
-  etl::string<15> hello_str = "check!\n";
+  etl::string<15> hello_str = "check\n";
   mu.init();
   fb_init();
+  mu.writeText(hello_str);
   
   video_app *app_ptr = &app;
   app_ptr->win_height = 4;
@@ -210,10 +227,15 @@ int main() {
   plm_t *plm_ptr = &plm_holder;
   printN(plm_holder.loop);
 
+  mu.writeText(hello_str);
+
   uint8_t *soccer_bytes = &soccer[0];
   printN(1);
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5);
+
+
+  mu.writeText(hello_str);
 
   plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
@@ -228,8 +250,7 @@ int main() {
 
   uint64_t start = Timer::now();
   app_ptr->last_time = start;
-  
-  while (!app_ptr->wants_to_quit) {
+  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 3)) {
     updateVideo(app_ptr, t);
   }
   make_stat_file(start, app_ptr, t,mu);
