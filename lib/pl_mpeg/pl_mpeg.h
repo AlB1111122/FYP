@@ -163,11 +163,16 @@ See below for detailed the API documentation.
 
 //#ifndef PL_MPEG_H
 //#define PL_MPEG_H
-
-#include <bits/types/FILE.h>
+#if __STDC_HOSTED__ == 1
+  #include <bits/types/FILE.h>
+#else
+  #pragma message ("compiling on bm")
+  #include <stdio.h>
+  void memcpyRDef(void *dest, void *src, size_t n);
+  void memmoveRDef(void* dest, const void* src, unsigned int n);
+#endif
 #include <stddef.h>
 #include <stdint.h>
-//#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -446,7 +451,8 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 // The default size for buffers created from files or by the high-level API
 
 #ifndef PLM_BUFFER_DEFAULT_SIZE
-#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
+//#define PLM_BUFFER_DEFAULT_SIZE ((128 * 1024) * 6)
+#define PLM_BUFFER_DEFAULT_SIZE 15970304
 #endif
 
 // Create a buffer instance with a filename. Returns NULL if the file could not

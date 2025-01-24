@@ -1,19 +1,45 @@
 SECTIONS
 {
     . = 0x80000;     /* Kernel load address for AArch64 */
-    .text : { KEEP(*(.text.boot)) *(.text .text.* .gnu.linkonce.t*) }
-    .rodata : { *(.rodata .rodata.* .gnu.linkonce.r*) }
+    .text : {
+        __start_text = .;
+        KEEP(*(.text.boot)) *(.text .text.* .gnu.linkonce.t*)
+        __end_text = .;
+        }
+    .rodata : { 
+        __start_rodata = .;
+        *(.rodata .rodata.* .gnu.linkonce.r*) 
+        __end_rodata = .;
+        }
     PROVIDE(_data = .);
-    .data : { *(.data .data.* .gnu.linkonce.d*) }
+    .data : {
+        __start_data = .;
+        *(.data .data.* .gnu.linkonce.d*) 
+        __end_data = .;}
     .bss (NOLOAD) : {
-        . = ALIGN(16);
+        . = ALIGN(8);
         __bss_start = .;
         *(.bss .bss.*)
         *(COMMON)
+        . = ALIGN(8);
         __bss_end = .;
+    }
+    . = 0x100000000;
+    .stack (NOLOAD) : {
+        . = ALIGN(8);
+        __stack_start = .;
+        . += 0x20000000; /*half gig*/
+        . = ALIGN(8);
+        __stack_end = .;
     }
     _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }
+
 __bss_size = (__bss_end - __bss_start)>>3;
+
+ASSERT(__stack_start >= __bss_end, "Stack overlaps BSS");
+ASSERT(__start_text <= __start_data, "Text overlaps data section");
+ASSERT(__end_data <= __bss_start, "Data overlaps BSS section");
+ASSERT(__bss_end <= __stack_start, "BSS overlaps stack section");

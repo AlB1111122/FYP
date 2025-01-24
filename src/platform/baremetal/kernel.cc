@@ -7,77 +7,251 @@
 #include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
 #include <stdlib.h>
+#include <stdint.h>
+#include "../../../lib/pl_mpeg/pl_mpeg.h"
+#include "../../../soccerBytes.h"
 
 static int nPrints=0;
 
+#define WIN_HEIGHT 720
+#define WIN_WIDTH 1280
+#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
+
+struct video_app {
+    plm_t *plm;
+    bool wants_to_quit;
+    uint64_t last_time;
+    uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
+    int win_height;
+    int win_width;
+    uint64_t ttr[400][4];
+    int total_frames_completed=0;
+    uint64_t between_update_video_loops[400];
+};
+
+struct frame_rate_info {
+  double frame_ms;
+  double fps;
+  int total_frames;
+  double total_t_exp;
+} frame_rate_info;
+
 template<typename T>
-void printN(T time, int y) {
+void printN(T time) {
   etl::string<100> i_str;
   etl::string<100> n_str;
   etl::to_string(nPrints, i_str);
   etl::to_string(time, n_str, etl::format_spec().precision(6),false);
-  drawString(100, y, n_str.data(), 0x0f);
-  drawString(200, y, i_str.data(), 0x0f);
+  drawString(100, (nPrints*10), n_str.data(), 0x0f);
+  drawString(200, (nPrints*10), i_str.data(), 0x0f);
   nPrints++;
 }
 
+void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
+  uint64_t start_time = Timer::now();
+  video_app *self = static_cast<video_app *>(user);
+  plm_frame_to_rgb(frame, self->rgb_data,
+                   frame->width * 3);  // can be hardware accelerated]
+  uint64_t to_rgb = Timer::now();
+
+  uint8_t new_rgb_data[N_PIXELS];
+  //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
+                               //new_rgb_data);
+  //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  uint64_t to_filtered = Timer::now();
+
+  //TODO: display
+  uint64_t to_rendered = Timer::now();
+  self->ttr[self->total_frames_completed][0] = self->last_time;
+  self->ttr[self->total_frames_completed][1] = start_time;
+  self->ttr[self->total_frames_completed][2] = to_rgb;
+  self->ttr[self->total_frames_completed][3] = to_filtered;
+  self->ttr[self->total_frames_completed][4] = to_rendered;
+  self->total_frames_completed++;
+}
+
+void updateVideo(video_app *self, Timer& t) {
+  auto now = Timer::now();
+  uint64_t elapsed_time = t.to_milli(t.duration_since(self->last_time));
+
+  if (elapsed_time >= frame_rate_info.frame_ms) {
+    self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
+      self->last_time = now;
+      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+      printN(self->total_frames_completed);
+  }
+
+  if (plm_has_ended(self->plm)) {
+    self->wants_to_quit = true;
+  }
+}
+
+void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu){
+  printN(999);
+  double duration = t.to_sec(t.duration_since(start_time));
+  //std::cout << "render times:\n";
+  uint64_t total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t = 0;
+
+  uint64_t durations[400][5];
+  int dropped_frames = 0;
+  for (int i = 0;i < self->total_frames_completed;i++) {
+    uint64_t ttplmd = self->ttr[i][1] - self->ttr[i][0];
+    uint64_t ttrgb = self->ttr[i][2] - self->ttr[i][1];
+    uint64_t ttf = self->ttr[i][3] - self->ttr[i][2];
+    uint64_t ttr = self->ttr[i][4] - self->ttr[i][3];
+    uint64_t ttd = self->ttr[i][4] - self->ttr[i][0];
+    self->ttr[i][0] = ttplmd;
+    self->ttr[i][1] = ttrgb;
+    self->ttr[i][2] = ttf;
+    self->ttr[i][3] = ttr;
+    self->ttr[i][4] = ttd;
+    plm_d_t += ttplmd;
+    total_rgb_t += ttrgb;
+    total_filter_t += ttf;
+    total_render_t += ttr;
+    total_display_t += ttd;
+
+    if (ttd > frame_rate_info.frame_ms) {
+      dropped_frames++;
+    }
+    
+  }
+
+  printN(888);
+  mu.writeText("btwn_frame_loops,");
+  mu.writeText("decode,");
+  mu.writeText("convert_rgb,");
+  mu.writeText("filter,");
+  mu.writeText("display,");
+  mu.writeText("total_callback_time,");
+  mu.writeText("avg_decoded,");
+  mu.writeText("avg_rgb,");
+  mu.writeText("avg_filtered,");
+  mu.writeText("avg_rendered,");
+  mu.writeText("avg_total_time_to_display,");
+  mu.writeText("total_slow_frames,");
+  mu.writeText("total_callbacks,");
+  mu.writeText("real_play_time,");
+  mu.writeText("actual_fps,");
+  mu.writeText("total_video_frames,");
+  mu.writeText("default_fps,");
+  mu.writeText("max_frame_time(ms),");
+  mu.writeText("correct_play_time,\n");
+  for (int i =0; i< self->total_frames_completed; i++) {
+
+  printN(777);
+    etl::string<510> uart_str ="";
+
+    etl::to_string(self->between_update_video_loops[i], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][0], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][1], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][2], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][3], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][4], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+
+    if(i < 1){
+  
+      etl::to_string(t.to_milli(plm_d_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_rgb_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_filter_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_render_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_display_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(dropped_frames, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(self->total_frames_completed, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(duration, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(self->total_frames_completed / duration, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.total_frames, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.fps, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.frame_ms, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.total_t_exp, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",\n");
+
+    printN(666);
+    }else{
+      uart_str.append("\n");
+    }
+    mu.writeText(uart_str.data());
+  }
+    printN(555);
+}
+
+plm_t plm_holder;
+video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
-  etl::string<15> hello_str = "Hello world!\n";
+  etl::string<15> hello_str = "check\n";
   mu.init();
-  mu.writeText(hello_str.data());
-
   fb_init();
+  mu.writeText(hello_str);
+  
+  video_app *app_ptr = &app;
+  app_ptr->win_height = 4;
+  printN(app_ptr->win_height);
 
-  drawString(100, 30, hello_str.data(), 0x0f);
-  while (1) {
-    mu.writeText(hello_str);
-    uint64_t time = t.now();
-    printN(t.to_sec(time), 50);
+  plm_t *plm_ptr = &plm_holder;
+  printN(plm_holder.loop);
 
-    etl::string<32> n_str;
-    etl::to_string(time, n_str);
-    uint64_t duration_since = t.duration_since(time);
-    printN(t.to_sec(duration_since), 70);
+  mu.writeText(hello_str);
 
-    auto secTime = t.get_hertz();
-    etl::string<32> sec_str;
-    etl::to_string(secTime, sec_str);
-    printN(secTime,130);
-    while (t.duration_since(time) < 10000000) {
-      ;
-    }
-    int b = 4000 / 1000;
-    printN(b, 150);
-    while (t.duration_since(time) < 15000000) {
-      ;
-    }
-    int c = 54382589 / 1000;
-    printN(c, 180);
-    while (t.duration_since(time) < 20000000) {
-      ;
-    }
-    int d = 1 / 1000;
-    printN(d, 200);
-    while (t.duration_since(time) < 25000000) {
-      ;
-    }
-    auto a = t.to_sec(time);
-    printN(a, 220);
-    while (t.duration_since(time) < 30000000) {
-      ;
-    }
-    auto m = t.to_milli(time);
-    printN(m, 240);
-    uint64_t fullDuration = t.duration_since(time);
-    /*etl::string<100> text = "The result is ";
-    etl::to_string(fullDuration/1000000, text, etl::format_spec().precision(6),true);
-    drawString(100,260, text.data(), 0x0f);*/
-    ldiv_t division_result = ldiv(fullDuration, 1000000);
-    double res = division_result.quot + ((double)division_result.rem / (double)1000000);
-    etl::string<100> text = "The result is ";
-    etl::to_string(res, text, etl::format_spec().precision(6),true);
-    drawString(100,260, text.data(), 0x0f);
+  uint8_t *soccer_bytes = &soccer[0];
+  printN(1);
+  app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
+  printN(5);
+
+
+  mu.writeText(hello_str);
+
+  plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
+  plm_set_loop(app_ptr->plm, FALSE);  // loop video
+  plm_set_audio_enabled(app_ptr->plm, FALSE);
+
+  frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
+  frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
+  frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
+  frame_rate_info.frame_ms = (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
+
+  //app created
+
+  uint64_t start = Timer::now();
+  app_ptr->last_time = start;
+  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 3)) {
+    updateVideo(app_ptr, t);
   }
+  make_stat_file(start, app_ptr, t,mu);
 }

@@ -1,10 +1,12 @@
 #include "../../include/filter.h"
-
+#if __STDC_HOSTED__ == 1
+  #include <math.h>
+#else
+  #pragma message ("compiling on bm")
+  #include "../../include/newtonSqrt.h"
+#endif
 #include <stdint.h>
 #include <sys/types.h>
-
-#include <cmath>
-#include <cstdint>
 
 void com::Filter::grayscale(uint8_t *rgb_data, int n_pixels, uint8_t *new_rgb) {
   for (int i = 0; i < n_pixels; i += 3) {
@@ -38,7 +40,7 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgb_data, int n_pixels,
       for (int k = 0; k < 3; k++) {
         res_x += g_x[j][k] * (*kernal_on_rgb[j][k]);
         res_y += g_y[j][k] * (*kernal_on_rgb[j][k]);
-        sobel_val = std::sqrt((res_x * res_x) + (res_y * res_y));
+        sobel_val = sqrt((res_x * res_x) + (res_y * res_y)); //figure out errno later to use regular 
         if (sobel_val > 255) {
           sobel_val = 255;
         } else if (sobel_val < 0) {

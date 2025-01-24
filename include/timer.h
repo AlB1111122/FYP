@@ -2,7 +2,7 @@
 extern "C" {
 #include <stdint.h>
 }
-#include "peripheral_reg.h"
+#include "peripheralReg.h"
 
 class Timer {
  private:
@@ -20,7 +20,7 @@ class Timer {
   bool did_counter_flip(uint64_t earlier, uint64_t later);
 
  public:
-  uint64_t now();
+  static uint64_t now();
   uint64_t duration_since(uint64_t earlier);
   int get_hertz();
   double to_sec(uint64_t time);
