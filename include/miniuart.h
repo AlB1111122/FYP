@@ -8,7 +8,7 @@ class MiniUart {
  public:
   MiniUart();
   void init();
-  void writeText(etl::string<255> buffer);
+  void writeText(etl::string<510> buffer);
 
  private:
   enum {

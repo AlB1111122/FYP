@@ -2,7 +2,7 @@
 
 #include "../../../include/peripheralReg.h"
 
-constexpr int STR_SZ = 255;
+constexpr int STR_SZ = 510;
 
 MiniUart::MiniUart() { this->gpio = Gpio(); }
 void MiniUart::init() {

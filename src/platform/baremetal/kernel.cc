@@ -81,18 +81,17 @@ void updateVideo(video_app *self, Timer& t) {
       printN(self->total_frames_completed);
   }
 
-  if (plm_has_ended(self->plm) || self->total_frames_completed > 5) {
+  if (plm_has_ended(self->plm)) {
     self->wants_to_quit = true;
   }
 }
 
-void make_stat_file(uint64_t start_time, video_app *self, Timer& t){
-
-  uint64_t duration = t.duration_since(start_time);
+void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu){
+  printN(999);
+  double duration = t.to_sec(t.duration_since(start_time));
   //std::cout << "render times:\n";
   uint64_t total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t = 0;
 
-  //std::vector<std::array<double, 5>> durations = {};
   uint64_t durations[400][5];
   int dropped_frames = 0;
   for (int i = 0;i < self->total_frames_completed;i++) {
@@ -117,61 +116,82 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer& t){
     }
     
   }
-    drawString(300, 100, "between_loops", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<100> n_str;
-      etl::to_string(plm_d_t / self->between_update_video_loops[i], n_str, etl::format_spec().precision(6),false);
-      drawString(300, 100 + (i*10),n_str.data(), 0x0f);
-    }
-    drawString(600, 100, "decode", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<100> n_str;
-      etl::to_string(plm_d_t / durations[i][0], n_str, etl::format_spec().precision(6),false);
-      drawString(600, 100 + (i*10), n_str.data(), 0x0f);
-    }
-    drawString(800, 100, "convert_rgb", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<800> n_str;
-      etl::to_string(plm_d_t / durations[i][1], n_str, etl::format_spec().precision(6),false);
-      drawString(500, 100 + (i*10), n_str.data(), 0x0f);
-    }
-    drawString(1000, 100, "filter", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<100> n_str;
-      etl::to_string(plm_d_t / durations[i][2], n_str, etl::format_spec().precision(6),false);
-      drawString(1000, 100 + (i*10), n_str.data(), 0x0f);
-    }
-    drawString(1200, 100, "display", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<100> n_str;
-      etl::to_string(plm_d_t / durations[i][3], n_str, etl::format_spec().precision(6),false);
-      drawString(1200, 100 + (i*10), n_str.data(), 0x0f);
-    }
-    drawString(1400, 800, "callback_time", 0x0f);
-    for(int i =1; i <= self->total_frames_completed; i++){
-      etl::string<100> n_str;
-      etl::to_string(plm_d_t / durations[i][4], n_str, etl::format_spec().precision(6),false);
-      drawString(1400, 100 + (i*10), n_str.data(), 0x0f);
-    }
-    drawString(300, 00, "avg_to_decoded", 0x0f);
-    etl::string<100> n_str;
-    etl::to_string(plm_d_t / self->total_frames_completed, n_str, etl::format_spec().precision(6),false);
-    drawString(300, 810, n_str.data(), 0x0f);
+
+  printN(888);
+
+  etl::string<510> headersStr = "btwn_frame_loops,decode,convert_rgb,filter,display,total_callback_time,avg_decoded,avg_rgb,avg_filtered,avg_rendered,avg_total_time_to_display,total_slow_frames,total_callbacks,real_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
+  mu.writeText(headersStr);
+  for (int i =0; i< self->total_frames_completed; i++) {
+
+  printN(777);
+    etl::string<510> uart_str ="";
+
+    etl::to_string(self->between_update_video_loops[i], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
     
-    drawString(500, 800, "avg_to_rgb", 0x0f);
-    etl::string<100> n_stra;
-    etl::to_string(total_rgb_t / self->total_frames_completed, n_stra, etl::format_spec().precision(6),false);
-    drawString(500, 810, n_str.data(), 0x0f);
+    etl::to_string(durations[i][0], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
     
-    drawString(700, 800, "avg_to_filtered", 0x0f);
-    etl::string<100> n_strb;
-    etl::to_string(total_filter_t / self->total_frames_completed, n_strb, etl::format_spec().precision(6),false);
-    drawString(700, 810, n_str.data(), 0x0f);
+    etl::to_string(durations[i][1], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
     
-    drawString(900, 800, "total_render_t", 0x0f);
-    etl::string<100> n_strc;
-    etl::to_string(total_render_t / self->total_frames_completed, n_strc, etl::format_spec().precision(6),false);
-    drawString(900, 810, n_str.data(), 0x0f);
+    etl::to_string(durations[i][2], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][3], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+    
+    etl::to_string(durations[i][4], uart_str,etl::format_spec().precision(6),true);
+    uart_str.append(",");
+
+    if(i < 1){
+  
+      etl::to_string(t.to_milli(plm_d_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_rgb_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_filter_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_render_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(t.to_milli(total_display_t / self->total_frames_completed), uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(dropped_frames, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(self->total_frames_completed, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(duration, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(self->total_frames_completed / duration, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.total_frames, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.fps, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.frame_ms, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",");
+    
+      etl::to_string(frame_rate_info.total_t_exp, uart_str,etl::format_spec().precision(6),true);
+      uart_str.append(",\n");
+
+    printN(666);
+    }else{
+      uart_str.append("\n");
+    }
+    mu.writeText(uart_str.data());
+  }
+    printN(555);
 }
 
 plm_t plm_holder;
@@ -179,7 +199,7 @@ video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
-  etl::string<15> hello_str = "Hello world!\n";
+  etl::string<15> hello_str = "check!\n";
   mu.init();
   fb_init();
   
@@ -195,7 +215,6 @@ int main() {
   app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
   printN(5);
 
-
   plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
   plm_set_loop(app_ptr->plm, FALSE);  // loop video
   plm_set_audio_enabled(app_ptr->plm, FALSE);
@@ -205,19 +224,6 @@ int main() {
   frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
   frame_rate_info.frame_ms = (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
 
-  // etl::string<64> frame_stats = "Total frames: ";
-  // etl::to_string(frame_rate_info.total_frames, frame_stats,etl::format_spec().precision(6),true);
-  // drawString(400, 10, frame_stats.data(), 0x0f);
-  // etl::string<64> fps_stats = "FPS: ";
-  // etl::to_string(frame_rate_info.fps, fps_stats,etl::format_spec().precision(6),true);
-  // drawString(400, 20, fps_stats.data(), 0x0f);
-  // etl::string<64> framt = "Max frame time ms: ";
-  // etl::to_string(frame_rate_info.frame_ms, framt,etl::format_spec().precision(6),true);
-  // drawString(400, 30, framt.data(), 0x0f);
-  // etl::string<64> plt = "Correct play time sec: ";
-  // etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
-  // drawString(400, 40, plt.data(), 0x0f);
-
   //app created
 
   uint64_t start = Timer::now();
@@ -226,7 +232,5 @@ int main() {
   while (!app_ptr->wants_to_quit) {
     updateVideo(app_ptr, t);
   }
-  make_stat_file(start, app_ptr, t);
-
-//void make_stat_file(uint64_t start_time, video_app *self, Timer& t){
+  make_stat_file(start, app_ptr, t,mu);
 }
