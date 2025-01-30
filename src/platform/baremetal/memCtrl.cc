@@ -46,66 +46,47 @@ void SMmemmove(void* dest, void* src, unsigned int n)
         }
 }
 
-void Mmemcpy(void *dest, void *src, unsigned int n){
-    char *d = (char *)dest;
-  const char *s = (char *)src;
-
-  if (n < 5) {
-    if (n == 0)
-      return dest;
-    d[0] = s[0];
-    d[n - 1] = s[n - 1];
-    if (n <= 2)
-      return dest;
-    d[1] = s[1];
-    d[2] = s[2];
-    return dest;
-  }
-
-  if (n <= 16) {
-    if (n >= 8) {
-      const char *first_s = s;
-      const char *last_s = s + n - 8;
-      char *first_d = d;
-      char *last_d = d + n - 8;
-      *((u64 *)first_d) = *((u64 *)first_s);
-      *((u64 *)last_d) = *((u64 *)last_s);
-      return dest;
-    }
-
-    const char *first_s = s;
-    const char *last_s = s + n - 4;
-    char *first_d = d;
-    char *last_d = d + n - 4;
-    *((u32 *)first_d) = *((u32 *)first_s);
-    *((u32 *)last_d) = *((u32 *)last_s);
-    return dest;
-  }
-
-  if (n <= 32) {
-    const char *first_s = s;
-    const char *last_s = s + n - 16;
-    char *first_d = d;
-    char *last_d = d + n - 16;
-
-    *((char16 *)first_d) = *((char16 *)first_s);
-    *((char16 *)last_d) = *((char16 *)last_s);
-    return dest;
-  }
-
-  const char *last_word_s = s + n - 32;
-  char *last_word_d = d + n - 32;
-
-  // Stamp the 32-byte chunks.
-  do {
-    *((char32 *)d) = *((char32 *)s);
-    d += 32;
-    s += 32;
-  } while (d < last_word_d);
-
-  // Stamp the last unaligned 32 bytes of the buffer.
-  *((char32 *)last_word_d) = *((char32 *)last_word_s);
-  return dest;
+void* Mmemcpy(void *__restrict dst0,
+           const void *__restrict src0,
+           size_t len0){
+   char *dst = dst0;
+     const char *src = src0;
+     long *aligned_dst;
+     const long *aligned_src;
+   
+     /* If the size is small, or either SRC or DST is unaligned,
+        then punt into the byte copy loop.  This should be rare.  */
+     if (!TOO_SMALL(len0) && !UNALIGNED (src, dst))
+       {
+         aligned_dst = (long*)dst;
+         aligned_src = (long*)src;
+   
+         /* Copy 4X long words at a time if possible.  */
+         while (len0 >= BIGBLOCKSIZE)
+        {
+             *aligned_dst++ = *aligned_src++;
+             *aligned_dst++ = *aligned_src++;
+             *aligned_dst++ = *aligned_src++;
+             *aligned_dst++ = *aligned_src++;
+             len0 -= BIGBLOCKSIZE;
+           }
+   
+         /* Copy one long word at a time if possible.  */
+         while (len0 >= LITTLEBLOCKSIZE)
+           {
+             *aligned_dst++ = *aligned_src++;
+             len0 -= LITTLEBLOCKSIZE;
+           }
+   
+          /* Pick up any residual with a byte copier.  */
+         dst = (char*)aligned_dst;
+         src = (char*)aligned_src;
+       }
+ 
+    while (len0--)
+     *dst++ = *src++;
+ 
+    return dst0;
 }
 
 void Mmemmove(void* dest, void* src, unsigned int n)
