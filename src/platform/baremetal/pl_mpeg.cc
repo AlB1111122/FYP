@@ -1,35 +1,20 @@
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/absolute.h"
-
-void memcpyRDef(void *dest, void *src, size_t n)
-{ 
-  // Typecast src and dest addresses to (char *) 
-  char *csrc = (char *)src; 
-  char *cdest = (char *)dest;
-
-  // Copy contents of src[] to dest[] 
-  for (int i=0; i<n; i++) {
-      cdest[i] = csrc[i]; 
-  }
-}
-
-void memmoveRDef(void* dest, const void* src, unsigned int n)
-{
-    char *pDest = (char *)dest;
-    const char *pSrc =( const char*)src;
-    //allocate memory for tmp array
-    char *tmp[n];
-        unsigned int i = 0;
-        // copy src to tmp array
-        for(i =0; i < n ; ++i)
-        {
-            *(tmp + i) = *(pSrc + i);
-        }
-        //copy tmp to dest
-        for(i =0 ; i < n ; ++i)
-        {
-            *(pDest + i) = *(tmp + i);
-        }
+#include "../../../include/memCtrl.h"
+#include "../../../include/fb.h"
+#include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
+#include "/usr/share/etl/etl-20.39.4/include/etl/to_string.h"
+#include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
+static int waawa = 0;
+template<typename T>
+void printNM(T time) {
+  etl::string<100> i_str;
+  etl::string<100> n_str;
+  etl::to_string(waawa, i_str);
+  etl::to_string(time, n_str, etl::format_spec().precision(6),false);
+  drawString(750, (waawa*10), n_str.data(), 0x0f);
+  drawString(850, (waawa*10), i_str.data(), 0x0f);
+  waawa++;
 }
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
@@ -49,12 +34,25 @@ plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *self_ptr) {
   return self_ptr;
 }
 
+// plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
+//                               plm_t *self_ptr) {
+//   plm_buffer_t *buffer =
+//       plm_buffer_create_with_memory(bytes, length, free_when_done);
+
+//   plm_create_with_buffer(buffer, TRUE, self_ptr);
+//   return self_ptr;
+// }
+
 plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
                               plm_t *self_ptr) {
+                                printNM(2);
   plm_buffer_t *buffer =
       plm_buffer_create_with_memory(bytes, length, free_when_done);
-
+                                printNM(3);
   plm_create_with_buffer(buffer, TRUE, self_ptr);
+
+                                printNM(4);
+
   return self_ptr;
 }
 
@@ -67,42 +65,68 @@ void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
 }
 
 int plm_init_decoders(plm_t *self) {
+  printNM(30);
   if (self->has_decoders) {
+  printNM(31);
     return TRUE;
   }
 
+  printNM(34);
   if (!plm_demux_has_headers(self->demux)) {
+
+  printNM(35);
     return FALSE;
   }
 
+  printNM(36);
   if (plm_demux_get_num_video_streams(self->demux) > 0) {
+
+  printNM(37);
     if (self->video_enabled) {
+
+  printNM(38);
       self->video_packet_type = PLM_DEMUX_PACKET_VIDEO_1;
     }
+
+  printNM(39);
     if (!self->video_decoder) {
+
+  printNM(391);
       self->video_buffer =
           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
+          printNM(392);
       plm_buffer_set_load_callback(self->video_buffer, plm_read_video_packet,
                                    self);
+                                   printNM(393);
       self->video_decoder =
           plm_video_create_with_buffer(self->video_buffer, TRUE);
+          printNM(394);
     }
   }
+  printNM(395);
 
   if (plm_demux_get_num_audio_streams(self->demux) > 0) {
+    printNM(396);
     if (self->audio_enabled) {
+      printNM(397);
       self->audio_packet_type =
           PLM_DEMUX_PACKET_AUDIO_1 + self->audio_stream_index;
     }
+    printNM(398);
     if (!self->audio_decoder) {
+      printNM(399);
       self->audio_buffer =
           plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
+          printNM(3991);
       plm_buffer_set_load_callback(self->audio_buffer, plm_read_audio_packet,
                                    self);
+                                   printNM(3992);
       self->audio_decoder =
           plm_audio_create_with_buffer(self->audio_buffer, TRUE);
+          printNM(3993);
     }
   }
+  printNM(3994);
 
   self->has_decoders = TRUE;
   return TRUE;
@@ -540,7 +564,7 @@ plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
   self->length = length;
   self->total_size = length;
   self->free_when_done = free_when_done;
-  memcpyRDef(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
+  Mmemcpy(self->bytes, bytes, PLM_BUFFER_DEFAULT_SIZE);
   self->mode = PLM_BUFFER_MODE_FIXED_MEM;
   self->discard_read_bytes = FALSE;
   return self;
@@ -594,7 +618,7 @@ size_t plm_buffer_write(plm_buffer_t *self, uint8_t *bytes, size_t length) {
     }
   }
 
-  memcpyRDef(self->bytes + self->length, bytes, length);
+  Mmemcpy(self->bytes + self->length, bytes, length);
   self->length += length;
   self->has_ended = FALSE;
   return length;
@@ -648,7 +672,7 @@ void plm_buffer_discard_read_bytes(plm_buffer_t *self) {
     self->bit_index = 0;
     self->length = 0;
   } else if (byte_pos > 0) {
-    memmoveRDef(self->bytes, self->bytes + byte_pos, self->length - byte_pos);
+    Mmemmove(self->bytes, self->bytes + byte_pos, self->length - byte_pos);
     self->bit_index -= byte_pos << 3;
     self->length -= byte_pos;
   }
@@ -736,14 +760,16 @@ int plm_buffer_skip_bytes(plm_buffer_t *self, uint8_t v) {
 }
 
 int plm_buffer_next_start_code(plm_buffer_t *self) {
+  printNM(60);
   plm_buffer_align(self);
-
+printNM(61);
   while (plm_buffer_has(self, (5 << 3))) {
     size_t byte_index = (self->bit_index) >> 3;
     if (self->bytes[byte_index] == 0x00 &&
         self->bytes[byte_index + 1] == 0x00 &&
         self->bytes[byte_index + 2] == 0x01) {
       self->bit_index = (byte_index + 4) << 3;
+      printNM(byte_index);
       return self->bytes[byte_index + 3];
     }
     self->bit_index += 8;
@@ -752,10 +778,15 @@ int plm_buffer_next_start_code(plm_buffer_t *self) {
 }
 
 int plm_buffer_find_start_code(plm_buffer_t *self, int code) {
+  printNM(51);
   int current = 0;
   while (TRUE) {
+    printNM(52);
     current = plm_buffer_next_start_code(self);
+    printNM(53);
+    printNM(current);
     if (current == code || current == -1) {
+      printNM(current);
       return current;
     }
   }
@@ -800,15 +831,20 @@ uint16_t plm_buffer_read_vlc_uint(plm_buffer_t *self,
 
 plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done) {
   plm_demux_t *self = &static_demux_holder;
+  printNM(10);
 
   self->buffer = buffer;
+
+  printNM(self->buffer->bytes[0]);
+  printNM(self->buffer->bytes[15970303]);
   self->destroy_buffer_when_done = destroy_when_done;
 
   self->start_time = PLM_PACKET_INVALID_TS;
   self->duration = PLM_PACKET_INVALID_TS;
   self->start_code = -1;
-
+  printNM(11);
   plm_demux_has_headers(self);
+  printNM(12);
   return self;
 }
 
@@ -822,51 +858,64 @@ int plm_demux_has_headers(plm_demux_t *self) {
   if (self->has_headers) {
     return TRUE;
   }
-
+  printNM(20);
   // Decode pack header
   if (!self->has_pack_header) {
+    printNM(21);
     if (self->start_code != PLM_START_PACK &&
         plm_buffer_find_start_code(self->buffer, PLM_START_PACK) == -1) {
+      printNM(13);
       return FALSE;
     }
-
+printNM(23);
     self->start_code = PLM_START_PACK;
     if (!plm_buffer_has(self->buffer, 64)) {
+      printNM(24);
       return FALSE;
     }
+    printNM(25);
     self->start_code = -1;
 
     if (plm_buffer_read(self->buffer, 4) != 0x02) {
+      printNM(26);
       return FALSE;
     }
+    printNM(27);
 
     self->system_clock_ref = plm_demux_decode_time(self);
+    printNM(28);
     plm_buffer_skip(self->buffer, 1);
     plm_buffer_skip(self->buffer, 22);  // mux_rate * 50
     plm_buffer_skip(self->buffer, 1);
-
+    printNM(29);
     self->has_pack_header = TRUE;
   }
-
+printNM(290);
   // Decode system header
   if (!self->has_system_header) {
+    printNM(291);
     if (self->start_code != PLM_START_SYSTEM &&
         plm_buffer_find_start_code(self->buffer, PLM_START_SYSTEM) == -1) {
+          printNM(292);
       return FALSE;
     }
-
+printNM(293);
     self->start_code = PLM_START_SYSTEM;
     if (!plm_buffer_has(self->buffer, 56)) {
+      printNM(294);
       return FALSE;
     }
     self->start_code = -1;
-
+printNM(295);
     plm_buffer_skip(self->buffer, 16);  // header_length
     plm_buffer_skip(self->buffer, 24);  // rate bound
+    printNM(296);
     self->num_audio_streams = plm_buffer_read(self->buffer, 6);
+    printNM(297);
     plm_buffer_skip(self->buffer, 5);  // misc flags
+    printNM(298);
     self->num_video_streams = plm_buffer_read(self->buffer, 5);
-
+printNM(299);
     self->has_system_header = TRUE;
   }
 
@@ -1238,18 +1287,23 @@ plm_packet_t *plm_demux_get_packet(plm_demux_t *self) {
 
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
+  printNM(40);                                          
   plm_video_t *self = &static_video_holder;
   //memset(self, 0, sizeof(plm_video_t));
-
+  printNM(41);
   self->buffer = buffer;
   self->destroy_buffer_when_done = destroy_when_done;
 
   // Attempt to decode the sequence header
   self->start_code =
       plm_buffer_find_start_code(self->buffer, PLM_START_SEQUENCE);
+      printNM(42);
   if (self->start_code != -1) {
+    printNM(43);
     plm_video_decode_sequence_header(self);
+    printNM(44);
   }
+  printNM(45);
   return self;
 }
 
@@ -1420,7 +1474,7 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
       self->intra_quant_matrix[idx] = plm_buffer_read(self->buffer, 8);
     }
   } else {
-    memcpyRDef(self->intra_quant_matrix, PLM_VIDEO_INTRA_QUANT_MATRIX, 64);
+    Mmemcpy(self->intra_quant_matrix, PLM_VIDEO_INTRA_QUANT_MATRIX, 64);
   }
 
   // Load custom non intra quant matrix?
@@ -1430,7 +1484,7 @@ int plm_video_decode_sequence_header(plm_video_t *self) {
       self->non_intra_quant_matrix[idx] = plm_buffer_read(self->buffer, 8);
     }
   } else {
-    memcpyRDef(self->non_intra_quant_matrix, PLM_VIDEO_NON_INTRA_QUANT_MATRIX, 64);
+    Mmemcpy(self->non_intra_quant_matrix, PLM_VIDEO_NON_INTRA_QUANT_MATRIX, 64);
   }
 
   self->mb_width = (self->width + 15) >> 4;
@@ -2058,8 +2112,8 @@ plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
   self->destroy_buffer_when_done = destroy_when_done;
   self->samplerate_index = 3;  // Indicates 0
 
-  memcpyRDef(self->D, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
-  memcpyRDef(self->D + 512, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
+  Mmemcpy(self->D, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
+  Mmemcpy(self->D + 512, PLM_AUDIO_SYNTHESIS_WINDOW, 512 * sizeof(float));
 
   // Attempt to decode first header
   self->next_frame_data_size = plm_audio_decode_header(self);

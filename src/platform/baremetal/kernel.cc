@@ -11,6 +11,8 @@
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
 
+#include "../../../include/memCtrl.h"
+
 static int nPrints=0;
 
 #define WIN_HEIGHT 720
@@ -45,6 +47,13 @@ void printN(T time) {
   drawString(100, (nPrints*10), n_str.data(), 0x0f);
   drawString(200, (nPrints*10), i_str.data(), 0x0f);
   nPrints++;
+}
+
+template<typename T>
+void printX(T time, int x) {
+  etl::string<100> n_str;
+  etl::to_string(time, n_str, etl::format_spec().precision(6),false);
+  drawString(x, (nPrints*10), n_str.data(), 0x0f);
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
@@ -212,12 +221,15 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu
 
 plm_t plm_holder;
 video_app app;
+
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
   etl::string<15> hello_str = "check\n";
   mu.init();
   fb_init();
+
+  printN(9);
   mu.writeText(hello_str);
   
   video_app *app_ptr = &app;
@@ -227,13 +239,28 @@ int main() {
   plm_t *plm_ptr = &plm_holder;
   printN(plm_holder.loop);
 
+  // uint8_t testF[PLM_BUFFER_DEFAULT_SIZE];
+
+  // Mmemcpy(testF,soccer,soccer_sz);
+  // for(int i =0; i <45;i++){
+  //   nPrints++;
+  //   printX(soccer[i],400);
+  //   printX(testF[i],500);
+  // }
+  // printN(999999);
+
+  // for(int i =0; i <45;i++){
+  //   nPrints++;
+  //   int idx = (soccer_sz-1)-i;
+  //   printX(soccer[idx],400);
+  //   printX(testF[idx],500);
+  // }
+
   mu.writeText(hello_str);
 
-  uint8_t *soccer_bytes = &soccer[0];
   printN(1);
-  app_ptr->plm = plm_create_with_memory(soccer_bytes,soccer_sz,0,plm_ptr);
+  app_ptr->plm = plm_create_with_memory(soccer,soccer_sz,0,plm_ptr);
   printN(5);
-
 
   mu.writeText(hello_str);
 
@@ -246,6 +273,18 @@ int main() {
   frame_rate_info.total_frames = frame_rate_info.total_t_exp * frame_rate_info.fps;
   frame_rate_info.frame_ms = (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
 
+  etl::string<64> frame_stats = "Total frames: ";
+  etl::to_string(frame_rate_info.total_frames, frame_stats,etl::format_spec().precision(6),true);
+  drawString(400, 10, frame_stats.data(), 0x0f);
+  etl::string<64> fps_stats = "FPS: ";
+  etl::to_string(frame_rate_info.fps, fps_stats,etl::format_spec().precision(6),true);
+  drawString(400, 20, fps_stats.data(), 0x0f);
+  etl::string<64> framt = "Max frame time ms: ";
+  etl::to_string(frame_rate_info.frame_ms, framt,etl::format_spec().precision(6),true);
+  drawString(400, 30, framt.data(), 0x0f);
+  etl::string<64> plt = "Correct play time sec: ";
+  etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
+  drawString(400, 40, plt.data(), 0x0f);
   //app created
 
   uint64_t start = Timer::now();
