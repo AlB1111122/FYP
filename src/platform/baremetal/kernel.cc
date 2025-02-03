@@ -269,7 +269,7 @@ int main() {
 
   uint64_t start = Timer::now();
   app_ptr->last_time = start;
-  while ((!app_ptr->wants_to_quit && (app_ptr->total_frames_completed < 3))) {// && (app_ptr->total_frames_completed < 3)
+  while ((!app_ptr->wants_to_quit)) {// && (app_ptr->total_frames_completed < 3)
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
