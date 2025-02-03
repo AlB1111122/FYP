@@ -799,7 +799,7 @@ struct plm_buffer_t {
   FILE *fh;
   plm_buffer_load_callback load_callback;
   void *load_callback_user_data;
-  uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
+  alignas (128)uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
   enum plm_buffer_mode mode;
 };
 
@@ -904,13 +904,13 @@ static const uint8_t PLM_VIDEO_ZIG_ZAG[] = {
     35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51,
     58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
-static const uint8_t PLM_VIDEO_INTRA_QUANT_MATRIX[] = {
+alignas (128)static const uint8_t PLM_VIDEO_INTRA_QUANT_MATRIX[] = {
     8,  16, 19, 22, 26, 27, 29, 34, 16, 16, 22, 24, 27, 29, 34, 37,
     19, 22, 26, 27, 29, 34, 34, 38, 22, 22, 26, 27, 29, 34, 37, 40,
     22, 26, 27, 29, 32, 35, 40, 48, 26, 27, 29, 32, 35, 40, 48, 58,
     26, 27, 29, 34, 38, 46, 56, 69, 27, 29, 35, 38, 46, 56, 69, 83};
 
-static const uint8_t PLM_VIDEO_NON_INTRA_QUANT_MATRIX[] = {
+alignas (128)static const uint8_t PLM_VIDEO_NON_INTRA_QUANT_MATRIX[] = {
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,

@@ -61,7 +61,7 @@ void MiniUart::writeByteBlocking(unsigned char ch) {
   uart_output_queue[uart_output_queue_write] = ch;
   uart_output_queue_write = next;
   // try empty FIFO immediatly to stop them getting eaten
-  this->loadOutputFifo();
+  //this->loadOutputFifo();
 }
 
 void MiniUart::writeText(etl::string<STR_SZ> buffer) {

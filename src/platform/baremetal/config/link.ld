@@ -17,19 +17,19 @@ SECTIONS
         *(.data .data.* .gnu.linkonce.d*) 
         __end_data = .;}
     .bss (NOLOAD) : {
-        . = ALIGN(8);
+        . = ALIGN(16);
         __bss_start = .;
         *(.bss .bss.*)
         *(COMMON)
-        . = ALIGN(8);
+        . = ALIGN(16);
         __bss_end = .;
     }
-    . = 0x100000000;
+    . = 0x40000000;
     .stack (NOLOAD) : {
-        . = ALIGN(8);
+        . = ALIGN(16);
         __stack_start = .;
-        . += 0x20000000; /*half gig*/
-        . = ALIGN(8);
+        . += 0x30000000; /*3 quarter gig*/
+        . = ALIGN(16);
         __stack_end = .;
     }
     _end = .;
