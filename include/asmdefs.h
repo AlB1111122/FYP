@@ -1,98 +1,28 @@
-/*
- * Macros for asm code.
- *
- * Copyright (c) 2019-2020, Arm Limited.
- * SPDX-License-Identifier: MIT
- */
+#pragma once
 
-#ifndef _ASMDEFS_H
-#define _ASMDEFS_H
+#define SCTLR_RESERVED                  (3 << 28) | (3 << 22) | (1 << 20) | (1 << 11)
+#define SCTLR_EE_LITTLE_ENDIAN          (0 << 25)
+#define SCTLR_EOE_LITTLE_ENDIAN         (0 << 24)
+#define SCTLR_I_CACHE_DISABLED          (0 << 12)
+#define SCTLR_D_CACHE_DISABLED          (0 << 2)
+#define SCTLR_I_CACHE_ENABLED           (1 << 12)
+#define SCTLR_D_CACHE_ENABLED           (1 << 2)
+#define SCTLR_MMU_DISABLED              (0 << 0)
+#define SCTLR_MMU_ENABLED               (1 << 0)
+// for use on SCTLR_EL1, System Control Register (EL1)
+#define SCTLR_VALUE_MMU_DISABLED	(SCTLR_RESERVED | SCTLR_EE_LITTLE_ENDIAN | SCTLR_I_CACHE_ENABLED | SCTLR_D_CACHE_ENABLED | SCTLR_MMU_DISABLED)
 
-#if defined(__aarch64__)
+#define HCR_RW	    			(1 << 31)
+//for use on HCR_EL2, Hypervisor Configuration Register
+#define HCR_VALUE			HCR_RW
 
-/* Branch Target Identitication support.  */
-#define BTI_C		hint	34
-#define BTI_J		hint	36
-/* Return address signing support (pac-ret).  */
-#define PACIASP		hint	25; .cfi_window_save
-#define AUTIASP		hint	29; .cfi_window_save
+#define SCR_RESERVED	    		(3 << 4)
+#define SCR_RW				(1 << 10)
+#define SCR_NS				(1 << 0)
+//for use on SPSR_EL2 Saved Program Status Register (EL2)
+#define SCR_VALUE	    	    	(SCR_RESERVED | SCR_RW | SCR_NS)
 
-/* GNU_PROPERTY_AARCH64_* macros from elf.h.  */
-#define FEATURE_1_AND 0xc0000000
-#define FEATURE_1_BTI 1
-#define FEATURE_1_PAC 2
-
-/* Add a NT_GNU_PROPERTY_TYPE_0 note.  */
-#define GNU_PROPERTY(type, value)	\
-  .section .note.gnu.property, "a";	\
-  .p2align 3;				\
-  .word 4;				\
-  .word 16;				\
-  .word 5;				\
-  .asciz "GNU";				\
-  .word type;				\
-  .word 4;				\
-  .word value;				\
-  .word 0;				\
-  .text
-
-/* If set then the GNU Property Note section will be added to
-   mark objects to support BTI and PAC-RET.  */
-#ifndef WANT_GNU_PROPERTY
-#define WANT_GNU_PROPERTY 1
-#endif
-
-#if WANT_GNU_PROPERTY
-/* Add property note with supported features to all asm files.  */
-GNU_PROPERTY (FEATURE_1_AND, FEATURE_1_BTI|FEATURE_1_PAC)
-#endif
-
-#define ENTRY_ALIGN(name, alignment)	\
-  .global name;		\
-  .type name,%function;	\
-  .align alignment;		\
-  name:			\
-  .cfi_startproc;	\
-  BTI_C;
-
-#else
-
-#define END_FILE
-
-#define ENTRY_ALIGN(name, alignment)	\
-  .global name;		\
-  .type name,%function;	\
-  .align alignment;		\
-  name:			\
-  .cfi_startproc;
-
-#endif
-
-#define ENTRY(name)	ENTRY_ALIGN(name, 6)
-
-#define ENTRY_ALIAS(name)	\
-  .global name;		\
-  .type name,%function;	\
-  name:
-
-#define END(name)	\
-  .cfi_endproc;		\
-  .size name, .-name;
-
-#define L(l) .L ## l
-
-#ifdef __ILP32__
-  /* Sanitize padding bits of pointer arguments as per aapcs64 */
-#define PTR_ARG(n)  mov w##n, w##n
-#else
-#define PTR_ARG(n)
-#endif
-
-#ifdef __ILP32__
-  /* Sanitize padding bits of size arguments as per aapcs64 */
-#define SIZE_ARG(n)  mov w##n, w##n
-#else
-#define SIZE_ARG(n)
-#endif
-
-#endif
+#define SPSR_MASK_ALL 			(7 << 6)
+#define SPSR_EL1h			(5 << 0)
+//for use on ELR_EL2, Exception Link Register (EL2)
+#define SPSR_VALUE			(SPSR_MASK_ALL | SPSR_EL1h)
