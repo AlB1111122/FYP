@@ -1,4 +1,4 @@
-#include "../../../include/fb.h"
+#include "../../../include/hdmiOut.h"
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
@@ -73,6 +73,13 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
                                //new_rgb_data);
   //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
   uint64_t to_filtered = Timer::now();
+  int i = 1;
+  for(int y=10;y<WIN_HEIGHT+10;y++){
+    for(int x=10;x<WIN_WIDTH+10;x++){
+      drawPixelRGB(x,y,((self->rgb_data[i-1] << 16) | (self->rgb_data[i]<< 8) | self->rgb_data[i+1]));
+      i+=3;
+    }
+  }
 
   //TODO: display
   uint64_t to_rendered = Timer::now();
@@ -269,7 +276,7 @@ int main() {
 
   uint64_t start = Timer::now();
   app_ptr->last_time = start;
-  while ((!app_ptr->wants_to_quit)) {// && (app_ptr->total_frames_completed < 3)
+  while ((!app_ptr->wants_to_quit)&& (app_ptr->total_frames_completed < 7)) {// && (app_ptr->total_frames_completed < 3)
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
