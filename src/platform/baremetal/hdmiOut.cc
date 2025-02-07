@@ -1,8 +1,9 @@
 #include "../../../include/gpio.h"
 #include "../../../include/hdmiOut.h"
 #include "../../../include/terminal.h"
+#include "../../../include/memCtrl.h"
 
-unsigned int width, height, pitch, isrgb;
+unsigned int width, height, pitch, isrgb; //7680 pitch
 unsigned char *fb;
 
 void fb_init()
@@ -62,7 +63,11 @@ void fb_init()
     }
 }
 
-void drawPixel(int x, int y, unsigned char attr)
+unsigned char * getFb(){
+    return fb;
+}
+
+void drawPixel(int x, int y, unsigned char attr)//comp this to putpixel and see how we go
 {
     int offs = (y * pitch) + (x * 4);
     *((unsigned int*)(fb + offs)) = vgapal[attr & 0x0f];
@@ -72,6 +77,38 @@ void drawPixelRGB(int x, int y, unsigned int colourRGB)
 {
     int offs = (y * pitch) + (x * 4);
     *((unsigned int*)(fb + offs)) = colourRGB;
+}
+
+void drawByLine(uint8_t* buffer,long n)
+{
+    int xSz = 1280*4;
+    int ySz = 720;
+    for(int i =0;i<ySz;i++){
+        unsigned int offs = i*pitch;
+        Mmemcpy((fb + offs),(buffer + (i*xSz)),xSz);
+    }
+    //int offs = (y * pitch) + (x * 4);
+    // Mmemcpy(fb,buffer,n);
+    // *((unsigned int*)(fb + offs)) = colourRGB;
+}
+
+unsigned int getPitch(){
+    return pitch;
+}
+
+void bufferCpy(uint8_t* buffer,long n)//no
+{
+    // int offs = (y * pitch) + (x * 4);
+    // *((unsigned int*)(fb + offs)) = colourRGB;
+    Mmemcpy(fb,buffer,n);
+}
+
+
+void bufferCpy2(uint8_t* buffer,long n)//no
+{
+    // int offs = (y * pitch) + (x * 4);
+    // *((unsigned int*)(fb + offs)) = colourRGB;
+    Mmemcpy(fb,buffer,n);
 }
 
 void drawRect(int x1, int y1, int x2, int y2, unsigned char attr, int fill)

@@ -1,5 +1,5 @@
 //https://www.geeksforgeeks.org/find-root-of-a-number-using-newtons-method/
-
+#pragma once
 #include "/usr/share/etl/etl-20.39.4/include/etl/absolute.h"
 double sqrt(double n, float l = .5) //defalut to .5 so integer sqrt is accurate
 {
