@@ -65,7 +65,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
 
-  plm_frame_to_bgra(frame, new_rgb_data,
+  plm_frame_to_bgra(frame, new_rgb_data,//little endian rgba
                    frame->width * 4);  // can be hardware accelerated
   uint64_t to_rgb = Timer::now();
 
