@@ -80,7 +80,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   //     i+=3;
   //   }
   // }
-  drawByLine(new_rgb_data,N_PIXELS);
+  drawByLine(new_rgb_data);
 
   //TODO: display
   uint64_t to_rendered = Timer::now();
@@ -162,7 +162,7 @@ int main() {
   etl::string<64> plt = "Correct play time sec: ";
   etl::to_string(frame_rate_info.total_t_exp, plt,etl::format_spec().precision(6),true);
   drawString(400, 40, plt.data(), 0x0f);
-  //app created
+  mu.writeText("\n");
 
   uint64_t start = Timer::now();
   app_ptr->last_time = start;
@@ -171,10 +171,6 @@ int main() {
   }
   mu.writeText("\n");
   make_stat_file(start, app_ptr, t,mu);
-  unsigned char* fbh = getFb();
-  for(int i =0;i<30;i++){
-    printN(fbh[i]);
-  }
 }
 
 void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu){
