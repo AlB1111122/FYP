@@ -1,8 +1,12 @@
 #pragma once
+#include "peripheralReg.h"
+#include "../../../include/gpio.h"
 
 class ARMMailbox {
     public:
-        unsigned int mbox_call(unsigned char ch);
+        unsigned int mbox_call(unsigned char channel);
+        // unsigned int mailboxRead(unsigned char channel);
+        // void mailboxWrite(unsigned char channel);
         // The buffer must be 16-byte aligned as only the upper 28 bits of the address can be passed via the mailbox
         volatile unsigned int __attribute__((aligned(16))) mbox[36];
     private:
@@ -20,6 +24,3 @@ class ARMMailbox {
         };
 };
 
-
-// void mailboxWrite(unsigned char channel);
-// int mailboxRead(unsigned char channel);
