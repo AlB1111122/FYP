@@ -1,4 +1,4 @@
-#include "../../../include/hdmiOut.h"
+#include "../../../include/FrameBuffer.h"
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
