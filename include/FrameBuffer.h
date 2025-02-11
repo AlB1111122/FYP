@@ -11,6 +11,7 @@ class FrameBuffer {
         void drawPixelRGB(int x, int y, unsigned int colourRGB);
         void drawChar(unsigned char ch, int x, int y, unsigned char attr);
         void drawString(int x, int y, char *s, unsigned char attr);
+        void pixelByPixelDraw(int x_src, int y_src, uint8_t* src);
     private:
         const uint32_t MBOX_REQUEST = 0;
         const uint32_t REQ_CHANNEL = 8;// Request from ARM for response by VideoCore

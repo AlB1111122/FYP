@@ -122,3 +122,14 @@ void FrameBuffer::drawString(int x, int y, char *s, unsigned char attr)
 int FrameBuffer::getXYOffset(int x, int y){
     return (y * this->pitch) + (x * 4);
 }
+
+//expects rgb
+void FrameBuffer::pixelByPixelDraw(int x_src, int y_src, uint8_t* src){
+    int i = 1;
+    for(int y=0;y<y_src;y++){
+        for(int x=0;x<x_src;x++){
+            this->drawPixelRGB(x,y,((src[i-1] << 16) | (src[i]<< 8) | src[i+1]));
+            i+=3;
+        }
+    }
+}
