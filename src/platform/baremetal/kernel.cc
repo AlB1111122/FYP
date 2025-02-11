@@ -54,12 +54,6 @@ void printN(T time, FrameBuffer& fb) {
   }
 }
 
-// template<typename T>
-// void printX(T time, int x) {
-//   etl::string<100> n_str;
-//   etl::to_string(time, n_str, etl::format_spec().precision(6),false);
-//   drawString(x, (nPrints*10), n_str.data(), 0x0f);
-// }
 uint8_t new_rgb_data[N_PIXELS];
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
