@@ -1,3 +1,4 @@
+# use this config on the SD card
 # For more options and information see
 # http://rptl.io/configtxt
 # Some settings may impact device functionality. See link above for details
@@ -52,3 +53,8 @@ dtoverlay=dwc2,dr_mode=host
 enable_uart=1
 dtoverlay=disable-bt
 core_freq_min=500
+# Disable pull downs
+# gpio=22-27=np
+# Enable jtag pins (i.e. GPIO22-GPIO27)
+# enable_jtag_gpio=1
+hdmi_group=2 # set up for monitor

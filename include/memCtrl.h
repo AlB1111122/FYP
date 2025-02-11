@@ -1,6 +1,6 @@
 //extern "C" void Mmemcpy(void *dest, void *src, unsigned int n);
 //extern "C" void Mmemmove(void* dest, void* src, unsigned int n);
-
+#pragma once
 #include <stddef.h>
 #include <stdint.h>
 
