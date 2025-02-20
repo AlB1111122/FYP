@@ -88,7 +88,6 @@ void updateVideo(video_app *self, Timer& t) {
     self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
       self->last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
-      // printN(self->total_frames_completed);
   }
 
   if (plm_has_ended(self->plm)) {
@@ -96,7 +95,7 @@ void updateVideo(video_app *self, Timer& t) {
   }
 }
 
-void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu);
+void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu, FrameBuffer& fb);
 
 
 extern "C" int get_el();
@@ -155,13 +154,12 @@ int main() {
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
-  make_stat_file(start, app_ptr, t,mu);
+  make_stat_file(start, app_ptr, t,mu,fb);
 }
 
-void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu){
-  mu.writeText("enter stat file:\n");
+void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu, FrameBuffer& fb){
   double duration = t.to_sec(t.duration_since(start_time));
-  uint64_t total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t = 0;
+  uint64_t total_rgb_t = 0, total_filter_t = 0, total_render_t = 0, total_display_t = 0, plm_d_t = 0;
 
   uint64_t durations[400][5];
   int dropped_frames = 0;
@@ -188,25 +186,10 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu
     
   }
 
-  mu.writeText("btwn_frame_loops,");
-  mu.writeText("decode,");
-  mu.writeText("convert_rgb,");
-  mu.writeText("filter,");
-  mu.writeText("display,");
-  mu.writeText("total_callback_time,");
-  mu.writeText("avg_decoded,");
-  mu.writeText("avg_rgb,");
-  mu.writeText("avg_filtered,");
-  mu.writeText("avg_rendered,");
-  mu.writeText("avg_total_time_to_display,");
-  mu.writeText("total_slow_frames,");
-  mu.writeText("total_callbacks,");
-  mu.writeText("real_play_time,");
-  mu.writeText("actual_fps,");
-  mu.writeText("total_video_frames,");
-  mu.writeText("default_fps,");
-  mu.writeText("max_frame_time(ms),");
-  mu.writeText("correct_play_time,\n");
+  mu << "btwn_frame_loops,decode,convert_rgb,filter,display,time_in_callback,"
+  << "avg_decoded,avg_rgb,avg_filtered,avg_rendered,"
+  << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
+  << "real_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
   for (int i =0; i< self->total_frames_completed; i++) {
     etl::string<510> uart_str ="";
 
@@ -271,6 +254,6 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu
     }else{
       uart_str.append("\n");
     }
-    mu.writeText(uart_str.data());
+    mu << uart_str.data();
   }
 }

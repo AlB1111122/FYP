@@ -73,5 +73,5 @@ class FrameBuffer {
             uint32_t get_pitch_value;
             uint32_t pitch;
             uint32_t end_tag;
-        } __attribute__((aligned(16)));
+        } __attribute__((aligned(16))) __attribute__ ((packed));
 };
