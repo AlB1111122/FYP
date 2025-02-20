@@ -24,22 +24,9 @@ SECTIONS
         . = ALIGN(16);
         __bss_end = .;
     }
-    . = 0x40000000;
-    .stack (NOLOAD) : {
-        . = ALIGN(16);
-        __stack_start = .;
-        . += 0x30000000; /*3 quarter gig*/
-        . = ALIGN(16);
-        __stack_end = .;
-    }
     _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }
 
 __bss_size = (__bss_end - __bss_start)>>3;
-
-ASSERT(__stack_start >= __bss_end, "Stack overlaps BSS");
-ASSERT(__start_text <= __start_data, "Text overlaps data section");
-ASSERT(__end_data <= __bss_start, "Data overlaps BSS section");
-ASSERT(__bss_end <= __stack_start, "BSS overlaps stack section");

@@ -88,7 +88,6 @@ void updateVideo(video_app *self, Timer& t) {
     self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
       self->last_time = now;
       plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
-      // printN(self->total_frames_completed);
   }
 
   if (plm_has_ended(self->plm)) {

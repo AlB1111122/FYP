@@ -32,7 +32,9 @@ _start:
 
 el1_entry:
     // Set stack to start below our code
-    ldr     x1, =__stack_end    // Load the end of the stack space to get the 1/2 gig stack
+//    ldr     x1, =__stack_end    // Load the end of the stack space to get the 1/2 gig stack
+//    mov     sp, x1
+    ldr     x1, =_start
     mov     sp, x1
 
     // Clean the BSS section

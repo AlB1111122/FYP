@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
   auto start = std::chrono::system_clock::now();
 
   last_time = start;
-  while ((!app_ptr->wants_to_quit) && (total_frames_completed < 1)) {
+  while ((!app_ptr->wants_to_quit)) {
     updateVideo(app_ptr);
   }
   
@@ -123,13 +123,13 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
                    frame->width * 3);  // can be hardware accelerated]
 
   auto to_rgb = std::chrono::high_resolution_clock::now();
-  uint8_t new_rgb_data[N_PIXELS];
+  //uint8_t new_rgb_data[N_PIXELS];
   //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
                                //new_rgb_data);
   //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 3);
+  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
@@ -210,7 +210,7 @@ void make_stat_file(std::chrono::system_clock::time_point start){
     }
     
 }   //headers
-    file << "btwn_frame_loops,decode,convert_rgb,filter,display,total_callback_time,"
+    file << "btwn_frame_loops,decode,convert_rgb,filter,display,time_in_callback,"
           << "avg_decoded,avg_rgb,avg_filtered,avg_rendered,"
           << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
           << "real_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
@@ -221,7 +221,7 @@ void make_stat_file(std::chrono::system_clock::time_point start){
              << durations[i][1] << ","
              << durations[i][2] << ","
              << durations[i][3] << ","
-             << durations[i][4];
+             << durations[i][4] << ",";
              if(i < 1){
               file << plm_d_t / total_frames_completed << ","
               << total_rgb_t / total_frames_completed << ","
