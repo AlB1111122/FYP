@@ -55,4 +55,7 @@ class MiniUart {
   void drainOutputQueue();
 
   void update();
+
+  friend MiniUart& operator<<(MiniUart& uart, const char* text);
+  friend MiniUart& operator<<(MiniUart& uart, const etl::string<STR_SZ>& text);
 };
