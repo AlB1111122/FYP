@@ -12,7 +12,11 @@ class FrameBuffer {
         void drawChar(unsigned char ch, int x, int y, unsigned char attr);
         void drawString(int x, int y, char *s, unsigned char attr);
         void pixelByPixelDraw(int x_src, int y_src, uint8_t* src);
+        unsigned int getPitch();
+        void swapFb();
+        unsigned char* getOffFb();
     private:
+        void arbMboxReq(uint8_t* src);
         const uint32_t MBOX_REQUEST = 0;
         const uint32_t REQ_CHANNEL = 8;// Request from ARM for response by VideoCore
 
@@ -28,14 +32,16 @@ class FrameBuffer {
                 static constexpr uint32_t MBOX_TAG_SET_PXL_ORDR = 0x48006;
                 static constexpr uint32_t MBOX_TAG_GET_FB      = 0x40001;
                 static constexpr uint32_t MBOX_TAG_GET_PITCH   = 0x40008;
+                static constexpr uint32_t WAIT_FOR_VSYNC = 0x4800E;
                 static constexpr uint32_t MBOX_TAG_LAST       = 0;
         };
 
-    
+        bool bufferSwapped = 0;
         static constexpr VCTag VCTag{};
         static ARMMailbox FB_mailbox; //want only one instance even is somehow multiple fb get made;
         unsigned int width, height, pitch, isrgb; //7680 pitch
         unsigned char *fb;
+        unsigned char *baseFb;
         int getXYOffset(int x, int y);
         struct fb_mailbox_req_t {
             uint32_t size;

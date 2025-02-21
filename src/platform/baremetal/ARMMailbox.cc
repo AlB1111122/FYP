@@ -1,6 +1,6 @@
 #include "../../../include/ARMMailbox.h"
 
-unsigned int ARMMailbox::mailboxWriteRead(unsigned char channel)
+unsigned int ARMMailbox::writeRead(unsigned char channel)
 {
     // 28-bit address (MSB) and 4-bit value (LSB)
     unsigned int message = ((unsigned int)((long) &mbox) &~ 0xF) | (channel & 0xF);
@@ -22,7 +22,7 @@ unsigned int ARMMailbox::mailboxWriteRead(unsigned char channel)
     return 0;
 }
 
-void ARMMailbox::mailboxWrite(unsigned char channel)
+void ARMMailbox::write(unsigned char channel)
 {//set the values of mailbox before this func
     // 28-bit address (MSB) and 4-bit value (LSB)
     unsigned int message = ((unsigned int)((long) &mbox) &~ 0xF) | (channel & 0xF);
@@ -31,7 +31,7 @@ void ARMMailbox::mailboxWrite(unsigned char channel)
     gpio.mmio_write(MBOX_WRITE, message);
 }
 
-unsigned int ARMMailbox::mailboxRead(unsigned char channel){
+unsigned int ARMMailbox::read(unsigned char channel){
     while (1) {
         // Is there a reply?
         while (gpio.mmio_read(MBOX_STATUS) & MBOX_EMPTY){;};

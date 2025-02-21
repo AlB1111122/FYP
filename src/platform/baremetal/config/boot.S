@@ -47,8 +47,21 @@ el1_entry:
     // In case it does return, halt the master core too
     b       1b
 
-.global get_el //exeption level
-get_el:
+.global getEl //exeption level
+getEl:
 	mrs x0, CurrentEL
 	lsr x0, x0, #2
 	ret
+
+// https://developer.arm.com/documentation/100941/0101/Barriers
+.global instructionSyncBarrier
+instructionSyncBarrier:
+	isb
+
+.global dataSyncBarrier //data sync, whole system
+dataSyncBarrier:
+	dsb sy
+
+.global memorySyncBarrier //data sync, whole system
+memorySyncBarrier:
+	dmb sy

@@ -21,3 +21,8 @@ void Mmemmove(void *dst_void,
 void* Mmemcpy(void *__restrict dst0,
            const void *__restrict src0,
            size_t len0);
+
+
+extern "C" int instructionSyncBarrier();
+extern "C" int dataSyncBarrier();
+extern "C" int memorySyncBarrier();
