@@ -59,16 +59,21 @@ uint8_t new_rgb_data[N_PIXELS];
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
-
-  plm_frame_to_bgra(frame, new_rgb_data,//little endian rgba
-                   frame->width * 4);  // can be hardware accelerated
+  if(self->total_frames_completed == 0){
+    plm_frame_to_rgba(frame, self->fb_ptr->getOffFb()+(self->fb_ptr->getPitch()*(self->fb_ptr->getHeight())),
+    self->fb_ptr->getPitch()); 
+  }else{
+    plm_frame_to_rgba(frame, self->fb_ptr->getOffFb(),
+    self->fb_ptr->getPitch());  // can be hardware accelerated
+  }
   uint64_t to_rgb = Timer::now();
 
   //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
                                //new_rgb_data);
   //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
   uint64_t to_filtered = Timer::now();
-  self->fb_ptr->drawByLine(new_rgb_data);
+  //self->fb_ptr->drawByLine(new_rgb_data);
+  self->fb_ptr->swapFb();
 
   //TODO: display
   uint64_t to_rendered = Timer::now();
@@ -98,7 +103,7 @@ void updateVideo(video_app *self, Timer& t) {
 void make_stat_file(uint64_t start_time, video_app *self, Timer& t, MiniUart& mu, FrameBuffer& fb);
 
 
-extern "C" int get_el();
+extern "C" int getEl();
 
 plm_t plm_holder;
 video_app app;
@@ -112,7 +117,7 @@ int main() {
   app.fb_ptr = &fb;
   
 
-  printN(get_el(),fb); //should be 1 not 2 which it boots to automatically
+  printN(getEl(),fb); //should be 1 not 2 which it boots to automatically
   mu.writeText(hello_str);
   
   video_app *app_ptr = &app;

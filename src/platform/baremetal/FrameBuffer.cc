@@ -7,6 +7,7 @@ ARMMailbox FrameBuffer::FB_mailbox;
 
 FrameBuffer::FrameBuffer()
 {
+    this->secondBuffer = false;
     //to make the code more readable
     fb_mailbox_req_t* mbox = reinterpret_cast<volatile fb_mailbox_req_t*>(FB_mailbox.mbox);
     mbox->size = 35*4; // Length of message in bytes
@@ -22,7 +23,7 @@ FrameBuffer::FrameBuffer()
     mbox->set_virt_wh_size = 8;
     mbox->set_virt_wh_value = 8;
     mbox->virt_width = 1920;
-    mbox->virt_height = 1080;
+    mbox->virt_height = 1080*2;//double the height to functionally get 2 buffers
     
     mbox->set_virt_off_tag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
     mbox->set_virt_off_size = 8;
@@ -54,14 +55,23 @@ FrameBuffer::FrameBuffer()
     mbox->end_tag = this->VCTag.MBOX_TAG_LAST;
 
     // Check call is successful and we have a pointer with depth 32
-    if (FB_mailbox.mailboxWriteRead(REQ_CHANNEL) && mbox->depth == 32 && mbox->fb_pointer != 0) {
+    if (FB_mailbox.writeRead(REQ_CHANNEL) && mbox->depth == 32 && mbox->fb_pointer != 0) {
         mbox->fb_pointer &= reg::GPU_TO_ARM_ADR_MASK;
         this->width = mbox->virt_width;
         this->height = mbox->virt_height;
         this->pitch = mbox->pitch;
         this->isrgb = mbox->pixel_order;
         this->fb = reinterpret_cast<unsigned char*>(static_cast<long>(mbox->fb_pointer));
+        this->baseFb = this->fb;
     }
+}
+
+unsigned int FrameBuffer::getPitch(){
+    return this->pitch;
+}
+
+unsigned int FrameBuffer::getHeight(){
+    return (this->height/2);
 }
 
 void FrameBuffer::drawPixel(int x, int y, unsigned char attr)
@@ -132,4 +142,24 @@ void FrameBuffer::pixelByPixelDraw(int x_src, int y_src, uint8_t* src){
             i+=3;
         }
     }
+}
+
+void FrameBuffer::swapFb(){
+    this->FB_mailbox.mbox[0] = 8 * 4; // Length of message in bytes
+    this->FB_mailbox.mbox[1] = MBOX_REQUEST;
+    this->FB_mailbox.mbox[2] = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
+    this->FB_mailbox.mbox[3] = 0;
+    this->FB_mailbox.mbox[4] = 0;
+    this->FB_mailbox.mbox[5] = 0; // Value(x)
+    this->FB_mailbox.mbox[6] =  (this->height / 2) * this->secondBuffer;// Value(y)
+    this->FB_mailbox.mbox[7]= this->VCTag.MBOX_TAG_LAST;
+    FB_mailbox.writeRead(REQ_CHANNEL);
+    this->secondBuffer = !this->secondBuffer;
+    //look into vsync, possible solution to odd screen tearing
+
+    this->fb = this->baseFb+(this->secondBuffer*(this->height/2)*this->pitch);
+}
+
+unsigned char* FrameBuffer::getOffFb(){
+    return this->baseFb+(this->secondBuffer*(this->height/2)*this->pitch);
 }
