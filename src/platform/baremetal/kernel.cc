@@ -59,9 +59,13 @@ uint8_t new_rgb_data[N_PIXELS];
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
-
-  plm_frame_to_rgba(frame, self->fb_ptr->getOffFb(),
-  self->fb_ptr->getPitch());  // can be hardware accelerated
+  if(self->total_frames_completed == 0){
+    plm_frame_to_rgba(frame, self->fb_ptr->getOffFb()+(self->fb_ptr->getPitch()*(self->fb_ptr->getHeight())),
+    self->fb_ptr->getPitch()); 
+  }else{
+    plm_frame_to_rgba(frame, self->fb_ptr->getOffFb(),
+    self->fb_ptr->getPitch());  // can be hardware accelerated
+  }
   uint64_t to_rgb = Timer::now();
 
   //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
@@ -151,7 +155,7 @@ int main() {
 
   uint64_t start = Timer::now();
   app_ptr->last_time = start;
-  while ((!app_ptr->wants_to_quit)&& (app_ptr->total_frames_completed < 7)) {// && (app_ptr->total_frames_completed < 7)
+  while ((!app_ptr->wants_to_quit)) {// && (app_ptr->total_frames_completed < 7)
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");

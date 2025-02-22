@@ -7,7 +7,7 @@ ARMMailbox FrameBuffer::FB_mailbox;
 
 FrameBuffer::FrameBuffer()
 {
-    this->bufferSwapped = false;
+    this->secondBuffer = false;
     //to make the code more readable
     fb_mailbox_req_t* mbox = reinterpret_cast<volatile fb_mailbox_req_t*>(FB_mailbox.mbox);
     mbox->size = 35*4; // Length of message in bytes
@@ -68,6 +68,10 @@ FrameBuffer::FrameBuffer()
 
 unsigned int FrameBuffer::getPitch(){
     return this->pitch;
+}
+
+unsigned int FrameBuffer::getHeight(){
+    return (this->height/2);
 }
 
 void FrameBuffer::drawPixel(int x, int y, unsigned char attr)
@@ -147,16 +151,15 @@ void FrameBuffer::swapFb(){
     this->FB_mailbox.mbox[3] = 0;
     this->FB_mailbox.mbox[4] = 0;
     this->FB_mailbox.mbox[5] = 0; // Value(x)
-    this->FB_mailbox.mbox[6] =  (this->height / 2) * this->bufferSwapped;// Value(y)
+    this->FB_mailbox.mbox[6] =  (this->height / 2) * this->secondBuffer;// Value(y)
     this->FB_mailbox.mbox[7]= this->VCTag.MBOX_TAG_LAST;
-    this->drawString(500,20,"wrote to mb", 0x0f);
     FB_mailbox.writeRead(REQ_CHANNEL);
-    this->bufferSwapped = !this->bufferSwapped;
-    //look into vsync
+    this->secondBuffer = !this->secondBuffer;
+    //look into vsync, possible solution to odd screen tearing
 
-    this->fb = this->baseFb+(this->bufferSwapped*(this->height/2)*this->pitch);
+    this->fb = this->baseFb+(this->secondBuffer*(this->height/2)*this->pitch);
 }
 
 unsigned char* FrameBuffer::getOffFb(){
-    return this->baseFb+(this->bufferSwapped*(this->height/2)*this->pitch);
+    return this->baseFb+(this->secondBuffer*(this->height/2)*this->pitch);
 }

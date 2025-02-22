@@ -13,6 +13,7 @@ class FrameBuffer {
         void drawString(int x, int y, char *s, unsigned char attr);
         void pixelByPixelDraw(int x_src, int y_src, uint8_t* src);
         unsigned int getPitch();
+        unsigned int getHeight();
         void swapFb();
         unsigned char* getOffFb();
     private:
@@ -36,7 +37,7 @@ class FrameBuffer {
                 static constexpr uint32_t MBOX_TAG_LAST       = 0;
         };
 
-        bool bufferSwapped = 0;
+        bool secondBuffer = 0;
         static constexpr VCTag VCTag{};
         static ARMMailbox FB_mailbox; //want only one instance even is somehow multiple fb get made;
         unsigned int width, height, pitch, isrgb; //7680 pitch
