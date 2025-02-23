@@ -1,4 +1,6 @@
 #include "../../../../include/asmdefs.h"
+#include "../../../../include/mm.h"
+#include "../../../../include/mmu.h"
 .section ".text.boot"  // Make sure the linker puts this at the start of the kernel image
 
 .global _start  // Execution starts here
@@ -25,14 +27,25 @@ _start:
 	ldr x0, =SPSR_VALUE
 	msr spsr_el2, x0
 
+    //mmu enablement:
+    ldr x0, =CPACR_EL1_VAL
+    msr CPACR_EL1, x0
+
+    ldr x0, =TCR_EL1_VAL
+    msr TCR_EL1, x0
+
+    ldr x0, =MAIR_VALUE
+    msr MAIR_EL1, x0
+    //end mmu enablement
+
 	adr x0, el1_entry
 	msr elr_el2, x0
 
 	eret		
 
 el1_entry:
-    // Set stack to start below our code
-    ldr     x1, =_start
+    // Set stack to start above our code
+    ldr     x1, =LOW_MEMORY
     mov     sp, x1
 
     // Clean the BSS section
@@ -42,6 +55,18 @@ el1_entry:
     str     xzr, [x1], #8
     sub     w2, w2, #1
     cbnz    w2, 3b               // Loop if non-zero
+
+    //mmu enablement:
+    bl init_mmu
+
+    adrp x0, id_pgd
+    msr ttbr0_el1, x0
+
+    mrs x0, sctlr_el1
+    mov x1, #SCTLR_MMU_ENABLED
+    orr x0, x0, x1
+    msr sctlr_el1, x0
+    //end mmu enablement
 
 4:  bl      main
     // In case it does return, halt the master core too
@@ -65,3 +90,15 @@ dataSyncBarrier:
 .global memorySyncBarrier //data sync, whole system
 memorySyncBarrier:
 	dmb sy
+
+.globl memzero
+memzero:
+    str xzr, [x0], #8
+    subs x1, x1, #8
+    b.gt memzero
+    ret
+
+.globl id_pgd_addr
+id_pgd_addr:
+    adrp x0, id_pgd
+    ret

@@ -26,3 +26,14 @@
 #define SPSR_EL1h			(5 << 0)
 //for use on ELR_EL2, Exception Link Register (EL2)
 #define SPSR_VALUE			(SPSR_MASK_ALL | SPSR_EL1h)
+
+/* architectural feature access control register */
+#define CPACR_EL1_FPEN    (1 << 21) | (1 << 20) // don't trap SIMD/FP registers
+#define CPACR_EL1_ZEN     (1 << 17) | (1 << 16)  // don't trap SVE instructions
+#define CPACR_EL1_VAL     (CPACR_EL1_FPEN | CPACR_EL1_ZEN)
+
+#define TCR_TG1_4K     (2 << 30)
+#define TCR_T1SZ       ((64 - 48) << 16)
+#define TCR_TG0_4K     (0 << 14)
+#define TCR_T0SZ       (64 - 48)
+#define TCR_EL1_VAL    (TCR_TG1_4K | TCR_T1SZ | TCR_TG0_4K | TCR_T0SZ)

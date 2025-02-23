@@ -24,6 +24,9 @@ SECTIONS
         . = ALIGN(16);
         __bss_end = .;
     }
+    . = ALIGN(0x00001000);
+    id_pgd = .;
+    .data.id_pgd : { . += (6 * (1 << 12)); }
     _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
