@@ -168,8 +168,6 @@ See below for detailed the API documentation.
 #else
   #pragma message ("compiling on bm")
   #include <stdio.h>
-  void memcpyRDef(void *dest, void *src, size_t n);
-  void memmoveRDef(void* dest, const void* src, unsigned int n);
 #endif
 #include <stddef.h>
 #include <stdint.h>
