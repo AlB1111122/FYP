@@ -174,9 +174,8 @@ int main() {
   mu.writeText(cmpol);
   mu.writeText("check again \n");
 
-  while ((!app_ptr->wants_to_quit) &&
-         (app_ptr->total_frames_completed <
-          15)) {  // && (app_ptr->total_frames_completed < 7)
+  while (
+      (!app_ptr->wants_to_quit)) {  // && (app_ptr->total_frames_completed < 7)
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
