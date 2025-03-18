@@ -3,11 +3,9 @@
 #include <stdlib.h>
 
 #include "../../../include/FrameBuffer.h"
-// #include "../../../include/errno.h"
 #include "../../../include/filter.h"
 #include "../../../include/memCtrl.h"
 #include "../../../include/miniuart.h"
-#include "../../../include/newtonSqrt.h"
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
