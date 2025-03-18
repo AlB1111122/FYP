@@ -1,9 +1,8 @@
 #include "../../include/filter.h"
-#if __STDC_HOSTED__ == 1
+
 #include <math.h>
-#else
-#pragma message("compiling on bm")
-#include "../../include/newtonSqrt.h"
+#if __STDC_HOSTED__ != 1
+#include "../../include/errno.h"
 #endif
 #include <stdint.h>
 #include <sys/types.h>
