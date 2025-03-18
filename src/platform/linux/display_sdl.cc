@@ -6,17 +6,16 @@ extern "C" {
 
 #include <array>
 #include <chrono>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <iostream>
-#include <fstream>
 
 #include "../../../include/filter.h"
 
 #define WIN_HEIGHT 720
 #define WIN_WIDTH 1280
-#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 3)
+#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 4)
 
 struct frame_rate_info {
   double frame_ms;
@@ -32,7 +31,7 @@ unsigned long total_frames_completed;
 struct video_app {
   plm_t *plm;
   bool wants_to_quit;
-  uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 3];
+  uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 4];
   SDL_Texture *texture_rgb;
   SDL_Window *window;
   SDL_Renderer *renderer;
@@ -74,10 +73,10 @@ int main(int argc, char **argv) {
   while ((!app_ptr->wants_to_quit)) {
     updateVideo(app_ptr);
   }
-  
+
   make_stat_file(start);
   destroy(app_ptr);
-  }
+}
 
 void createApp(video_app *self) {
   int samplerate = plm_get_samplerate(self->plm);
@@ -112,29 +111,29 @@ void createApp(video_app *self) {
   }
 
   self->texture_rgb =
-      SDL_CreateTexture(self->renderer, SDL_PIXELFORMAT_RGB24,
+      SDL_CreateTexture(self->renderer, SDL_PIXELFORMAT_RGBA32,
                         SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   auto start_time = std::chrono::high_resolution_clock::now();
   video_app *self = static_cast<video_app *>(user);
-  plm_frame_to_rgb(frame, self->rgb_data,
-                   frame->width * 3);  // can be hardware accelerated]
+  plm_frame_to_rgba(frame, self->rgb_data,
+                    frame->width * 4);  // can be hardware accelerated]
 
   auto to_rgb = std::chrono::high_resolution_clock::now();
-  //uint8_t new_rgb_data[N_PIXELS];
-  //com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 3,
-                               //new_rgb_data);
-  //com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  uint8_t new_rgb_data[N_PIXELS];
+  com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 4,
+                               new_rgb_data);
+  // com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 3);
+  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 4);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
   auto to_render = std::chrono::high_resolution_clock::now();
-  ttr.push_back({last_time,start_time, to_rgb, to_filter, to_render});
+  ttr.push_back({last_time, start_time, to_rgb, to_filter, to_render});
   total_frames_completed++;
 }
 
@@ -150,8 +149,8 @@ void updateVideo(video_app *self) {
 
   if (elapsed_time >= frame_rate_info.frame_ms) {
     between_update_video_loops.push_back(elapsed_time);
-      last_time = now;
-      plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+    last_time = now;
+    plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
   }
 
   if (plm_has_ended(self->plm)) {
@@ -175,7 +174,7 @@ void destroy(video_app *self) {
   plm_destroy(self->plm);
 }
 
-void make_stat_file(std::chrono::system_clock::time_point start){
+void make_stat_file(std::chrono::system_clock::time_point start) {
   std::string filename = "results.csv";
   std::ofstream file(filename);
 
@@ -198,7 +197,8 @@ void make_stat_file(std::chrono::system_clock::time_point start){
     std::chrono::duration<double, std::milli> ttf = times[3] - times[2];
     std::chrono::duration<double, std::milli> ttr = times[4] - times[3];
     std::chrono::duration<double, std::milli> ttd = times[4] - times[0];
-    durations.push_back({ttplmd.count(),ttrgb.count(),ttf.count(),ttr.count(),ttd.count()});
+    durations.push_back(
+        {ttplmd.count(), ttrgb.count(), ttf.count(), ttr.count(), ttd.count()});
     plm_d_t += ttplmd.count();
     total_rgb_t += ttrgb.count();
     total_filter_t += ttf.count();
@@ -208,38 +208,33 @@ void make_stat_file(std::chrono::system_clock::time_point start){
     if (ttd.count() > frame_rate_info.frame_ms) {
       dropped_frames++;
     }
-    
-}   //headers
-    file << "btwn_frame_loops,decode,convert_rgb,filter,display,time_in_callback,"
-          << "avg_decoded,avg_rgb,avg_filtered,avg_rendered,"
-          << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
-          << "real_play_time,actual_fps,total_video_frames,default_fps,max_frame_time(ms),correct_play_time\n";
-    
-    for (int i =0; i< total_frames_completed; i++) {
-        file << between_update_video_loops[i]<<","
-            << durations[i][0] << ","
-             << durations[i][1] << ","
-             << durations[i][2] << ","
-             << durations[i][3] << ","
-             << durations[i][4] << ",";
-             if(i < 1){
-              file << plm_d_t / total_frames_completed << ","
-              << total_rgb_t / total_frames_completed << ","
-              << total_filter_t / total_frames_completed << ","
-              << total_render_t / total_frames_completed << ","
-              << total_display_t / total_frames_completed << ","
-              << dropped_frames << ","
-              << total_frames_completed << ","
-              << duration.count() << ","
-              << total_frames_completed / duration.count() << ","
-              << frame_rate_info.total_frames<<","
-              << frame_rate_info.fps <<","
-              << frame_rate_info.frame_ms<<","
-              << frame_rate_info.total_t <<"\n";
-             }else{
-              file << std::endl;
-             }
+
+  }  // headers
+  file << "btwn_frame_loops,decode,convert_rgb,filter,display,time_in_callback,"
+       << "avg_decoded,avg_rgb,avg_filtered,avg_rendered,"
+       << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
+       << "real_play_time,actual_fps,total_video_frames,default_fps,max_frame_"
+          "time(ms),correct_play_time\n";
+
+  for (int i = 0; i < total_frames_completed; i++) {
+    file << between_update_video_loops[i] << "," << durations[i][0] << ","
+         << durations[i][1] << "," << durations[i][2] << "," << durations[i][3]
+         << "," << durations[i][4] << ",";
+    if (i < 1) {
+      file << plm_d_t / total_frames_completed << ","
+           << total_rgb_t / total_frames_completed << ","
+           << total_filter_t / total_frames_completed << ","
+           << total_render_t / total_frames_completed << ","
+           << total_display_t / total_frames_completed << "," << dropped_frames
+           << "," << total_frames_completed << "," << duration.count() << ","
+           << total_frames_completed / duration.count() << ","
+           << frame_rate_info.total_frames << "," << frame_rate_info.fps << ","
+           << frame_rate_info.frame_ms << "," << frame_rate_info.total_t
+           << "\n";
+    } else {
+      file << std::endl;
     }
-    file.close();
-    std::cout << "Data written to " << filename << std::endl;
+  }
+  file.close();
+  std::cout << "Data written to " << filename << std::endl;
 }
