@@ -1,5 +1,7 @@
 #include "../../../include/FrameBuffer.h"
 
+#include <stdlib.h>
+
 #include "../../../include/gpio.h"
 #include "../../../include/memCtrl.h"
 #include "../../../include/terminal.h"
@@ -142,17 +144,20 @@ void FrameBuffer::pixelByPixelDraw(int x_src, int y_src, uint8_t* src) {
 }
 
 void FrameBuffer::swapFb() {
+  uint32_t vsync = 0x0004800E;
   __asm__ volatile("dmb sy" ::: "memory");
   __asm__ volatile("isb sy" ::: "memory");
+
   this->secondBuffer = !this->secondBuffer;
+
+  int newOffset = (this->height / 2) * this->secondBuffer;
   this->FB_mailbox.mbox[0] = 8 * 4;  // Length of message in bytes
   this->FB_mailbox.mbox[1] = MBOX_REQUEST;
   this->FB_mailbox.mbox[2] = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
   this->FB_mailbox.mbox[3] = 0;
   this->FB_mailbox.mbox[4] = 0;
   this->FB_mailbox.mbox[5] = 0;
-  this->FB_mailbox.mbox[6] =
-      (this->height / 2) * this->secondBuffer;  // Value(y)
+  this->FB_mailbox.mbox[6] = newOffset;  // Value(y)
   this->FB_mailbox.mbox[7] = this->VCTag.MBOX_TAG_LAST;
   FB_mailbox.writeRead(REQ_CHANNEL);
 
