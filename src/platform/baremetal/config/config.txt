@@ -53,9 +53,12 @@ dtoverlay=dwc2,dr_mode=host
 enable_uart=1
 dtoverlay=disable-bt
 arm_freq_min=1800
-core_freq_min=500
+core_freq_min=750
 # Disable pull downs
-# gpio=22-27=np
+##gpio=22-27=np
 # Enable jtag pins (i.e. GPIO22-GPIO27)
-# enable_jtag_gpio=1
-#hdmi_group=2 # set up for monitor
+#enble_jtag_gpio=1
+hdmi_group=2 # set up for monitor
+hdmi_mode=85 # 1280×720 resolution same as videod
+framebuffer_ignore_alpha=1
+framebuffer_swap=1

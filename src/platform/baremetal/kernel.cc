@@ -3,11 +3,9 @@
 #include <stdlib.h>
 
 #include "../../../include/FrameBuffer.h"
-// #include "../../../include/errno.h"
 #include "../../../include/filter.h"
 #include "../../../include/memCtrl.h"
 #include "../../../include/miniuart.h"
-#include "../../../include/newtonSqrt.h"
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
@@ -32,6 +30,7 @@ struct video_app {
   int total_frames_completed = 0;
   uint64_t between_update_video_loops[400];
   FrameBuffer *fb_ptr;
+  unsigned char *lastBuffer;
 };
 
 struct frame_rate_info {
@@ -60,6 +59,7 @@ void printN(T time, FrameBuffer &fb) {
 }
 
 uint8_t new_rgb_data[N_PIXELS];
+uint8_t f_rgb_data[N_PIXELS];
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
@@ -68,10 +68,11 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
                     self->fb_ptr->getPitch());  // can be hardware accelerated
   uint64_t to_rgb = Timer::now();
 
-  com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
-                               self->fb_ptr->getOffFb());
-  // com::Filter::grayscale(new_rgb_data, N_PIXELS, self->fb_ptr->getOffFb());
+  // com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
+  //                              f_rgb_data);
+  com::Filter::grayscale(new_rgb_data, N_PIXELS, f_rgb_data);
   uint64_t to_filtered = Timer::now();
+  memcpy(self->fb_ptr->getOffFb(), f_rgb_data, N_PIXELS);
   self->fb_ptr->swapFb();
 
   uint64_t to_rendered = Timer::now();
@@ -178,7 +179,7 @@ int main() {
   mu.writeText(cmpol);
   mu.writeText("check again \n");
   // && (app_ptr->total_frames_completed < 7)
-  while ((!app_ptr->wants_to_quit)) {
+  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 20)) {
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");

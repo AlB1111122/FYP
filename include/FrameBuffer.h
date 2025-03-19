@@ -21,6 +21,7 @@ class FrameBuffer {
 
  private:
   void arbMboxReq(uint8_t* src);
+  void gpuFence(uint32_t expectedYOffset);
   const uint32_t MBOX_REQUEST = 0;
   const uint32_t REQ_CHANNEL = 8;  // Request from ARM for response by VideoCore
 
