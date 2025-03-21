@@ -210,16 +210,17 @@ void make_stat_file(std::chrono::system_clock::time_point start) {
     }
 
   }  // headers
-  file << "btwn_frame_loops,decode,convert_rgb,filter,display,time_in_callback,"
-       << "avg_decoded,avg_rgb,avg_filtered,avg_rendered,"
-       << "avg_total_time_to_display,total_slow_frames,total_callbacks,"
-       << "real_play_time,actual_fps,total_video_frames,default_fps,max_frame_"
-          "time(ms),correct_play_time\n";
+  file << "decode(ms),convert_rgb(ms),filter(ms),display("
+          "ms)"
+          ",time_in_callback(ms),"
+       << "avg_decoded(ms),avg_rgb(ms),avg_filtered(ms),avg_rendered(ms),"
+       << "avg_total_time_to_display(ms),total_slow_frames,total_callbacks,"
+       << "real_play_time(sec),actual_fps,total_video_frames,default_fps,max_"
+          "frame_time(ms),correct_play_time(sec)\n";
 
   for (int i = 0; i < total_frames_completed; i++) {
-    file << between_update_video_loops[i] << "," << durations[i][0] << ","
-         << durations[i][1] << "," << durations[i][2] << "," << durations[i][3]
-         << "," << durations[i][4] << ",";
+    file << durations[i][0] << "," << durations[i][1] << "," << durations[i][2]
+         << "," << durations[i][3] << "," << durations[i][4] << ",";
     if (i < 1) {
       file << plm_d_t / total_frames_completed << ","
            << total_rgb_t / total_frames_completed << ","
