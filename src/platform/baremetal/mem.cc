@@ -73,7 +73,7 @@ void *get_free_pages(int num_pages) {
    (MATTR_DEVICE_nGnRnE_INDEX << 2) | TD_BLOCK | TD_VALID)
 
 #define MATTR_DEVICE_nGnRnE 0x0
-#define MATTR_NORMAL_NC 0x44
+#define MATTR_NORMAL_NC 0xFF
 #define MATTR_DEVICE_nGnRnE_INDEX 0
 #define MATTR_NORMAL_NC_INDEX 1
 #define MAIR_EL1_VAL                                  \
@@ -113,7 +113,7 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
   do {
     uint64_t _pa = pa;
 
-    if (pa >= reg::MAIN_PERIPHERAL_BASE) {
+    if ((pa >= reg::MAIN_PERIPHERAL_BASE) && (pa <= reg::PERIPHERALS_END)) {
       _pa |= TD_DEVICE_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
