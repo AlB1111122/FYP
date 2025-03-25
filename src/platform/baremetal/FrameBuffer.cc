@@ -27,7 +27,7 @@ FrameBuffer::FrameBuffer() {
   mbox->set_virt_wh_value = 8;
   mbox->virt_width = 1280;
   mbox->virt_height =
-      720 * 2;  // double the height to functionally get 2 buffers
+      720;  //  * 2double the height to functionally get 2 buffers
 
   mbox->set_virt_off_tag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
   mbox->set_virt_off_size = 8;
@@ -74,7 +74,7 @@ FrameBuffer::FrameBuffer() {
 
 unsigned int FrameBuffer::getPitch() { return this->pitch; }
 
-unsigned int FrameBuffer::getHeight() { return (this->height / 2); }
+unsigned int FrameBuffer::getHeight() { return (this->height); }
 
 void FrameBuffer::drawPixel(int x, int y, unsigned char attr) {
   int offs = getXYOffset(x, y);

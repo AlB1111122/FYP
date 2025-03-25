@@ -34,6 +34,7 @@ bool Timer::did_counter_flip(uint64_t earlier, uint64_t later) {
 }
 
 int Timer::get_hertz() { return this->SYS_TIMER_Hz; }
+
 double Timer::to_sec(uint64_t time) {
   lldiv_t division_result = lldiv(time, this->SYS_TIMER_Hz);
   return (double)division_result.quot +
