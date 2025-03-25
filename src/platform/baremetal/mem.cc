@@ -67,17 +67,17 @@ void *get_free_pages(int num_pages) {
 #define TD_KERNEL_TABLE_FLAGS (TD_TABLE | TD_VALID)
 #define TD_KERNEL_BLOCK_FLAGS                        \
   (TD_ACCESS | TD_INNER_SHARABLE | TD_KERNEL_PERMS | \
-   (MATTR_NORMAL_NC_INDEX << 2) | TD_BLOCK | TD_VALID)
+   (MATTR_NORMAL_CACHABLE_INDEX << 2) | TD_BLOCK | TD_VALID)
 #define TD_DEVICE_BLOCK_FLAGS                        \
   (TD_ACCESS | TD_INNER_SHARABLE | TD_KERNEL_PERMS | \
    (MATTR_DEVICE_nGnRnE_INDEX << 2) | TD_BLOCK | TD_VALID)
 
 #define MATTR_DEVICE_nGnRnE 0x0
-#define MATTR_NORMAL_NC 0xFF
+#define MATTR_NORMAL_CACHABLE 0xCC
 #define MATTR_DEVICE_nGnRnE_INDEX 0
-#define MATTR_NORMAL_NC_INDEX 1
-#define MAIR_EL1_VAL                                  \
-  ((MATTR_NORMAL_NC << (8 * MATTR_NORMAL_NC_INDEX)) | \
+#define MATTR_NORMAL_CACHABLE_INDEX 1
+#define MAIR_EL1_VAL                                              \
+  ((MATTR_NORMAL_CACHABLE << (8 * MATTR_NORMAL_CACHABLE_INDEX)) | \
    MATTR_DEVICE_nGnRnE << (8 * MATTR_DEVICE_nGnRnE_INDEX))
 
 #define ID_MAP_PAGES 6
@@ -113,7 +113,7 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
   do {
     uint64_t _pa = pa;
 
-    if ((pa >= reg::MAIN_PERIPHERAL_BASE) && (pa <= reg::PERIPHERALS_END)) {
+    if ((pa >= reg::MAIN_PERIPHERAL_BASE)) {  // && (pa <= reg::PERIPHERALS_END)
       _pa |= TD_DEVICE_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
