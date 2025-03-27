@@ -57,23 +57,21 @@ void printN(T time, FrameBuffer &fb) {
     xVal += 100;
   }
 }
-
-uint8_t new_rgb_data[N_PIXELS];
 uint8_t f_rgb_data[N_PIXELS];
+uint8_t new_rgb_data[N_PIXELS];
+
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
-
   plm_frame_to_rgba(frame, new_rgb_data,
                     self->fb_ptr->getPitch());  // can be hardware accelerated
   uint64_t to_rgb = Timer::now();
 
-  com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
-                               f_rgb_data);
+  // com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
+  //                              self->fb_ptr->getFb());
   // com::Filter::grayscale(new_rgb_data, N_PIXELS, f_rgb_data);
   uint64_t to_filtered = Timer::now();
-  memcpy(self->fb_ptr->getOffFb(), f_rgb_data, N_PIXELS);
-  self->fb_ptr->swapFb();
+  self->fb_ptr->bufferCpy(new_rgb_data);
 
   uint64_t to_rendered = Timer::now();
   self->ttr[self->total_frames_completed][0] = self->last_time;
@@ -82,6 +80,8 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   self->ttr[self->total_frames_completed][3] = to_filtered;
   self->ttr[self->total_frames_completed][4] = to_rendered;
   self->total_frames_completed++;
+
+  // clean_invalidate_cache(self->fb_ptr->getFb(), N_PIXELS);
 }
 
 void updateVideo(video_app *self, Timer &t) {
@@ -107,10 +107,14 @@ video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
+  FrameBuffer fb = FrameBuffer();
   etl::string<15> hello_str = "check\n";
   mu.init();
-  FrameBuffer fb = FrameBuffer();
   app.fb_ptr = &fb;
+  auto waiter = Timer::now();
+  while (t.duration_since(waiter) < 1500000) {  // wait 1.5 sec
+    ;
+  }
 
   printN(getEl(), fb);  // should be 1 not 2 which it boots to automatically
   mu.writeText(hello_str);
@@ -177,8 +181,9 @@ int main() {
   cmpol.append("\n");
   mu.writeText(cmpol);
   mu.writeText("check again \n");
+
   // && (app_ptr->total_frames_completed < 7)
-  while ((!app_ptr->wants_to_quit)) {
+  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 15)) {
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
