@@ -105,7 +105,7 @@ id_pgd_addr:
     adrp x0, id_pgd
     ret
 
-
+.global full_cache_clean
 full_cache_clean:
     MRS X0, CLIDR_EL1
     AND W3, W0, #0x07000000 // Get 2 x Level of Coherence

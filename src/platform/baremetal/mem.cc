@@ -113,8 +113,9 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
   do {
     uint64_t _pa = pa;
 
-    if (((pa >= reg::MAIN_PERIPHERAL_BASE) && (pa <= reg::PERIPHERALS_END)) ||
-        ((pa >= GPU_MEM_START) && (pa <= GPU_CACHED_BASE))) {
+    if (((pa >= reg::MAIN_PERIPHERAL_BASE) &&
+         (pa <= reg::PERIPHERALS_END))) {  // ||
+      //((pa >= GPU_MEM_START) && (pa <= GPU_CACHED_BASE))
       _pa |= TD_DEVICE_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
