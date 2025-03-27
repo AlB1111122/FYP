@@ -18,6 +18,9 @@
 #define MT_DEVICE_nGnRnE 0x0
 #define MT_NORMAL_CACHABLE 0x1
 #define MT_DEVICE_nGnRnE_FLAGS 0x00
+// 0xCC fastest, needs clear
+//  0b01110111 try next
+// 0b01010101 slower than cc but works and no need of manual clearence
 #define MT_NORMAL_CACHABLE_FLAGS 0xCC
 #define MAIR_VALUE                                     \
   (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE)) | \

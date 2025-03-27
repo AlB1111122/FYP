@@ -7,7 +7,7 @@ class FrameBuffer {
  public:
   FrameBuffer();
   void drawByLine(uint8_t* buffer, int xSz = 1280 * 4, int ySz = 720);
-  void bufferCpy(uint8_t* buffer, long n);
+  void bufferCpy(uint8_t* buffer);
   void drawPixel(int x, int y, unsigned char attr);
   void drawPixelRGB(int x, int y, unsigned int colourRGB);
   void drawChar(unsigned char ch, int x, int y, unsigned char attr);

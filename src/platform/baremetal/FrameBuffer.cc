@@ -1,6 +1,7 @@
 #include "../../../include/FrameBuffer.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "../../../include/gpio.h"
 #include "../../../include/memCtrl.h"
@@ -93,8 +94,10 @@ void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
   }
 }
 
-void FrameBuffer::bufferCpy(uint8_t* buffer, long n) {
-  Mmemcpy(this->fb, buffer, n);
+void FrameBuffer::bufferCpy(uint8_t* buffer) {
+  long unsigned fbSize = this->width * this->height * 4;
+  memcpy(this->fb, buffer, fbSize);
+  clean_invalidate_cache(this->fb, fbSize);
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
@@ -144,7 +147,6 @@ void FrameBuffer::pixelByPixelDraw(int x_src, int y_src, uint8_t* src) {
 }
 
 void FrameBuffer::swapFb() {
-  uint32_t vsync = 0x0004800E;
   __asm__ volatile("dmb sy" ::: "memory");
   __asm__ volatile("isb sy" ::: "memory");
 

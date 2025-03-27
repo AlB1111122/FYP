@@ -60,8 +60,6 @@ void printN(T time, FrameBuffer &fb) {
 uint8_t f_rgb_data[N_PIXELS];
 uint8_t new_rgb_data[N_PIXELS];
 
-extern "C" void full_cache_clean();
-
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t start_time = Timer::now();
   video_app *self = static_cast<video_app *>(user);
@@ -73,7 +71,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   //                              self->fb_ptr->getFb());
   // com::Filter::grayscale(new_rgb_data, N_PIXELS, f_rgb_data);
   uint64_t to_filtered = Timer::now();
-  memcpy(self->fb_ptr->getFb(), new_rgb_data, N_PIXELS);
+  self->fb_ptr->bufferCpy(new_rgb_data);
 
   uint64_t to_rendered = Timer::now();
   self->ttr[self->total_frames_completed][0] = self->last_time;
@@ -83,8 +81,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   self->ttr[self->total_frames_completed][4] = to_rendered;
   self->total_frames_completed++;
 
-  full_cache_clean();  // this works but shouldnt need to clean whole cache
-  __asm__ volatile("dmb st" ::: "memory");
+  // clean_invalidate_cache(self->fb_ptr->getFb(), N_PIXELS);
 }
 
 void updateVideo(video_app *self, Timer &t) {
@@ -186,7 +183,7 @@ int main() {
   mu.writeText("check again \n");
 
   // && (app_ptr->total_frames_completed < 7)
-  while ((!app_ptr->wants_to_quit)) {
+  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 15)) {
     updateVideo(app_ptr, t);
   }
   mu.writeText("\n");
