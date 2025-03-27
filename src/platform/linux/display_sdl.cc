@@ -47,36 +47,11 @@ void updateVideo(video_app *self);
 void destroy(video_app *self);
 void make_stat_file(std::chrono::system_clock::time_point start);
 
-#include <stdlib.h>
-#include <string.h>
-#define MT_DEVICE_nGnRnE 0x0
-#define MT_NORMAL_CACHABLE 0x1
-#define MT_DEVICE_nGnRnE_FLAGS 0x00
-#define MT_NORMAL_CACHABLE_FLAGS 0xCC
-#define MAIR_VALUE                                     \
-  (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE)) | \
-      (MT_NORMAL_CACHABLE_FLAGS << (8 * MT_NORMAL_CACHABLE))
-
-// Function to convert integer to binary string
-void int_to_binary(int n, char *str) {
-  int i = 0;
-  for (i = 31; i >= 0; i--) {
-    str[31 - i] = (n & (1 << i)) ? '1' : '0';
-  }
-  str[32] = '\0';  // Null-terminate the string
-}
-
 int main(int argc, char **argv) {
   if (argc < 2) {
     std::cout << "Run with pl_mpeg_player path/<file.mpg>";
     return 1;
   }
-
-  char buffer[33];
-  int_to_binary(MAIR_VALUE, buffer);  // Convert MAIR_VALUE to binary
-  printf("binary: %s\n", buffer);
-
-  return 0;
   video_app app;
   video_app *app_ptr = &app;
   std::fill_n(reinterpret_cast<char *>(app_ptr), sizeof(video_app), 0);
@@ -148,12 +123,12 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
 
   auto to_rgb = std::chrono::high_resolution_clock::now();
   uint8_t new_rgb_data[N_PIXELS];
-  // com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 4,
-  //                              new_rgb_data);
+  com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 4,
+                               new_rgb_data);
   // com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
-  SDL_UpdateTexture(self->texture_rgb, NULL, self->rgb_data, frame->width * 4);
+  SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 4);
   SDL_RenderClear(self->renderer);
   SDL_RenderCopy(self->renderer, self->texture_rgb, NULL, NULL);
   SDL_RenderPresent(self->renderer);
