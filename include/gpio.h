@@ -4,11 +4,11 @@
 #include "./peripheralReg.h"
 class Gpio {
  public:
-  void mmio_write(long reg, unsigned int val);
-  unsigned int mmio_read(long reg);
+  void mmioWrite(long reg, unsigned int val);
+  unsigned int mmioRead(long reg);
 
-  void gpio_useAsAlt3(unsigned int pin_number);
-  void gpio_useAsAlt5(unsigned int pin_number);
+  void pinAsAlt3(unsigned int pinNumber);
+  void pinAsAlt5(unsigned int pinNumber);
 
  private:
   enum {
@@ -20,23 +20,23 @@ class Gpio {
 
   enum {
     GPIO_MAX_PIN = 53,
-    GPIO_FUNCTION_OUT = 1,
-    GPIO_FUNCTION_ALT5 = 2,
-    GPIO_FUNCTION_ALT3 = 7
+    pinFunction_OUT = 1,
+    pinFunction_ALT5 = 2,
+    pinFunction_ALT3 = 7
   };
 
   enum { Pull_None = 0, Pull_Down = 2, Pull_Up = 1 };
 
-  unsigned int gpio_call(unsigned int pin_number, unsigned int value,
-                         unsigned int base, unsigned int field_size,
-                         unsigned int field_max);
+  unsigned int gpioCall(unsigned int pinNumber, unsigned int value,
+                        unsigned int base, unsigned int fieldSz,
+                        unsigned int fieldMax);
 
-  unsigned int gpio_set(unsigned int pin_number, unsigned int value);
-  unsigned int gpio_clear(unsigned int pin_number, unsigned int value);
-  unsigned int gpio_pull(unsigned int pin_number, unsigned int value);
-  unsigned int gpio_function(unsigned int pin_number, unsigned int value);
+  unsigned int pinSet(unsigned int pinNumber, unsigned int value);
+  unsigned int pinClear(unsigned int pinNumber, unsigned int value);
+  unsigned int pinPull(unsigned int pinNumber, unsigned int value);
+  unsigned int pinFunction(unsigned int pinNumber, unsigned int value);
 
-  void gpio_initOutputPinWithPullNone(unsigned int pin_number);
+  void pinInitOutputWithPullNone(unsigned int pinNumber);
 
-  void gpio_setPinOutputBool(unsigned int pin_number, unsigned int onOrOff);
+  void pinSetPinOutputBool(unsigned int pinNumber, unsigned int onOrOff);
 };
