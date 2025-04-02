@@ -8,7 +8,7 @@
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
-#include "../../../soccerBytes.h"
+// #include "../../../soccerBytes.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
@@ -67,11 +67,11 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
                     self->fb_ptr->getPitch());  // can be hardware accelerated
   uint64_t to_rgb = Timer::now();
 
-  // com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
-  //                              self->fb_ptr->getFb());
+  com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
+                               f_rgb_data);
   // com::Filter::grayscale(new_rgb_data, N_PIXELS, f_rgb_data);
   uint64_t to_filtered = Timer::now();
-  self->fb_ptr->bufferCpy(new_rgb_data);
+  self->fb_ptr->bufferCpy(f_rgb_data);
 
   uint64_t to_rendered = Timer::now();
   self->ttr[self->total_frames_completed][0] = self->last_time;
@@ -125,69 +125,69 @@ int main() {
   printN(plm_holder.loop, fb);
   mu.writeText(hello_str);
 
-  app_ptr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plm_ptr);
+  // app_ptr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plm_ptr);
 
-  mu.writeText(hello_str);
+  // mu.writeText(hello_str);
 
-  plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
-  plm_set_loop(app_ptr->plm, FALSE);  // loop video
-  plm_set_audio_enabled(app_ptr->plm, FALSE);
+  // plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
+  // plm_set_loop(app_ptr->plm, FALSE);  // loop video
+  // plm_set_audio_enabled(app_ptr->plm, FALSE);
 
-  frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
-  frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
-  frame_rate_info.total_frames =
-      frame_rate_info.total_t_exp * frame_rate_info.fps;
-  frame_rate_info.frame_ms =
-      (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
+  // frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
+  // frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
+  // frame_rate_info.total_frames =
+  //     frame_rate_info.total_t_exp * frame_rate_info.fps;
+  // frame_rate_info.frame_ms =
+  //     (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
 
-  etl::string<64> frame_stats = "Total frames: ";
-  etl::to_string(frame_rate_info.total_frames, frame_stats,
-                 etl::format_spec().precision(6), true);
-  fb.drawString(400, 10, frame_stats.data(), 0x0f);
-  etl::string<64> fps_stats = "FPS: ";
-  etl::to_string(frame_rate_info.fps, fps_stats,
-                 etl::format_spec().precision(6), true);
-  fb.drawString(400, 20, fps_stats.data(), 0x0f);
-  etl::string<64> framt = "Max frame time ms: ";
-  etl::to_string(frame_rate_info.frame_ms, framt,
-                 etl::format_spec().precision(6), true);
-  fb.drawString(400, 30, framt.data(), 0x0f);
-  etl::string<64> plt = "Correct play time sec: ";
-  etl::to_string(frame_rate_info.total_t_exp, plt,
-                 etl::format_spec().precision(6), true);
-  fb.drawString(400, 40, plt.data(), 0x0f);
-  mu.writeText("\n");
+  // etl::string<64> frame_stats = "Total frames: ";
+  // etl::to_string(frame_rate_info.total_frames, frame_stats,
+  //                etl::format_spec().precision(6), true);
+  // fb.drawString(400, 10, frame_stats.data(), 0x0f);
+  // etl::string<64> fps_stats = "FPS: ";
+  // etl::to_string(frame_rate_info.fps, fps_stats,
+  //                etl::format_spec().precision(6), true);
+  // fb.drawString(400, 20, fps_stats.data(), 0x0f);
+  // etl::string<64> framt = "Max frame time ms: ";
+  // etl::to_string(frame_rate_info.frame_ms, framt,
+  //                etl::format_spec().precision(6), true);
+  // fb.drawString(400, 30, framt.data(), 0x0f);
+  // etl::string<64> plt = "Correct play time sec: ";
+  // etl::to_string(frame_rate_info.total_t_exp, plt,
+  //                etl::format_spec().precision(6), true);
+  // fb.drawString(400, 40, plt.data(), 0x0f);
+  // mu.writeText("\n");
 
-  uint64_t start = Timer::now();
-  app_ptr->last_time = start;
+  // uint64_t start = Timer::now();
+  // app_ptr->last_time = start;
 
-  etl::string<64> cmpol = "";
-  etl::to_string(app_ptr->total_frames_completed, cmpol,
-                 etl::format_spec().precision(6), true);
-  uint32_t fbAddress =
-      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
-  uint32_t offFbAddress =
-      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getOffFb()));
+  // etl::string<64> cmpol = "";
+  // etl::to_string(app_ptr->total_frames_completed, cmpol,
+  //                etl::format_spec().precision(6), true);
+  // uint32_t fbAddress =
+  //     static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
+  // uint32_t offFbAddress =
+  //     static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getOffFb()));
 
-  etl::string<64> fbs = "";
-  etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
+  // etl::string<64> fbs = "";
+  // etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
 
-  etl::string<64> ofbs = "";
-  etl::to_string(offFbAddress, ofbs, etl::format_spec().precision(6), true);
-  cmpol.append(" ");
-  cmpol.append(fbs);
-  cmpol.append(" ");
-  cmpol.append(ofbs);
-  cmpol.append("\n");
-  mu.writeText(cmpol);
-  mu.writeText("check again \n");
+  // etl::string<64> ofbs = "";
+  // etl::to_string(offFbAddress, ofbs, etl::format_spec().precision(6), true);
+  // cmpol.append(" ");
+  // cmpol.append(fbs);
+  // cmpol.append(" ");
+  // cmpol.append(ofbs);
+  // cmpol.append("\n");
+  // mu.writeText(cmpol);
+  // mu.writeText("check again \n");
 
-  // && (app_ptr->total_frames_completed < 7)
-  while ((!app_ptr->wants_to_quit) && (app_ptr->total_frames_completed < 15)) {
-    updateVideo(app_ptr, t);
-  }
-  mu.writeText("\n");
-  make_stat_file(start, app_ptr, t, mu, fb);
+  // // && (app_ptr->total_frames_completed < 7)
+  // while ((!app_ptr->wants_to_quit)) {
+  //   updateVideo(app_ptr, t);
+  // }
+  // mu.writeText("\n");
+  // make_stat_file(start, app_ptr, t, mu, fb);
 }
 
 void make_stat_file(uint64_t start_time, video_app *self, Timer &t,

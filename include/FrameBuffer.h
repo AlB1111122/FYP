@@ -12,7 +12,7 @@ class FrameBuffer {
   void drawPixelRGB(int x, int y, unsigned int colourRGB);
   void drawChar(unsigned char ch, int x, int y, unsigned char attr);
   void drawString(int x, int y, char* s, unsigned char attr);
-  void pixelByPixelDraw(int x_src, int y_src, uint8_t* src);
+  void pixelByPixelDraw(int xSrc, int ySrc, uint8_t* src);
   unsigned int getPitch();
   unsigned int getHeight();
   void swapFb();
@@ -20,8 +20,6 @@ class FrameBuffer {
   unsigned char* getFb();
 
  private:
-  void arbMboxReq(uint8_t* src);
-  void gpuFence(uint32_t expectedYOffset);
   const uint32_t MBOX_REQUEST = 0;
   const uint32_t REQ_CHANNEL = 8;  // Request from ARM for response by VideoCore
 
@@ -49,41 +47,49 @@ class FrameBuffer {
   unsigned char* fb;
   unsigned char* baseFb;
   int getXYOffset(int x, int y);
-  struct fb_mailbox_req_t {
+  struct FbMailboxReq_t {
     uint32_t size;
     uint32_t request;
-    uint32_t set_phy_wh_tag;
-    uint32_t set_phy_wh_size;
-    uint32_t set_phy_wh_value;
+
+    uint32_t setPhyWhTag;
+    uint32_t setPhyWhSize;
+    uint32_t setPhyWhValue;
     uint32_t width;
     uint32_t height;
-    uint32_t set_virt_wh_tag;
-    uint32_t set_virt_wh_size;
-    uint32_t set_virt_wh_value;
-    uint32_t virt_width;
-    uint32_t virt_height;
-    uint32_t set_virt_off_tag;
-    uint32_t set_virt_off_size;
-    uint32_t set_virt_off_value;
-    uint32_t x_offset;
-    uint32_t y_offset;
-    uint32_t set_depth_tag;
-    uint32_t set_depth_size;
-    uint32_t set_depth_value;
+
+    uint32_t setVirtWhTag;
+    uint32_t setVirtWhSize;
+    uint32_t setVirtWhValue;
+    uint32_t virtWidth;
+    uint32_t virtHeight;
+
+    uint32_t setVirtOffTag;
+    uint32_t setVirtOffSize;
+    uint32_t setVirtOffValue;
+    uint32_t xOffset;
+    uint32_t yOffset;
+
+    uint32_t setDepthTag;
+    uint32_t setDepthSize;
+    uint32_t setDepthValue;
     uint32_t depth;
-    uint32_t set_pixel_order_tag;
-    uint32_t set_pixel_order_size;
-    uint32_t set_pixel_order_value;
-    uint32_t pixel_order;
-    uint32_t get_fb_tag;
-    uint32_t get_fb_size;
-    uint32_t get_fb_value;
-    uint32_t fb_pointer;
-    uint32_t fb_size;
-    uint32_t get_pitch_tag;
-    uint32_t get_pitch_size;
-    uint32_t get_pitch_value;
+
+    uint32_t setPixelOrderTag;
+    uint32_t setPixelOrderSize;
+    uint32_t setPixelOrderValue;
+    uint32_t pixelOrder;
+
+    uint32_t getFbTag;
+    uint32_t getFbSize;
+    uint32_t getFbValue;
+    uint32_t fbPointer;
+    uint32_t fbSize;
+
+    uint32_t getPitchTag;
+    uint32_t getPitchSize;
+    uint32_t getPitchValue;
     uint32_t pitch;
-    uint32_t end_tag;
+
+    uint32_t endTag;
   } __attribute__((aligned(16))) __attribute__((packed));
 };
