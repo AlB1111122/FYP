@@ -22,14 +22,12 @@ struct video_app {
   plm_t *plm;
   bool wantsToQuit;
   uint64_t lastTime;
-  uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 4];
+  uint8_t rgb_data[N_PIXELS];
   int winHeight;
   int winWidth;
   uint64_t ttr[400][5];
   int totalFramesCompleted = 0;
-  uint64_t betweenUpdateVideoLoops[400];
   FrameBuffer *fbPtr;
-  unsigned char *lastBuffer;
 };
 
 struct FrameRateInfo_t {
@@ -84,8 +82,6 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
 void updateVideo(video_app *self, Timer &t) {
   auto now = Timer::now();
   uint64_t elapsedTime = t.toMilli(t.durationSince(self->lastTime));
-
-  self->betweenUpdateVideoLoops[self->totalFramesCompleted] = elapsedTime;
   self->lastTime = now;
   plm_decode(self->plm, (FrameRateInfo_t.frameMs / 1000.0));
 
@@ -222,7 +218,6 @@ void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
      << "avg_total_time_to_display(ms),total_slow_frames,total_callbacks,"
      << "real_play_time(sec),actual_fps,total_video_frames,default_fps,max_"
         "frame_time(ms),correct_play_time(sec)\n";
-  printN(8888, *self->fbPtr);
   for (int i = 0; i < self->totalFramesCompleted; i++) {
     etl::string<510> uartStr = "";
 

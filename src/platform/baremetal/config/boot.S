@@ -60,9 +60,6 @@ el1_entry:
     adrp x0, id_pgd
     msr ttbr0_el1, x0
 
-    //mrs x0, sctlr_el1
-    //mov x1, #SCTLR_MMU_ENABLED
-    //orr x0, x0, x1
     ldr x0, =SCTLR_VALUE_MMU_ENABLED
     msr sctlr_el1, x0
     //end mmu enablement
