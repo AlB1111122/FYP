@@ -27,8 +27,7 @@ FrameBuffer::FrameBuffer() {
   mbox->setVirtWhSize = 8;
   mbox->setVirtWhValue = 8;
   mbox->virtWidth = 1280;
-  mbox->virtHeight =
-      720;  //  * 2double the height to functionally get 2 buffers
+  mbox->virtHeight = 720;
 
   mbox->setVirtOffTag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
   mbox->setVirtOffSize = 8;
@@ -90,14 +89,14 @@ void FrameBuffer::drawPixelRGB(int x, int y, unsigned int colourRGB) {
 void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
   for (int i = 0; i < ySz; i++) {
     unsigned int offs = i * this->pitch;
-    Mmemcpy((this->fb + offs), (buffer + (i * xSz)), xSz);
+    memcpy((this->fb + offs), (buffer + (i * xSz)), xSz);
   }
 }
 
 void FrameBuffer::bufferCpy(uint8_t* buffer) {
   long unsigned fbSize = this->width * this->height * 4;
   memcpy(this->fb, buffer, fbSize);
-  clean_invalidate_cache(this->fb, fbSize);
+  cleanInvalidateCache(this->fb, fbSize);
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {

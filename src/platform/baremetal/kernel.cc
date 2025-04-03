@@ -4,7 +4,6 @@
 
 #include "../../../include/FrameBuffer.h"
 #include "../../../include/filter.h"
-#include "../../../include/memCtrl.h"
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"

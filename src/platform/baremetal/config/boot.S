@@ -77,19 +77,6 @@ getEl:
 	lsr x0, x0, #2
 	ret
 
-// https://developer.arm.com/documentation/100941/0101/Barriers
-.global instructionSyncBarrier
-instructionSyncBarrier:
-	isb
-
-.global dataSyncBarrier //data sync, whole system
-dataSyncBarrier:
-	dsb sy
-
-.global memorySyncBarrier //data sync, whole system
-memorySyncBarrier:
-	dmb sy
-
 .globl memzero
 memzero:
     str xzr, [x0], #8
