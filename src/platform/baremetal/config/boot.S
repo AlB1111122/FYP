@@ -14,9 +14,6 @@ _start:
 1:  wfe
     b       1b
 2:  // We're on the main core!
-    //enable fpu
-    //mov     x0, #3 << 20
-    //msr     cpacr_el1, x0	 // Enable FP/SIMD at EL1
     //switch from EL2 down to EL1 as rpi4 boots to el2 where fast fp is not avalible
 	ldr x0, =SCTLR_VALUE_MMU_DISABLED
 	msr sctlr_el1, x0

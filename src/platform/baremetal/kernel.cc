@@ -8,7 +8,7 @@
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
-// #include "../../../soccerBytes.h"
+#include "../../../soccerBytes.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
@@ -123,69 +123,68 @@ int main() {
   printN(plmHolder.loop, fb);
   mu.writeText(helloStr);
 
-  // appPtr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plmPtr);
+  appPtr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plmPtr);
 
-  // mu.writeText(helloStr);
+  mu.writeText(helloStr);
 
-  // plm_set_video_decode_callback(appPtr->plm, updateFrame, appPtr);
-  // plm_set_loop(appPtr->plm, FALSE);  // loop video
-  // plm_set_audio_enabled(appPtr->plm, FALSE);
+  plm_set_video_decode_callback(appPtr->plm, updateFrame, appPtr);
+  plm_set_loop(appPtr->plm, FALSE);  // loop video
+  plm_set_audio_enabled(appPtr->plm, FALSE);
 
-  // FrameRateInfo_t.fps = plm_get_framerate(appPtr->plm);
-  // FrameRateInfo_t.totalTExp = plm_get_duration(appPtr->plm);
-  // FrameRateInfo_t.totalFrames =
-  //     FrameRateInfo_t.totalTExp * FrameRateInfo_t.fps;
-  // FrameRateInfo_t.frameMs =
-  //     (1.0 / static_cast<double>(FrameRateInfo_t.fps)) * 1000;
+  FrameRateInfo_t.fps = plm_get_framerate(appPtr->plm);
+  FrameRateInfo_t.totalTExp = plm_get_duration(appPtr->plm);
+  FrameRateInfo_t.totalFrames = FrameRateInfo_t.totalTExp * FrameRateInfo_t.fps;
+  FrameRateInfo_t.frameMs =
+      (1.0 / static_cast<double>(FrameRateInfo_t.fps)) * 1000;
 
-  // etl::string<64> frameStats = "Total frames: ";
-  // etl::to_string(FrameRateInfo_t.totalFrames, frameStats,
-  //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 10, frameStats.data(), 0x0f);
-  // etl::string<64> fpsStats = "FPS: ";
-  // etl::to_string(FrameRateInfo_t.fps, fpsStats,
-  //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 20, fpsStats.data(), 0x0f);
-  // etl::string<64> framt = "Max frame time ms: ";
-  // etl::to_string(FrameRateInfo_t.frameMs, framt,
-  //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 30, framt.data(), 0x0f);
-  // etl::string<64> plt = "Correct play time sec: ";
-  // etl::to_string(FrameRateInfo_t.totalTExp, plt,
-  //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 40, plt.data(), 0x0f);
-  // mu.writeText("\n");
+  etl::string<64> frameStats = "Total frames: ";
+  etl::to_string(FrameRateInfo_t.totalFrames, frameStats,
+                 etl::format_spec().precision(6), true);
+  fb.drawString(400, 10, frameStats.data(), 0x0f);
+  etl::string<64> fpsStats = "FPS: ";
+  etl::to_string(FrameRateInfo_t.fps, fpsStats, etl::format_spec().precision(6),
+                 true);
+  fb.drawString(400, 20, fpsStats.data(), 0x0f);
+  etl::string<64> framt = "Max frame time ms: ";
+  etl::to_string(FrameRateInfo_t.frameMs, framt,
+                 etl::format_spec().precision(6), true);
+  fb.drawString(400, 30, framt.data(), 0x0f);
+  etl::string<64> plt = "Correct play time sec: ";
+  etl::to_string(FrameRateInfo_t.totalTExp, plt,
+                 etl::format_spec().precision(6), true);
+  fb.drawString(400, 40, plt.data(), 0x0f);
+  mu.writeText("\n");
 
-  // uint64_t start = Timer::now();
-  // appPtr->lastTime = start;
+  uint64_t start = Timer::now();
+  appPtr->lastTime = start;
 
-  // etl::string<64> cmpol = "";
-  // etl::to_string(appPtr->totalFramesCompleted, cmpol,
-  //                etl::format_spec().precision(6), true);
-  // uint32_t fbAddress =
-  //     static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
-  // uint32_t offFbAddress =
-  //     static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getOffFb()));
+  etl::string<64> cmpol = "";
+  etl::to_string(appPtr->totalFramesCompleted, cmpol,
+                 etl::format_spec().precision(6), true);
+  uint32_t fbAddress =
+      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
+  uint32_t offFbAddress =
+      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getOffFb()));
 
-  // etl::string<64> fbs = "";
-  // etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
+  etl::string<64> fbs = "";
+  etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
 
-  // etl::string<64> ofbs = "";
-  // etl::to_string(offFbAddress, ofbs, etl::format_spec().precision(6), true);
-  // cmpol.append(" ");
-  // cmpol.append(fbs);
-  // cmpol.append(" ");
-  // cmpol.append(ofbs);
-  // cmpol.append("\n");
-  // mu.writeText(cmpol);
-  // mu.writeText("check again \n");
+  etl::string<64> ofbs = "";
+  etl::to_string(offFbAddress, ofbs, etl::format_spec().precision(6), true);
+  cmpol.append(" ");
+  cmpol.append(fbs);
+  cmpol.append(" ");
+  cmpol.append(ofbs);
+  cmpol.append("\n");
+  mu.writeText(cmpol);
+  mu.writeText("check again \n");
 
-  // // && (appPtr->totalFramesCompleted < 7)
-  // while ((!appPtr->wantsToQuit)) {
-  //   updateVideo(appPtr, t);
-  // }
-  // mu.writeText("\n");
-  // makeStatFile(start, appPtr, t, mu, fb);
+  // && (appPtr->totalFramesCompleted < 7)
+  while ((!appPtr->wantsToQuit)) {
+    updateVideo(appPtr, t);
+  }
+  mu.writeText("\n");
+  makeStatFile(start, appPtr, t, mu, fb);
 }
 
 void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
@@ -207,11 +206,11 @@ void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
     durations[i][2] = ttf;
     durations[i][3] = ttr;
     durations[i][4] = ttd;
-    avgPlmDec += ttplmd / (i + 1);
-    avgRgb += ttrgb / (i + 1);
-    avgFilter += ttf / (i + 1);
-    avgRender += ttr / (i + 1);
-    avgDisplay += ttd / (i + 1);
+    avgPlmDec += (ttplmd - avgPlmDec) / (i + 1);
+    avgRgb += (ttrgb - avgRgb) / (i + 1);
+    avgFilter += (ttf - avgFilter) / (i + 1);
+    avgRender += (ttr - avgRender) / (i + 1);
+    avgDisplay += (ttd - avgDisplay) / (i + 1);
 
     if (ttd > FrameRateInfo_t.frameMs) {
       droppedFrames++;
@@ -224,6 +223,7 @@ void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
      << "avg_total_time_to_display(ms),total_slow_frames,total_callbacks,"
      << "real_play_time(sec),actual_fps,total_video_frames,default_fps,max_"
         "frame_time(ms),correct_play_time(sec)\n";
+  printN(8888, *self->fbPtr);
   for (int i = 0; i < self->totalFramesCompleted; i++) {
     etl::string<510> uartStr = "";
 
