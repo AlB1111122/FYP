@@ -21,24 +21,24 @@
 
 struct video_app {
   plm_t *plm;
-  bool wants_to_quit;
-  uint64_t last_time;
+  bool wantsToQuit;
+  uint64_t lastTime;
   uint8_t rgb_data[WIN_WIDTH * WIN_HEIGHT * 4];
-  int win_height;
-  int win_width;
+  int winHeight;
+  int winWidth;
   uint64_t ttr[400][5];
-  int total_frames_completed = 0;
-  uint64_t between_update_video_loops[400];
-  FrameBuffer *fb_ptr;
+  int totalFramesCompleted = 0;
+  uint64_t betweenUpdateVideoLoops[400];
+  FrameBuffer *fbPtr;
   unsigned char *lastBuffer;
 };
 
-struct frame_rate_info {
-  double frame_ms;
+struct FrameRateInfo_t {
+  double frameMs;
   double fps;
-  int total_frames;
-  double total_t_exp;
-} frame_rate_info;
+  int totalFrames;
+  double totalTExp;
+} FrameRateInfo_t;
 
 int xVal = 100;
 static int nPrints = 0;
@@ -57,112 +57,110 @@ void printN(T time, FrameBuffer &fb) {
     xVal += 100;
   }
 }
-uint8_t f_rgb_data[N_PIXELS];
-uint8_t new_rgb_data[N_PIXELS];
+uint8_t fRgbData[N_PIXELS];
+uint8_t newRgbData[N_PIXELS];
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
-  uint64_t start_time = Timer::now();
+  uint64_t startTime = Timer::now();
   video_app *self = static_cast<video_app *>(user);
-  plm_frame_to_rgba(frame, new_rgb_data,
-                    self->fb_ptr->getPitch());  // can be hardware accelerated
-  uint64_t to_rgb = Timer::now();
+  plm_frame_to_rgba(frame, newRgbData,
+                    self->fbPtr->getPitch());  // can be hardware accelerated
+  uint64_t toRgb = Timer::now();
 
-  com::Filter::sobelEdgeDetect(new_rgb_data, N_PIXELS, frame->width * 4,
-                               f_rgb_data);
-  // com::Filter::grayscale(new_rgb_data, N_PIXELS, f_rgb_data);
-  uint64_t to_filtered = Timer::now();
-  self->fb_ptr->bufferCpy(f_rgb_data);
+  com::Filter::sobelEdgeDetect(newRgbData, N_PIXELS, frame->width * 4,
+                               fRgbData);
+  // com::Filter::grayscale(newRgbData, N_PIXELS, fRgbData);
+  uint64_t toFiltered = Timer::now();
+  self->fbPtr->bufferCpy(fRgbData);
 
-  uint64_t to_rendered = Timer::now();
-  self->ttr[self->total_frames_completed][0] = self->last_time;
-  self->ttr[self->total_frames_completed][1] = start_time;
-  self->ttr[self->total_frames_completed][2] = to_rgb;
-  self->ttr[self->total_frames_completed][3] = to_filtered;
-  self->ttr[self->total_frames_completed][4] = to_rendered;
-  self->total_frames_completed++;
-
-  // clean_invalidate_cache(self->fb_ptr->getFb(), N_PIXELS);
+  uint64_t toRendered = Timer::now();
+  self->ttr[self->totalFramesCompleted][0] = self->lastTime;
+  self->ttr[self->totalFramesCompleted][1] = startTime;
+  self->ttr[self->totalFramesCompleted][2] = toRgb;
+  self->ttr[self->totalFramesCompleted][3] = toFiltered;
+  self->ttr[self->totalFramesCompleted][4] = toRendered;
+  self->totalFramesCompleted++;
 }
 
 void updateVideo(video_app *self, Timer &t) {
   auto now = Timer::now();
-  uint64_t elapsed_time = t.to_milli(t.duration_since(self->last_time));
+  uint64_t elapsedTime = t.to_milli(t.duration_since(self->lastTime));
 
-  self->between_update_video_loops[self->total_frames_completed] = elapsed_time;
-  self->last_time = now;
-  plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
+  self->betweenUpdateVideoLoops[self->totalFramesCompleted] = elapsedTime;
+  self->lastTime = now;
+  plm_decode(self->plm, (FrameRateInfo_t.frameMs / 1000.0));
 
   if (plm_has_ended(self->plm)) {
-    self->wants_to_quit = true;
+    self->wantsToQuit = true;
   }
 }
 
-void make_stat_file(uint64_t start_time, video_app *self, Timer &t,
-                    MiniUart &mu, FrameBuffer &fb);
+void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
+                  FrameBuffer &fb);
 
 extern "C" int getEl();
 
-plm_t plm_holder;
+plm_t plmHolder;
 video_app app;
 int main() {
   MiniUart mu = MiniUart();
   Timer t = Timer();
   FrameBuffer fb = FrameBuffer();
-  etl::string<15> hello_str = "check\n";
+  etl::string<15> helloStr = "check\n";
   mu.init();
-  app.fb_ptr = &fb;
+  app.fbPtr = &fb;
   auto waiter = Timer::now();
   while (t.duration_since(waiter) < 1500000) {  // wait 1.5 sec
     ;
   }
 
   printN(getEl(), fb);  // should be 1 not 2 which it boots to automatically
-  mu.writeText(hello_str);
+  mu.writeText(helloStr);
 
-  video_app *app_ptr = &app;
+  video_app *appPtr = &app;
 
-  plm_t *plm_ptr = &plm_holder;
-  printN(plm_holder.loop, fb);
-  mu.writeText(hello_str);
+  plm_t *plmPtr = &plmHolder;
+  printN(plmHolder.loop, fb);
+  mu.writeText(helloStr);
 
-  // app_ptr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plm_ptr);
+  // appPtr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plmPtr);
 
-  // mu.writeText(hello_str);
+  // mu.writeText(helloStr);
 
-  // plm_set_video_decode_callback(app_ptr->plm, updateFrame, app_ptr);
-  // plm_set_loop(app_ptr->plm, FALSE);  // loop video
-  // plm_set_audio_enabled(app_ptr->plm, FALSE);
+  // plm_set_video_decode_callback(appPtr->plm, updateFrame, appPtr);
+  // plm_set_loop(appPtr->plm, FALSE);  // loop video
+  // plm_set_audio_enabled(appPtr->plm, FALSE);
 
-  // frame_rate_info.fps = plm_get_framerate(app_ptr->plm);
-  // frame_rate_info.total_t_exp = plm_get_duration(app_ptr->plm);
-  // frame_rate_info.total_frames =
-  //     frame_rate_info.total_t_exp * frame_rate_info.fps;
-  // frame_rate_info.frame_ms =
-  //     (1.0 / static_cast<double>(frame_rate_info.fps)) * 1000;
+  // FrameRateInfo_t.fps = plm_get_framerate(appPtr->plm);
+  // FrameRateInfo_t.totalTExp = plm_get_duration(appPtr->plm);
+  // FrameRateInfo_t.totalFrames =
+  //     FrameRateInfo_t.totalTExp * FrameRateInfo_t.fps;
+  // FrameRateInfo_t.frameMs =
+  //     (1.0 / static_cast<double>(FrameRateInfo_t.fps)) * 1000;
 
-  // etl::string<64> frame_stats = "Total frames: ";
-  // etl::to_string(frame_rate_info.total_frames, frame_stats,
+  // etl::string<64> frameStats = "Total frames: ";
+  // etl::to_string(FrameRateInfo_t.totalFrames, frameStats,
   //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 10, frame_stats.data(), 0x0f);
-  // etl::string<64> fps_stats = "FPS: ";
-  // etl::to_string(frame_rate_info.fps, fps_stats,
+  // fb.drawString(400, 10, frameStats.data(), 0x0f);
+  // etl::string<64> fpsStats = "FPS: ";
+  // etl::to_string(FrameRateInfo_t.fps, fpsStats,
   //                etl::format_spec().precision(6), true);
-  // fb.drawString(400, 20, fps_stats.data(), 0x0f);
+  // fb.drawString(400, 20, fpsStats.data(), 0x0f);
   // etl::string<64> framt = "Max frame time ms: ";
-  // etl::to_string(frame_rate_info.frame_ms, framt,
+  // etl::to_string(FrameRateInfo_t.frameMs, framt,
   //                etl::format_spec().precision(6), true);
   // fb.drawString(400, 30, framt.data(), 0x0f);
   // etl::string<64> plt = "Correct play time sec: ";
-  // etl::to_string(frame_rate_info.total_t_exp, plt,
+  // etl::to_string(FrameRateInfo_t.totalTExp, plt,
   //                etl::format_spec().precision(6), true);
   // fb.drawString(400, 40, plt.data(), 0x0f);
   // mu.writeText("\n");
 
   // uint64_t start = Timer::now();
-  // app_ptr->last_time = start;
+  // appPtr->lastTime = start;
 
   // etl::string<64> cmpol = "";
-  // etl::to_string(app_ptr->total_frames_completed, cmpol,
+  // etl::to_string(appPtr->totalFramesCompleted, cmpol,
   //                etl::format_spec().precision(6), true);
   // uint32_t fbAddress =
   //     static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
@@ -182,23 +180,23 @@ int main() {
   // mu.writeText(cmpol);
   // mu.writeText("check again \n");
 
-  // // && (app_ptr->total_frames_completed < 7)
-  // while ((!app_ptr->wants_to_quit)) {
-  //   updateVideo(app_ptr, t);
+  // // && (appPtr->totalFramesCompleted < 7)
+  // while ((!appPtr->wantsToQuit)) {
+  //   updateVideo(appPtr, t);
   // }
   // mu.writeText("\n");
-  // make_stat_file(start, app_ptr, t, mu, fb);
+  // makeStatFile(start, appPtr, t, mu, fb);
 }
 
-void make_stat_file(uint64_t start_time, video_app *self, Timer &t,
-                    MiniUart &mu, FrameBuffer &fb) {
-  double duration = t.to_sec(t.duration_since(start_time));
-  double avg_rgb_t = 0, avg_filter_t = 0, avg_render_t = 0, avg_display_t = 0,
-         avg_plm_d_t = 0;
+void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
+                  FrameBuffer &fb) {
+  double duration = t.to_sec(t.duration_since(startTime));
+  double avgRgb = 0, avgFilter = 0, avgRender = 0, avgDisplay = 0,
+         avgPlmDec = 0;
 
   double durations[400][5];
-  int dropped_frames = 0;
-  for (int i = 0; i < self->total_frames_completed; i++) {
+  int droppedFrames = 0;
+  for (int i = 0; i < self->totalFramesCompleted; i++) {
     double ttplmd = t.to_milli(self->ttr[i][1] - self->ttr[i][0]);
     double ttrgb = t.to_milli(self->ttr[i][2] - self->ttr[i][1]);
     double ttf = t.to_milli(self->ttr[i][3] - self->ttr[i][2]);
@@ -209,14 +207,14 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer &t,
     durations[i][2] = ttf;
     durations[i][3] = ttr;
     durations[i][4] = ttd;
-    avg_plm_d_t += ttplmd / (i + 1);
-    avg_rgb_t += ttrgb / (i + 1);
-    avg_filter_t += ttf / (i + 1);
-    avg_render_t += ttr / (i + 1);
-    avg_display_t += ttd / (i + 1);
+    avgPlmDec += ttplmd / (i + 1);
+    avgRgb += ttrgb / (i + 1);
+    avgFilter += ttf / (i + 1);
+    avgRender += ttr / (i + 1);
+    avgDisplay += ttd / (i + 1);
 
-    if (ttd > frame_rate_info.frame_ms) {
-      dropped_frames++;
+    if (ttd > FrameRateInfo_t.frameMs) {
+      droppedFrames++;
     }
   }
 
@@ -226,83 +224,79 @@ void make_stat_file(uint64_t start_time, video_app *self, Timer &t,
      << "avg_total_time_to_display(ms),total_slow_frames,total_callbacks,"
      << "real_play_time(sec),actual_fps,total_video_frames,default_fps,max_"
         "frame_time(ms),correct_play_time(sec)\n";
-  for (int i = 0; i < self->total_frames_completed; i++) {
-    etl::string<510> uart_str = "";
+  for (int i = 0; i < self->totalFramesCompleted; i++) {
+    etl::string<510> uartStr = "";
 
-    etl::to_string(durations[i][0], uart_str, etl::format_spec().precision(6),
+    etl::to_string(durations[i][0], uartStr, etl::format_spec().precision(6),
                    true);
-    uart_str.append(",");
+    uartStr.append(",");
 
-    etl::to_string(durations[i][1], uart_str, etl::format_spec().precision(6),
+    etl::to_string(durations[i][1], uartStr, etl::format_spec().precision(6),
                    true);
-    uart_str.append(",");
+    uartStr.append(",");
 
-    etl::to_string(durations[i][2], uart_str, etl::format_spec().precision(6),
+    etl::to_string(durations[i][2], uartStr, etl::format_spec().precision(6),
                    true);
-    uart_str.append(",");
+    uartStr.append(",");
 
-    etl::to_string(durations[i][3], uart_str, etl::format_spec().precision(6),
+    etl::to_string(durations[i][3], uartStr, etl::format_spec().precision(6),
                    true);
-    uart_str.append(",");
+    uartStr.append(",");
 
-    etl::to_string(durations[i][4], uart_str, etl::format_spec().precision(6),
+    etl::to_string(durations[i][4], uartStr, etl::format_spec().precision(6),
                    true);
-    uart_str.append(",");
+    uartStr.append(",");
 
     if (i < 1) {
-      etl::to_string(avg_plm_d_t, uart_str, etl::format_spec().precision(6),
+      etl::to_string(avgPlmDec, uartStr, etl::format_spec().precision(6), true);
+      uartStr.append(",");
+
+      etl::to_string(avgRgb, uartStr, etl::format_spec().precision(6), true);
+      uartStr.append(",");
+
+      etl::to_string(avgFilter, uartStr, etl::format_spec().precision(6), true);
+      uartStr.append(",");
+
+      etl::to_string(avgRender, uartStr, etl::format_spec().precision(6), true);
+      uartStr.append(",");
+
+      etl::to_string(avgDisplay, uartStr, etl::format_spec().precision(6),
                      true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(avg_rgb_t, uart_str, etl::format_spec().precision(6),
+      etl::to_string(droppedFrames, uartStr, etl::format_spec().precision(6),
                      true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(avg_filter_t, uart_str, etl::format_spec().precision(6),
-                     true);
-      uart_str.append(",");
-
-      etl::to_string(avg_render_t, uart_str, etl::format_spec().precision(6),
-                     true);
-      uart_str.append(",");
-
-      etl::to_string(avg_display_t, uart_str, etl::format_spec().precision(6),
-                     true);
-      uart_str.append(",");
-
-      etl::to_string(dropped_frames, uart_str, etl::format_spec().precision(6),
-                     true);
-      uart_str.append(",");
-
-      etl::to_string(self->total_frames_completed, uart_str,
+      etl::to_string(self->totalFramesCompleted, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(duration, uart_str, etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      etl::to_string(duration, uartStr, etl::format_spec().precision(6), true);
+      uartStr.append(",");
 
-      etl::to_string(self->total_frames_completed / duration, uart_str,
+      etl::to_string(self->totalFramesCompleted / duration, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(frame_rate_info.total_frames, uart_str,
+      etl::to_string(FrameRateInfo_t.totalFrames, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(frame_rate_info.fps, uart_str,
+      etl::to_string(FrameRateInfo_t.fps, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(frame_rate_info.frame_ms, uart_str,
+      etl::to_string(FrameRateInfo_t.frameMs, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",");
+      uartStr.append(",");
 
-      etl::to_string(frame_rate_info.total_t_exp, uart_str,
+      etl::to_string(FrameRateInfo_t.totalTExp, uartStr,
                      etl::format_spec().precision(6), true);
-      uart_str.append(",\n");
+      uartStr.append(",\n");
     } else {
-      uart_str.append("\n");
+      uartStr.append("\n");
     }
-    mu << uart_str.data();
+    mu << uartStr.data();
   }
 }
