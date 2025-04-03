@@ -84,7 +84,7 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
 
 void updateVideo(video_app *self, Timer &t) {
   auto now = Timer::now();
-  uint64_t elapsedTime = t.to_milli(t.duration_since(self->lastTime));
+  uint64_t elapsedTime = t.toMilli(t.durationSince(self->lastTime));
 
   self->betweenUpdateVideoLoops[self->totalFramesCompleted] = elapsedTime;
   self->lastTime = now;
@@ -110,7 +110,7 @@ int main() {
   mu.init();
   app.fbPtr = &fb;
   auto waiter = Timer::now();
-  while (t.duration_since(waiter) < 1500000) {  // wait 1.5 sec
+  while (t.durationSince(waiter) < 1500000) {  // wait 1.5 sec
     ;
   }
 
@@ -190,18 +190,18 @@ int main() {
 
 void makeStatFile(uint64_t startTime, video_app *self, Timer &t, MiniUart &mu,
                   FrameBuffer &fb) {
-  double duration = t.to_sec(t.duration_since(startTime));
+  double duration = t.toSec(t.durationSince(startTime));
   double avgRgb = 0, avgFilter = 0, avgRender = 0, avgDisplay = 0,
          avgPlmDec = 0;
 
   double durations[400][5];
   int droppedFrames = 0;
   for (int i = 0; i < self->totalFramesCompleted; i++) {
-    double ttplmd = t.to_milli(self->ttr[i][1] - self->ttr[i][0]);
-    double ttrgb = t.to_milli(self->ttr[i][2] - self->ttr[i][1]);
-    double ttf = t.to_milli(self->ttr[i][3] - self->ttr[i][2]);
-    double ttr = t.to_milli(self->ttr[i][4] - self->ttr[i][3]);
-    double ttd = t.to_milli(self->ttr[i][4] - self->ttr[i][0]);
+    double ttplmd = t.toMilli(self->ttr[i][1] - self->ttr[i][0]);
+    double ttrgb = t.toMilli(self->ttr[i][2] - self->ttr[i][1]);
+    double ttf = t.toMilli(self->ttr[i][3] - self->ttr[i][2]);
+    double ttr = t.toMilli(self->ttr[i][4] - self->ttr[i][3]);
+    double ttd = t.toMilli(self->ttr[i][4] - self->ttr[i][0]);
     durations[i][0] = ttplmd;
     durations[i][1] = ttrgb;
     durations[i][2] = ttf;

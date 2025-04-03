@@ -17,12 +17,12 @@ class Timer {
     SYS_TIMER_CMP_3 = SYS_TIMER_BASE + 0x18
   };
   int SYS_TIMER_Hz = 1000000;
-  bool did_counter_flip(uint64_t earlier, uint64_t later);
+  bool didCounterFlip(uint64_t earlier, uint64_t later);
 
  public:
   static uint64_t now();
-  uint64_t duration_since(uint64_t earlier);
-  int get_hertz();
-  double to_sec(uint64_t time);
-  double to_milli(uint64_t time);
+  uint64_t durationSince(uint64_t earlier);
+  int getHertz();
+  double toSec(uint64_t time);
+  double toMilli(uint64_t time);
 };
