@@ -2,7 +2,6 @@
 
 #include <string.h>
 
-#include "../../../include/memCtrl.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/absolute.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"

@@ -4,19 +4,19 @@
 
 MiniUart::MiniUart() { this->gpio = Gpio(); }
 void MiniUart::init() {
-  this->gpio.mmio_write(AUX_ENABLES, 1);      // enable UART1
-  this->gpio.mmio_write(AUX_MU_IER_REG, 0);   // disable interupts
-  this->gpio.mmio_write(AUX_MU_CNTL_REG, 0);  // disable uart recive and disable
+  this->gpio.mmioWrite(AUX_ENABLES, 1);      // enable UART1
+  this->gpio.mmioWrite(AUX_MU_IER_REG, 0);   // disable interupts
+  this->gpio.mmioWrite(AUX_MU_CNTL_REG, 0);  // disable uart recive and disable
   // 8 bits mode,(error in datasheet: says ony 0 matters but false need 3)
-  this->gpio.mmio_write(AUX_MU_LCR_REG, 3);
-  this->gpio.mmio_write(AUX_MU_MCR_REG, 0);  // UART1_RTS line to high
-  this->gpio.mmio_write(AUX_MU_IER_REG, 0);  // disable interrupts(again??)
+  this->gpio.mmioWrite(AUX_MU_LCR_REG, 3);
+  this->gpio.mmioWrite(AUX_MU_MCR_REG, 0);  // UART1_RTS line to high
+  this->gpio.mmioWrite(AUX_MU_IER_REG, 0);  // disable interrupts(again??)
   // enable recive interrupt, acess baudrate reg 11000110
-  this->gpio.mmio_write(AUX_MU_IIR_REG, 0xC6);
-  this->gpio.mmio_write(AUX_MU_BAUD_REG, AUX_MU_BAUD(115200));
-  this->gpio.gpio_useAsAlt5(14);
-  this->gpio.gpio_useAsAlt5(15);
-  this->gpio.mmio_write(AUX_MU_CNTL_REG, 3);  // enable RX/TX
+  this->gpio.mmioWrite(AUX_MU_IIR_REG, 0xC6);
+  this->gpio.mmioWrite(AUX_MU_BAUD_REG, AUX_MU_BAUD(115200));
+  this->gpio.pinAsAlt5(14);
+  this->gpio.pinAsAlt5(15);
+  this->gpio.mmioWrite(AUX_MU_CNTL_REG, 3);  // enable RX/TX
 }
 
 unsigned int MiniUart::isOutputQueueEmpty() {
@@ -24,22 +24,22 @@ unsigned int MiniUart::isOutputQueueEmpty() {
 }
 
 unsigned int MiniUart::isReadByteReady() {
-  return this->gpio.mmio_read(AUX_MU_LSR_REG) & 0x01;
+  return this->gpio.mmioRead(AUX_MU_LSR_REG) & 0x01;
 }
 unsigned int MiniUart::isWriteByteReady() {
-  return this->gpio.mmio_read(AUX_MU_LSR_REG) & 0x20;
+  return this->gpio.mmioRead(AUX_MU_LSR_REG) & 0x20;
 }
 
 unsigned char MiniUart::readByte() {
   while (!this->isReadByteReady())
     ;
-  return (unsigned char)this->gpio.mmio_read(AUX_MU_IO_REG);
+  return (unsigned char)this->gpio.mmioRead(AUX_MU_IO_REG);
 }
 
 void MiniUart::writeByteBlockingActual(unsigned char ch) {
   while (!this->isWriteByteReady())
     ;
-  this->gpio.mmio_write(AUX_MU_IO_REG, (unsigned int)ch);
+  this->gpio.mmioWrite(AUX_MU_IO_REG, (unsigned int)ch);
 }
 
 void MiniUart::loadOutputFifo() {
@@ -70,7 +70,7 @@ void MiniUart::writeText(etl::string<STR_SZ> buffer) {
     }
     this->writeByteBlocking(c);
   }
-  //force que to empty to prevent overwrites from next call to uart
+  // force que to empty to prevent overwrites from next call to uart
   this->drainOutputQueue();
 }
 

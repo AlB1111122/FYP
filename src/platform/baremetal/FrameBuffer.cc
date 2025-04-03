@@ -12,63 +12,62 @@ ARMMailbox FrameBuffer::FB_mailbox;
 FrameBuffer::FrameBuffer() {
   this->secondBuffer = false;
   // to make the code more readable
-  fb_mailbox_req_t* mbox =
-      reinterpret_cast<volatile fb_mailbox_req_t*>(FB_mailbox.mbox);
+  FbMailboxReq_t* mbox =
+      reinterpret_cast<volatile FbMailboxReq_t*>(FB_mailbox.mbox);
   mbox->size = 35 * 4;  // Length of message in bytes
   mbox->request = MBOX_REQUEST;
 
-  mbox->set_phy_wh_tag = this->VCTag.MBOX_TAG_SET_PHY_WH;
-  mbox->set_phy_wh_size = 8;
-  mbox->set_phy_wh_value = 0;
+  mbox->setPhyWhTag = this->VCTag.MBOX_TAG_SET_PHY_WH;
+  mbox->setPhyWhSize = 8;
+  mbox->setPhyWhValue = 0;
   mbox->width = 1280;
   mbox->height = 720;
 
-  mbox->set_virt_wh_tag = this->VCTag.MBOX_TAG_SET_VIRT_WH;
-  mbox->set_virt_wh_size = 8;
-  mbox->set_virt_wh_value = 8;
-  mbox->virt_width = 1280;
-  mbox->virt_height =
-      720;  //  * 2double the height to functionally get 2 buffers
+  mbox->setVirtWhTag = this->VCTag.MBOX_TAG_SET_VIRT_WH;
+  mbox->setVirtWhSize = 8;
+  mbox->setVirtWhValue = 8;
+  mbox->virtWidth = 1280;
+  mbox->virtHeight = 720;
 
-  mbox->set_virt_off_tag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
-  mbox->set_virt_off_size = 8;
-  mbox->set_virt_off_value = 8;
-  mbox->x_offset = 0;
-  mbox->y_offset = 0;
+  mbox->setVirtOffTag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
+  mbox->setVirtOffSize = 8;
+  mbox->setVirtOffValue = 8;
+  mbox->xOffset = 0;
+  mbox->yOffset = 0;
 
-  mbox->set_depth_tag = this->VCTag.MBOX_TAG_SET_DEPTH;
-  mbox->set_depth_size = 4;
-  mbox->set_depth_value = 4;
+  mbox->setDepthTag = this->VCTag.MBOX_TAG_SET_DEPTH;
+  mbox->setDepthSize = 4;
+  mbox->setDepthValue = 4;
   mbox->depth = 32;
 
-  mbox->set_pixel_order_tag = this->VCTag.MBOX_TAG_SET_PXL_ORDR;
-  mbox->set_pixel_order_size = 4;
-  mbox->set_pixel_order_value = 4;
-  mbox->pixel_order = 1;
+  mbox->setPixelOrderTag = this->VCTag.MBOX_TAG_SET_PXL_ORDR;
+  mbox->setPixelOrderSize = 4;
+  mbox->setPixelOrderValue = 4;
+  mbox->pixelOrder = 1;
 
-  mbox->get_fb_tag = this->VCTag.MBOX_TAG_GET_FB;
-  mbox->get_fb_size = 8;
-  mbox->get_fb_value = 8;
-  mbox->fb_pointer = 4096;
-  mbox->fb_size = 0;
+  mbox->getFbTag = this->VCTag.MBOX_TAG_GET_FB;
+  mbox->getFbSize = 8;
+  mbox->getFbValue = 8;
+  mbox->fbPointer = 4096;
+  mbox->fbSize = 0;
 
-  mbox->get_pitch_tag = this->VCTag.MBOX_TAG_GET_PITCH;
-  mbox->get_pitch_size = 4;
-  mbox->get_pitch_value = 4;
+  mbox->getPitchTag = this->VCTag.MBOX_TAG_GET_PITCH;
+  mbox->getPitchSize = 4;
+  mbox->getPitchValue = 4;
   mbox->pitch = 0;
 
-  mbox->end_tag = this->VCTag.MBOX_TAG_LAST;
+  mbox->endTag = this->VCTag.MBOX_TAG_LAST;
 
   // Check call is successful and we have a pointer with depth 32
   if (FB_mailbox.writeRead(REQ_CHANNEL) && mbox->depth == 32 &&
-      mbox->fb_pointer != 0) {
-    mbox->fb_pointer &= reg::GPU_TO_ARM_ADR_MASK;
-    this->width = mbox->virt_width;
-    this->height = mbox->virt_height;
+      mbox->fbPointer != 0) {
+    mbox->fbPointer &= reg::GPU_TO_ARM_ADR_MASK;
+    this->width = mbox->virtWidth;
+    this->height = mbox->virtHeight;
     this->pitch = mbox->pitch;
-    this->isrgb = mbox->pixel_order;
+    this->isrgb = mbox->pixelOrder;
     this->baseFb =
-        reinterpret_cast<unsigned char*>(static_cast<long>(mbox->fb_pointer));
+        reinterpret_cast<unsigned char*>(static_cast<long>(mbox->fbPointer));
     this->fb = this->baseFb;
   }
 }
@@ -90,14 +89,14 @@ void FrameBuffer::drawPixelRGB(int x, int y, unsigned int colourRGB) {
 void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
   for (int i = 0; i < ySz; i++) {
     unsigned int offs = i * this->pitch;
-    Mmemcpy((this->fb + offs), (buffer + (i * xSz)), xSz);
+    memcpy((this->fb + offs), (buffer + (i * xSz)), xSz);
   }
 }
 
 void FrameBuffer::bufferCpy(uint8_t* buffer) {
   long unsigned fbSize = this->width * this->height * 4;
   memcpy(this->fb, buffer, fbSize);
-  clean_invalidate_cache(this->fb, fbSize);
+  cleanInvalidateCache(this->fb, fbSize);
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
@@ -135,10 +134,10 @@ int FrameBuffer::getXYOffset(int x, int y) {
 }
 
 // expects rgb
-void FrameBuffer::pixelByPixelDraw(int x_src, int y_src, uint8_t* src) {
+void FrameBuffer::pixelByPixelDraw(int xSrc, int ySrc, uint8_t* src) {
   int i = 1;
-  for (int y = 0; y < y_src; y++) {
-    for (int x = 0; x < x_src; x++) {
+  for (int y = 0; y < ySrc; y++) {
+    for (int x = 0; x < xSrc; x++) {
       this->drawPixelRGB(x, y,
                          ((src[i - 1] << 16) | (src[i] << 8) | src[i + 1]));
       i += 3;

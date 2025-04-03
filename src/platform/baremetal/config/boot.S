@@ -14,9 +14,6 @@ _start:
 1:  wfe
     b       1b
 2:  // We're on the main core!
-    //enable fpu
-    //mov     x0, #3 << 20
-    //msr     cpacr_el1, x0	 // Enable FP/SIMD at EL1
     //switch from EL2 down to EL1 as rpi4 boots to el2 where fast fp is not avalible
 	ldr x0, =SCTLR_VALUE_MMU_DISABLED
 	msr sctlr_el1, x0
@@ -63,9 +60,6 @@ el1_entry:
     adrp x0, id_pgd
     msr ttbr0_el1, x0
 
-    //mrs x0, sctlr_el1
-    //mov x1, #SCTLR_MMU_ENABLED
-    //orr x0, x0, x1
     ldr x0, =SCTLR_VALUE_MMU_ENABLED
     msr sctlr_el1, x0
     //end mmu enablement
@@ -79,19 +73,6 @@ getEl:
 	mrs x0, CurrentEL
 	lsr x0, x0, #2
 	ret
-
-// https://developer.arm.com/documentation/100941/0101/Barriers
-.global instructionSyncBarrier
-instructionSyncBarrier:
-	isb
-
-.global dataSyncBarrier //data sync, whole system
-dataSyncBarrier:
-	dsb sy
-
-.global memorySyncBarrier //data sync, whole system
-memorySyncBarrier:
-	dmb sy
 
 .globl memzero
 memzero:

@@ -4,9 +4,8 @@
 namespace com {
 class Filter {
  public:
-  Filter();
-  static void grayscale(uint8_t *rgb_data, int n_pixel_bits, uint8_t *new_rgb);
-  static void sobelEdgeDetect(uint8_t *rgb_data, int n_pixel_bits,
-                              int frame_stride, uint8_t *new_rgb);
+  static void grayscale(uint8_t *rgbData, int nPixelBits, uint8_t *newRgb);
+  static void sobelEdgeDetect(uint8_t *rgbData, int nPixelBits, int frameStride,
+                              uint8_t *newRgb);
 };
 }  // namespace com
