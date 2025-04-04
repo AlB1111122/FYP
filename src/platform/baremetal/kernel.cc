@@ -22,7 +22,7 @@ struct video_app {
   plm_t *plm;
   bool wantsToQuit;
   uint64_t lastTime;
-  uint8_t rgb_data[N_PIXELS];
+  uint8_t rgb_data[N_PIXELS] __attribute__((aligned(64)));
   int winHeight;
   int winWidth;
   uint64_t ttr[400][5];
@@ -54,8 +54,8 @@ void printN(T time, FrameBuffer &fb) {
     xVal += 100;
   }
 }
-uint8_t fRgbData[N_PIXELS];
-uint8_t newRgbData[N_PIXELS];
+uint8_t fRgbData[N_PIXELS] __attribute__((aligned(64)));
+uint8_t newRgbData[N_PIXELS] __attribute__((aligned(64)));
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t startTime = Timer::now();

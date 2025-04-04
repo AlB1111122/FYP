@@ -1,7 +1,6 @@
 #include "../../../include/mem.h"
 
 #include "../../../include/mm.h"
-#include "../../../include/mmu.h"
 #include "../../../include/peripheralReg.h"
 
 static uint16_t mem_map[PAGING_PAGES] = {

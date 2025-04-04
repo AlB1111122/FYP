@@ -164,10 +164,10 @@ See below for detailed the API documentation.
 //#ifndef PL_MPEG_H
 //#define PL_MPEG_H
 #if __STDC_HOSTED__ == 1
-  #include <bits/types/FILE.h>
+#include <bits/types/FILE.h>
 #else
-  #pragma message ("compiling on bm")
-  #include <stdio.h>
+#pragma message("compiling on bm")
+#include <stdio.h>
 #endif
 #include <stddef.h>
 #include <stdint.h>
@@ -797,7 +797,7 @@ struct plm_buffer_t {
   FILE *fh;
   plm_buffer_load_callback load_callback;
   void *load_callback_user_data;
-  alignas (128)uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
+  alignas(128) uint8_t bytes[PLM_BUFFER_DEFAULT_SIZE];
   enum plm_buffer_mode mode;
 };
 
@@ -827,7 +827,6 @@ int plm_buffer_no_start_code(plm_buffer_t *self);
 int16_t plm_buffer_read_vlc(plm_buffer_t *self, const plm_vlc_t *table);
 uint16_t plm_buffer_read_vlc_uint(plm_buffer_t *self,
                                   const plm_vlc_uint_t *table);
-
 
 // ----------------------------------------------------------------------------
 // plm_demux implementation
@@ -902,13 +901,13 @@ static const uint8_t PLM_VIDEO_ZIG_ZAG[] = {
     35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51,
     58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
-alignas (128)static const uint8_t PLM_VIDEO_INTRA_QUANT_MATRIX[] = {
+alignas(128) static const uint8_t PLM_VIDEO_INTRA_QUANT_MATRIX[] = {
     8,  16, 19, 22, 26, 27, 29, 34, 16, 16, 22, 24, 27, 29, 34, 37,
     19, 22, 26, 27, 29, 34, 34, 38, 22, 22, 26, 27, 29, 34, 37, 40,
     22, 26, 27, 29, 32, 35, 40, 48, 26, 27, 29, 32, 35, 40, 48, 58,
     26, 27, 29, 34, 38, 46, 56, 69, 27, 29, 35, 38, 46, 56, 69, 83};
 
-alignas (128)static const uint8_t PLM_VIDEO_NON_INTRA_QUANT_MATRIX[] = {
+alignas(128) static const uint8_t PLM_VIDEO_NON_INTRA_QUANT_MATRIX[] = {
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
     16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
@@ -1340,7 +1339,6 @@ void plm_video_idct(int *block);
 
 static plm_video_t static_video_holder;
 
-
 #define PLM_BLOCK_SET(DEST, DEST_INDEX, DEST_WIDTH, SOURCE_INDEX, \
                       SOURCE_WIDTH, BLOCK_SIZE, OP)               \
   do {                                                            \
@@ -1356,7 +1354,6 @@ static plm_video_t static_video_holder;
       DEST_INDEX += dest_scan;                                    \
     }                                                             \
   } while (FALSE)
-
 
 // YCbCr conversion following the BT.601 standard:
 // https://infogalactic.com/info/YCbCr#ITU-R_BT.601_conversion
