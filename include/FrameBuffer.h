@@ -41,8 +41,8 @@ class FrameBuffer {
 
   bool secondBuffer = 0;
   static constexpr VCTag VCTag{};
-  static ARMMailbox FB_mailbox;  // want only one instance even is somehow
-                                 // multiple fb get made;
+  volatile static ARMMailbox FB_mailbox;     // want only one instance even if
+                                             // somehow multiple fb get made;
   unsigned int width, height, pitch, isrgb;  // 7680 pitch
   unsigned char* fb;
   unsigned char* baseFb;

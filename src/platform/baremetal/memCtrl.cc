@@ -11,7 +11,7 @@ void cleanInvalidateCache(void *buffer, unsigned long size) {
 
   __asm__ volatile(
       "1:\n"
-      "dc ivac, %0\n"     // invalidate cache line
+      "dc civac, %0\n"    // invalidate cache line
       "add %0, %0, %1\n"  // next cache line
       "cmp %0, %2\n"      // check if done
       "b.lt 1b\n"

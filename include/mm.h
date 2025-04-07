@@ -5,7 +5,8 @@
 #define MT_NORMAL_CACHABLE_IDX 0x1
 #define MT_NORMAL_NC_IDX 0x2
 #define MT_DEVICE_nGnRnE_FLAGS 0x00
-#define MT_NORMAL_CACHABLE_FLAGS 0xCC
+// #define MT_NORMAL_CACHABLE_FLAGS 0xCC
+#define MT_NORMAL_CACHABLE_FLAGS 0b11111111
 #define MT_NORMAL_NC_FLAGS 0x44
 #define MAIR_VALUE                                                 \
   (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE_IDX)) |         \
