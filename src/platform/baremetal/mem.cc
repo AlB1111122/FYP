@@ -63,6 +63,27 @@ void create_table_entry(uint64_t tbl, uint64_t next_tbl, uint64_t va,
   uint64_t descriptor = next_tbl | flags;
   *((uint64_t *)(tbl + (table_index << 3))) = descriptor;
 }
+// 7F00000 0x1FC00000;  // - 0x7F000000 + 0x3F800000
+/*
+
+unsigned int HIGH = 0x1F00000;
+unsigned int LOW = 0xF00000;  // - 0x7F000000 + 0x2FA00000
+//
+unsigned int HIGH = 0x1800000;
+unsigned int LOW = 0x1000000;
+
+unsigned int HIGH = 0x1800000;
+unsigned int LOW = 0x1400000;
+
+unsigned int HIGH = 0x1A00000;
+unsigned int LOW = 0x1200000;
+
+unsigned int HIGH = 0x1A00000;
+unsigned int LOW = 0x1600000;
+// */
+unsigned int HIGH = 0x1A00000;
+unsigned int LOW = 0x1700000;
+unsigned int SZ = HIGH - LOW;
 
 void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
                       uint64_t pa) {
@@ -81,6 +102,8 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
 
     if (((pa >= reg::MAIN_PERIPHERAL_BASE) && (pa <= reg::PERIPHERALS_END))) {
       _pa |= TD_DEVICE_BLOCK_FLAGS;
+    } else if ((pa <= HIGH) && (pa >= LOW)) {
+      _pa |= TD_GPU_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
     }

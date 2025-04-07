@@ -10,6 +10,7 @@
 ARMMailbox FrameBuffer::FB_mailbox;
 
 FrameBuffer::FrameBuffer() {
+  // cleanInvalidateCache(FB_mailbox.mbox, fbSize);
   this->secondBuffer = false;
   // to make the code more readable
   FbMailboxReq_t* mbox =
@@ -96,7 +97,7 @@ void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
 void FrameBuffer::bufferCpy(uint8_t* buffer) {
   long unsigned fbSize = this->width * this->height * 4;
   memcpy(this->fb, buffer, fbSize);
-  cleanInvalidateCache(this->fb, fbSize);
+  // cleanInvalidateCache(this->fb, fbSize);
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
