@@ -7,55 +7,6 @@ static uint16_t mem_map[PAGING_PAGES] = {
     0,
 };
 
-void *allocate_memory(int bytes) {
-  int pages = bytes / PAGE_SIZE;
-
-  if (bytes % PAGE_SIZE) {
-    pages++;
-  }
-
-  return get_free_pages(pages);
-}
-
-void free_memory(void *base) {
-  uint64_t page_num = (((uint64_t)base) - LOW_MEMORY) / PAGE_SIZE;
-  int pages = mem_map[page_num];
-
-  for (int i = 0; i < pages; i++) {
-    mem_map[page_num + i] = 0;
-  }
-}
-
-void *get_free_pages(int num_pages) {
-  int start_index = 0;
-  int count = 0;
-
-  for (int i = 0; i < PAGING_PAGES; i++) {
-    if (mem_map[i] == 0) {
-      // not yet allocated...
-      if (!count) {
-        start_index = i;
-      }
-
-      count++;
-
-      if (count == num_pages) {
-        mem_map[start_index] = count;  // number of pages allocated
-
-        for (int c = 1; c < count; c++) {
-          mem_map[c + start_index] = 1;
-        }
-
-        void *p = (void *)(LOW_MEMORY + (start_index * PAGE_SIZE));
-
-        return p;
-      }
-    } else {
-      count = 0;
-    }
-  }
-}
-
 void create_table_entry(uint64_t tbl, uint64_t next_tbl, uint64_t va,
                         uint64_t shift, uint64_t flags) {
   uint64_t table_index = va >> shift;
@@ -67,6 +18,8 @@ void create_table_entry(uint64_t tbl, uint64_t next_tbl, uint64_t va,
 unsigned int HIGH = 0x1A00000;
 unsigned int LOW = 0x1600000;
 unsigned int SZ = HIGH - LOW;
+extern uint8_t __framebuffer_start;
+extern uint8_t __framebuffer_end;
 
 void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
                       uint64_t pa) {
@@ -89,7 +42,7 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
 
     if (((pa >= reg::MAIN_PERIPHERAL_BASE))) {
       _pa |= TD_DEVICE_BLOCK_FLAGS;
-    } else if ((pa == 0xE00000)) {
+    } else if (pa == 0xE00000) {
       _pa |= TD_GPU_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
