@@ -3,6 +3,8 @@
 #include "../../../include/mm.h"
 #include "../../../include/peripheralReg.h"
 
+extern "C" uint64_t id_pgd_addr();
+
 static uint16_t mem_map[PAGING_PAGES] = {
     0,
 };
@@ -15,12 +17,6 @@ void create_table_entry(uint64_t tbl, uint64_t next_tbl, uint64_t va,
   *((uint64_t *)(tbl + (table_index << 3))) = descriptor;
 }
 
-unsigned int HIGH = 0x1A00000;
-unsigned int LOW = 0x1600000;
-unsigned int SZ = HIGH - LOW;
-extern uint8_t __framebuffer_start;
-extern uint8_t __framebuffer_end;
-
 void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
                       uint64_t pa) {
   vstart >>= SECTION_SHIFT;
@@ -32,10 +28,6 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
 
   pa >>= SECTION_SHIFT;
   pa <<= SECTION_SHIFT;
-  /*
-  ((pa <= HIGH) && (pa >= LOW)) ||
-               ((pa <= 0xF00000) && (pa >= 0xE00000)))
-  */
 
   do {
     uint64_t _pa = pa;
@@ -53,8 +45,6 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
     vstart++;
   } while (vstart <= vend);
 }
-
-extern "C" uint64_t id_pgd_addr();
 
 void init_mmu() {
   uint64_t id_pgd = id_pgd_addr();
