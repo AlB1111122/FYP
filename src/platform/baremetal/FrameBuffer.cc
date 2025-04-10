@@ -7,12 +7,12 @@
 #include "../../../include/memCtrl.h"
 #include "../../../include/terminal.h"
 
-ARMMailbox FrameBuffer::FB_mailbox;
+volatile ARMMailbox FrameBuffer::FB_mailbox;
 
 FrameBuffer::FrameBuffer() {
   this->secondBuffer = false;
   // to make the code more readable
-  FbMailboxReq_t* mbox =
+  volatile FbMailboxReq_t* mbox =
       reinterpret_cast<volatile FbMailboxReq_t*>(FB_mailbox.mbox);
   mbox->size = 35 * 4;  // Length of message in bytes
   mbox->request = MBOX_REQUEST;
@@ -59,8 +59,8 @@ FrameBuffer::FrameBuffer() {
   mbox->endTag = this->VCTag.MBOX_TAG_LAST;
 
   // Check call is successful and we have a pointer with depth 32
-  if (FB_mailbox.writeRead(REQ_CHANNEL) && mbox->depth == 32 &&
-      mbox->fbPointer != 0) {
+  if (FB_mailbox.writeRead(REQ_CHANNEL)) {
+    // && mbox->depth == 32 &&mbox->fbPointer != 0
     mbox->fbPointer &= reg::GPU_TO_ARM_ADR_MASK;
     this->width = mbox->virtWidth;
     this->height = mbox->virtHeight;
@@ -68,7 +68,7 @@ FrameBuffer::FrameBuffer() {
     this->isrgb = mbox->pixelOrder;
     this->baseFb =
         reinterpret_cast<unsigned char*>(static_cast<long>(mbox->fbPointer));
-    this->fb = this->baseFb;
+    this->fb = this->baseFb;  // 1049059328 1050902528 virt addr
   }
 }
 
@@ -96,7 +96,7 @@ void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
 void FrameBuffer::bufferCpy(uint8_t* buffer) {
   long unsigned fbSize = this->width * this->height * 4;
   memcpy(this->fb, buffer, fbSize);
-  cleanInvalidateCache(this->fb, fbSize);
+  // cleanInvalidateCache(this->fb, fbSize);  buff loc
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
@@ -107,11 +107,11 @@ void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
     for (int j = 0; j < FONT_WIDTH; j++) {
       unsigned char mask = 1 << j;
       unsigned char col = (*glyph & mask) ? attr & 0x0f : (attr & 0xf0) >> 4;
-
       this->drawPixel(x + j, y + i, col);
     }
     glyph += FONT_BPL;
   }
+  cleanInvalidateCache(this->fb, 720 * 1280 * 4);
 }
 
 void FrameBuffer::drawString(int x, int y, char* s, unsigned char attr) {
@@ -127,6 +127,8 @@ void FrameBuffer::drawString(int x, int y, char* s, unsigned char attr) {
     }
     s++;
   }
+
+  // cleanInvalidateCache(this->fb, 720 * 1280 * 4);
 }
 
 int FrameBuffer::getXYOffset(int x, int y) {

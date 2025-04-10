@@ -3,11 +3,14 @@
 
 #define MT_DEVICE_nGnRnE_IDX 0x0
 #define MT_NORMAL_CACHABLE_IDX 0x1
+#define MT_NORMAL_NC_IDX 0x2
 #define MT_DEVICE_nGnRnE_FLAGS 0x00
-#define MT_NORMAL_CACHABLE_FLAGS 0xCC
-#define MAIR_VALUE                                         \
-  (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE_IDX)) | \
-      (MT_NORMAL_CACHABLE_FLAGS << (8 * MT_NORMAL_CACHABLE_IDX))
+#define MT_NORMAL_CACHABLE_FLAGS 0b11111111
+#define MT_NORMAL_NC_FLAGS 0xCC
+#define MAIR_VALUE                                                 \
+  (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE_IDX)) |         \
+      (MT_NORMAL_CACHABLE_FLAGS << (8 * MT_NORMAL_CACHABLE_IDX)) | \
+      (MT_NORMAL_NC_FLAGS << (8 * MT_NORMAL_NC_IDX))
 
 #define PAGE_SHIFT 12
 #define TABLE_SHIFT 9
@@ -35,6 +38,9 @@
 #define TD_DEVICE_BLOCK_FLAGS                        \
   (TD_ACCESS | TD_INNER_SHARABLE | TD_KERNEL_PERMS | \
    (MT_DEVICE_nGnRnE_IDX << 2) | TD_BLOCK | TD_VALID)
+#define TD_GPU_BLOCK_FLAGS                                                     \
+  (TD_ACCESS | TD_INNER_SHARABLE | TD_KERNEL_PERMS | (MT_NORMAL_NC_IDX << 2) | \
+   TD_BLOCK | TD_VALID)
 
 #define ID_MAP_PAGES 6
 #define ID_MAP_TABLE_SIZE (ID_MAP_PAGES * PAGE_SIZE)

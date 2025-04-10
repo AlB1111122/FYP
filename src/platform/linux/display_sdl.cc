@@ -46,12 +46,17 @@ void updateFrame(plm_t *player, plm_frame_t *frame, void *user);
 void updateVideo(video_app *self);
 void destroy(video_app *self);
 void make_stat_file(std::chrono::system_clock::time_point start);
+long int HIGH = 0xFE000000 - 0x7F000000 + 0x3F800000;
+long int LOW = 0xFE000000 - 0x7F000000 + 0x2FA00000;
+long int SZ = HIGH - LOW;
 
 int main(int argc, char **argv) {
   if (argc < 2) {
     std::cout << "Run with pl_mpeg_player path/<file.mpg>";
     return 1;
   }
+  std::cout << "high: " << HIGH << " low: " << LOW << " size: " << SZ;
+  return 0;
   video_app app;
   video_app *app_ptr = &app;
   std::fill_n(reinterpret_cast<char *>(app_ptr), sizeof(video_app), 0);

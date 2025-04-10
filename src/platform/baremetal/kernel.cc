@@ -64,11 +64,11 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
                     self->fbPtr->getPitch());  // can be hardware accelerated
   uint64_t toRgb = Timer::now();
 
-  com::Filter::sobelEdgeDetect(newRgbData, N_PIXELS, frame->width * 4,
-                               fRgbData);
+  // com::Filter::sobelEdgeDetect(newRgbData, N_PIXELS, frame->width * 4,
+  //                              fRgbData);
   // com::Filter::grayscale(newRgbData, N_PIXELS, fRgbData);
   uint64_t toFiltered = Timer::now();
-  self->fbPtr->bufferCpy(fRgbData);
+  self->fbPtr->bufferCpy(newRgbData);
 
   uint64_t toRendered = Timer::now();
   self->ttr[self->totalFramesCompleted][0] = self->lastTime;
@@ -175,7 +175,7 @@ int main() {
   mu.writeText("check again \n");
 
   // && (appPtr->totalFramesCompleted < 7)
-  while ((!appPtr->wantsToQuit)) {
+  while ((!appPtr->wantsToQuit) && (appPtr->totalFramesCompleted < 30)) {
     updateVideo(appPtr, t);
   }
   mu.writeText("\n");
