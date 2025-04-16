@@ -24,10 +24,6 @@ _start:
 	msr spsr_el2, x0
     bl full_cache_clean
 
-    //mmu enablement:
-    ldr x0, =CPACR_EL1_VAL
-    msr CPACR_EL1, x0
-
     ldr x0, =TCR_EL1_VAL
     msr TCR_EL1, x0
 
@@ -58,6 +54,11 @@ el1_entry:
 
     adrp x0, id_pgd
     msr ttbr0_el1, x0
+
+    MRS X1, CPACR_EL1
+    ORR X1, X1, #(0x3 << 20)
+    MSR CPACR_EL1, X1
+    ISB
 
     ldr x0, =SCTLR_VALUE_MMU_ENABLED
     msr sctlr_el1, x0

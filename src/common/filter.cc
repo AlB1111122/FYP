@@ -4,6 +4,12 @@
 #if __STDC_HOSTED__ != 1
 #include "../../include/errno.h"
 #endif
+#ifdef __ARM_NEON
+#include <arm_neon.h>
+#define USE_NEON_SQRT 1
+#else
+#define USE_NEON_SQRT 0
+#endif
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -22,8 +28,8 @@ void com::Filter::grayscale(uint8_t *rgbData, int nPixelBits, uint8_t *newRgb) {
 void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
                                   int frameStride, uint8_t *newRgb) {
   // sobel kernel
-  int g_x[3][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
-  int g_y[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+  int gX[3][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+  int gY[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
 
   int maxCols = frameStride / 4 - 1;
   for (int i = 0; i < nPixelBits; i += 4) {
@@ -32,7 +38,7 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
         (i < frameStride) ? (&rgbData[i]) : (&rgbData[i - frameStride]);
     uint8_t *blw = (i > nPixelBits - frameStride) ? (&rgbData[i])
                                                   : (&rgbData[i + frameStride]);
-    uint8_t *kernal_on_rgb[3][3] = {
+    uint8_t *kernalOnRgb[3][3] = {
         {abv - 4, abv, abv + 4},
         {(&rgbData[i]) - 4, (&rgbData[i]), (&rgbData[i]) + 4},
         {blw - 4, blw, blw + 4}};
@@ -40,35 +46,38 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
 
     int col = (i % frameStride) / 4;
     if (col == 0) {
-      kernal_on_rgb[0][0] = abv;
-      kernal_on_rgb[1][0] = (&rgbData[i]);
-      kernal_on_rgb[2][0] = (blw);
+      kernalOnRgb[0][0] = abv;
+      kernalOnRgb[1][0] = (&rgbData[i]);
+      kernalOnRgb[2][0] = (blw);
     }
     if (col == maxCols) {
-      kernal_on_rgb[0][2] = abv;
-      kernal_on_rgb[1][2] = (&rgbData[i]);
-      kernal_on_rgb[2][2] = (blw);
+      kernalOnRgb[0][2] = abv;
+      kernalOnRgb[1][2] = (&rgbData[i]);
+      kernalOnRgb[2][2] = (blw);
     }
-    int res_x = 0;
-    int res_y = 0;
-    int sobel_val = 0;
+    int resX = 0;
+    int resY = 0;
+    float sobelValF = 0;
     for (int j = 0; j < 3; j++) {
       for (int k = 0; k < 3; k++) {
-        res_x += g_x[j][k] * (*kernal_on_rgb[j][k]);
-        res_y += g_y[j][k] * (*kernal_on_rgb[j][k]);
+        resX += gX[j][k] * (*kernalOnRgb[j][k]);
+        resY += gY[j][k] * (*kernalOnRgb[j][k]);
       }
     }
-    sobel_val = sqrt((res_x * res_x) +
-                     (res_y * res_y));  // figure out errno later to use regular
-    if (sobel_val > 255) {
-      sobel_val = 255;
-    } else if (sobel_val < 0) {
-      sobel_val = 0;
-    }
+    float toSqrt = static_cast<float>((resX * resX) + (resY * resY));
+    // to make it runnable for testing on non-arm computers
+#if USE_NEON_SQRT
+    asm volatile("fsqrt %s0, %s1" : "=w"(sobelValF) : "w"(toSqrt));
+#else
+    sobelValF = sqrtf(toSqrt);
+#endif
 
-    newRgb[i] = sobel_val;
-    newRgb[i + 1] = sobel_val;
-    newRgb[i + 2] = sobel_val;
+    int sobelVal = static_cast<int>(roundf(sobelValF));
+    if (sobelVal > 255) sobelVal = 255;
+
+    newRgb[i] = sobelVal;
+    newRgb[i + 1] = sobelVal;
+    newRgb[i + 2] = sobelVal;
     newRgb[i + 3] = 255;  // full opacity
   }
 }
