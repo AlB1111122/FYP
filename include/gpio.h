@@ -1,16 +1,15 @@
 /*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
- * borrowed heavily*/
+ * based off*/
 #pragma once
+#include "./mmio.h"
 #include "./peripheralReg.h"
-class Gpio {
+class GPIO {
  public:
-  void mmioWrite(long reg, unsigned int val);
-  unsigned int mmioRead(long reg);
-
   void pinAsAlt3(unsigned int pinNumber);
   void pinAsAlt5(unsigned int pinNumber);
 
  private:
+  MMIO mmio;
   enum {
     GPFSEL0 = reg::PERIPHERAL_BASE + 0x200000,
     GPSET0 = reg::PERIPHERAL_BASE + 0x20001C,

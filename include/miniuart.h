@@ -2,9 +2,11 @@
  * borrowed heavily*/
 #pragma once
 #include "./gpio.h"
+#include "./mmio.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
 constexpr int STR_SZ = 1020;
+#define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
 
 class MiniUart {
  public:
@@ -32,13 +34,12 @@ class MiniUart {
     UART_MAX_QUEUE = 16 * 1024
   };
 
-#define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
-
   unsigned char uart_output_queue[UART_MAX_QUEUE];
   unsigned int uart_output_queue_write = 0;
   unsigned int uart_output_queue_read = 0;
 
-  Gpio gpio;
+  GPIO gpio;
+  MMIO mmio;
   unsigned int isOutputQueueEmpty();
 
   unsigned int isReadByteReady();

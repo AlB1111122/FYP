@@ -1,59 +1,63 @@
 #include "../../../include/gpio.h"
 
-void Gpio::mmioWrite(long reg, unsigned int val) {
-  *(volatile unsigned int *)reg = val;
-}
-unsigned int Gpio::mmioRead(long reg) { return *(volatile unsigned int *)reg; }
-
-unsigned int Gpio::gpioCall(unsigned int pinNumber, unsigned int value,
+unsigned int GPIO::gpioCall(unsigned int pinNumber, unsigned int value,
                             unsigned int base, unsigned int fieldSz,
                             unsigned int fieldMax) {
-  unsigned int field_mask = (1 << fieldSz) - 1;
+  // mask the other bits of the register
+  unsigned int fieldMask = (1 << fieldSz) - 1;
 
-  if (pinNumber > fieldMax) return 0;
-  if (value > field_mask) return 0;
+  if (pinNumber > fieldMax || value > fieldMask) {
+    return 0;
+  }
 
-  unsigned int num_fields = 32 / fieldSz;
-  unsigned int reg = base + ((pinNumber / num_fields) * 4);
-  unsigned int shift = (pinNumber % num_fields) * fieldSz;
+  // 32 bit registers on this hardware
+  // gpio reges controll multipule pins calc n pins conrolled by this reg
+  unsigned int nFields = 32 / fieldSz;
+  // calc target pin register address
+  unsigned int reg = base + ((pinNumber / nFields) * 4);
+  // shift to get to the right bits of the register
+  unsigned int shift = (pinNumber % nFields) * fieldSz;
 
-  unsigned int curval = mmioRead(reg);
-  curval &= ~(field_mask << shift);
-  curval |= value << shift;
-  mmioWrite(reg, curval);
+  // save old state
+  unsigned int curVal = this->mmio.read(reg);
+  // clear target pins bits, leave the others
+  curVal &= ~(fieldMask << shift);
+  // instert the new value to for target bits
+  curVal |= value << shift;
+  this->mmio.write(reg, curVal);
 
   return 1;
 }
 
-unsigned int Gpio::pinSet(unsigned int pinNumber, unsigned int value) {
+unsigned int GPIO::pinSet(unsigned int pinNumber, unsigned int value) {
   return gpioCall(pinNumber, value, GPSET0, 1, GPIO_MAX_PIN);
 }
-unsigned int Gpio::pinClear(unsigned int pinNumber, unsigned int value) {
+unsigned int GPIO::pinClear(unsigned int pinNumber, unsigned int value) {
   return gpioCall(pinNumber, value, GPCLR0, 1, GPIO_MAX_PIN);
 }
-unsigned int Gpio::pinPull(unsigned int pinNumber, unsigned int value) {
+unsigned int GPIO::pinPull(unsigned int pinNumber, unsigned int value) {
   return gpioCall(pinNumber, value, GPPUPPDN0, 2, GPIO_MAX_PIN);
 }
-unsigned int Gpio::pinFunction(unsigned int pinNumber, unsigned int value) {
+unsigned int GPIO::pinFunction(unsigned int pinNumber, unsigned int value) {
   return gpioCall(pinNumber, value, GPFSEL0, 3, GPIO_MAX_PIN);
 }
 
-void Gpio::pinAsAlt3(unsigned int pinNumber) {
+void GPIO::pinAsAlt3(unsigned int pinNumber) {
   pinPull(pinNumber, Pull_None);
   pinFunction(pinNumber, pinFunction_ALT3);
 }
 
-void Gpio::pinAsAlt5(unsigned int pinNumber) {
+void GPIO::pinAsAlt5(unsigned int pinNumber) {
   pinPull(pinNumber, Pull_None);
   pinFunction(pinNumber, pinFunction_ALT5);
 }
 
-void Gpio::pinInitOutputWithPullNone(unsigned int pinNumber) {
+void GPIO::pinInitOutputWithPullNone(unsigned int pinNumber) {
   pinPull(pinNumber, Pull_None);
   pinFunction(pinNumber, pinFunction_OUT);
 }
 
-void Gpio::pinSetPinOutputBool(unsigned int pinNumber, unsigned int onOrOff) {
+void GPIO::pinSetPinOutputBool(unsigned int pinNumber, unsigned int onOrOff) {
   if (onOrOff) {
     pinSet(pinNumber, 1);
   } else {
