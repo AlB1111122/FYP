@@ -7,9 +7,9 @@
 #include "../../../include/memCtrl.h"
 #include "../../../include/terminal.h"
 
-volatile ARMMailbox FrameBuffer::FB_mailbox;
+ARMMailbox FrameBuffer::FB_mailbox;
 
-FrameBuffer::FrameBuffer() {
+FrameBuffer::FrameBuffer(bool doubleBufferd) {
   this->secondBuffer = false;
   // to make the code more readable
   volatile FbMailboxReq_t* mbox =
@@ -17,50 +17,48 @@ FrameBuffer::FrameBuffer() {
   mbox->size = 35 * 4;  // Length of message in bytes
   mbox->request = MBOX_REQUEST;
 
-  mbox->setPhyWhTag = this->VCTag.MBOX_TAG_SET_PHY_WH;
+  mbox->setPhyWhTag = VCTag::MBOX_TAG_SET_PHY_WH;
   mbox->setPhyWhSize = 8;
   mbox->setPhyWhValue = 0;
   mbox->width = 1280;
-  mbox->height = 720;
+  mbox->height = 720 + (720 * doubleBufferd);
 
-  mbox->setVirtWhTag = this->VCTag.MBOX_TAG_SET_VIRT_WH;
+  mbox->setVirtWhTag = VCTag::MBOX_TAG_SET_VIRT_WH;
   mbox->setVirtWhSize = 8;
   mbox->setVirtWhValue = 8;
   mbox->virtWidth = 1280;
   mbox->virtHeight = 720;
 
-  mbox->setVirtOffTag = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
+  mbox->setVirtOffTag = VCTag::MBOX_TAG_SET_VIRT_OFF;
   mbox->setVirtOffSize = 8;
   mbox->setVirtOffValue = 8;
   mbox->xOffset = 0;
   mbox->yOffset = 0;
 
-  mbox->setDepthTag = this->VCTag.MBOX_TAG_SET_DEPTH;
+  mbox->setDepthTag = VCTag::MBOX_TAG_SET_DEPTH;
   mbox->setDepthSize = 4;
   mbox->setDepthValue = 4;
   mbox->depth = 32;
 
-  mbox->setPixelOrderTag = this->VCTag.MBOX_TAG_SET_PXL_ORDR;
+  mbox->setPixelOrderTag = VCTag::MBOX_TAG_SET_PXL_ORDR;
   mbox->setPixelOrderSize = 4;
   mbox->setPixelOrderValue = 4;
   mbox->pixelOrder = 1;
 
-  mbox->getFbTag = this->VCTag.MBOX_TAG_GET_FB;
+  mbox->getFbTag = VCTag::MBOX_TAG_GET_FB;
   mbox->getFbSize = 8;
   mbox->getFbValue = 8;
   mbox->fbPointer = 4096;
   mbox->fbSize = 0;
 
-  mbox->getPitchTag = this->VCTag.MBOX_TAG_GET_PITCH;
+  mbox->getPitchTag = VCTag::MBOX_TAG_GET_PITCH;
   mbox->getPitchSize = 4;
   mbox->getPitchValue = 4;
   mbox->pitch = 0;
 
-  mbox->endTag = this->VCTag.MBOX_TAG_LAST;
+  mbox->endTag = VCTag::MBOX_TAG_LAST;
 
-  // Check call is successful and we have a pointer with depth 32
   if (FB_mailbox.writeRead(REQ_CHANNEL)) {
-    // && mbox->depth == 32 &&mbox->fbPointer != 0
     mbox->fbPointer &= reg::GPU_TO_ARM_ADR_MASK;
     this->width = mbox->virtWidth;
     this->height = mbox->virtHeight;
@@ -68,7 +66,7 @@ FrameBuffer::FrameBuffer() {
     this->isrgb = mbox->pixelOrder;
     this->baseFb =
         reinterpret_cast<unsigned char*>(static_cast<long>(mbox->fbPointer));
-    this->fb = this->baseFb;  // 1049059328 1050902528 virt addr
+    this->fb = this->baseFb;
   }
 }
 
@@ -96,7 +94,6 @@ void FrameBuffer::drawByLine(uint8_t* buffer, int xSz, int ySz) {
 void FrameBuffer::bufferCpy(uint8_t* buffer) {
   long unsigned fbSize = this->width * this->height * 4;
   memcpy(this->fb, buffer, fbSize);
-  // cleanInvalidateCache(this->fb, fbSize);  buff loc
 }
 
 void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
@@ -111,7 +108,6 @@ void FrameBuffer::drawChar(unsigned char ch, int x, int y, unsigned char attr) {
     }
     glyph += FONT_BPL;
   }
-  cleanInvalidateCache(this->fb, 720 * 1280 * 4);
 }
 
 void FrameBuffer::drawString(int x, int y, char* s, unsigned char attr) {
@@ -127,8 +123,6 @@ void FrameBuffer::drawString(int x, int y, char* s, unsigned char attr) {
     }
     s++;
   }
-
-  // cleanInvalidateCache(this->fb, 720 * 1280 * 4);
 }
 
 int FrameBuffer::getXYOffset(int x, int y) {
@@ -147,6 +141,7 @@ void FrameBuffer::pixelByPixelDraw(int xSrc, int ySrc, uint8_t* src) {
   }
 }
 
+// must have made the framebuffer with doublebufferd = true
 void FrameBuffer::swapFb() {
   __asm__ volatile("dmb sy" ::: "memory");
   __asm__ volatile("isb sy" ::: "memory");
@@ -154,14 +149,14 @@ void FrameBuffer::swapFb() {
   this->secondBuffer = !this->secondBuffer;
 
   int newOffset = (this->height / 2) * this->secondBuffer;
-  this->FB_mailbox.mbox[0] = 8 * 4;  // Length of message in bytes
-  this->FB_mailbox.mbox[1] = MBOX_REQUEST;
-  this->FB_mailbox.mbox[2] = this->VCTag.MBOX_TAG_SET_VIRT_OFF;
-  this->FB_mailbox.mbox[3] = 0;
-  this->FB_mailbox.mbox[4] = 0;
-  this->FB_mailbox.mbox[5] = 0;
-  this->FB_mailbox.mbox[6] = newOffset;  // Value(y)
-  this->FB_mailbox.mbox[7] = this->VCTag.MBOX_TAG_LAST;
+  FrameBuffer::FB_mailbox.mbox[0] = 8 * 4;  // Length of message in bytes
+  FrameBuffer::FB_mailbox.mbox[1] = MBOX_REQUEST;
+  FrameBuffer::FB_mailbox.mbox[2] = VCTag::MBOX_TAG_SET_VIRT_OFF;
+  FrameBuffer::FB_mailbox.mbox[3] = 0;
+  FrameBuffer::FB_mailbox.mbox[4] = 0;
+  FrameBuffer::FB_mailbox.mbox[5] = 0;
+  FrameBuffer::FB_mailbox.mbox[6] = newOffset;  // Value(y)
+  FrameBuffer::FB_mailbox.mbox[7] = VCTag::MBOX_TAG_LAST;
   FB_mailbox.writeRead(REQ_CHANNEL);
 
   this->fb =
@@ -169,6 +164,7 @@ void FrameBuffer::swapFb() {
   __asm__ volatile("dmb sy" ::: "memory");
 }
 
+// meaningless if not double buffered
 unsigned char* FrameBuffer::getOffFb() {
   return this->baseFb +
          ((!this->secondBuffer) * (this->height / 2) * this->pitch);

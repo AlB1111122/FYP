@@ -7,5 +7,6 @@ extern "C" void init_mmu();
 
 #ifndef __ASSEMBLER__
 
+// defined in boot.s
 extern "C" void memzero(unsigned long src, unsigned int n);
 #endif

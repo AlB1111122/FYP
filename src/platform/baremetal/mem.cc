@@ -2,7 +2,7 @@
 
 #include "../../../include/mm.h"
 #include "../../../include/peripheralReg.h"
-
+// cant be in class bc it needs to be called in assembly
 // assembly func defined in boot.s
 extern "C" uint64_t id_pgd_addr();
 
@@ -100,4 +100,5 @@ void init_mmu() {
     uint64_t offset = BLOCK_SIZE * i;
     create_block_map(block_tbl, offset, offset + BLOCK_SIZE, offset);
   }
+  // PTE level mapping is overkill
 }
