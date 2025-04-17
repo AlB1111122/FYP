@@ -30,31 +30,25 @@ class MiniUart {
     AUX_MU_STAT_REG = AUX_BASE + 100,
     AUX_MU_BAUD_REG = AUX_BASE + 104,
     AUX_UART_CLOCK = 500000000,
-    UART_MAX_QUEUE = 16 * 1024
+    UART_MAX_QUEUE = 16 * 1024,
+    TX_IS_CLEAR = 0x20
   };
 
-  unsigned char uart_output_queue[UART_MAX_QUEUE];
-  unsigned int uart_output_queue_write = 0;
-  unsigned int uart_output_queue_read = 0;
+  unsigned char outputRingBuffer[UART_MAX_QUEUE];
+  unsigned int outputWriteIdx = 0;
+  unsigned int outputReadIdx = 0;
 
   GPIO gpio;
   MMIO mmio;
-  unsigned int isOutputQueueEmpty();
+  bool isOutputQueueEmpty() const;
 
-  unsigned int isReadByteReady();
-  unsigned int isWriteByteReady();
+  bool canWrite();
 
-  unsigned char readByte();
+  void hardwareWrite();
 
-  void writeByteBlockingActual(unsigned char ch);
+  void writeChar(unsigned char ch);
 
-  void loadOutputFifo();
-
-  void writeByteBlocking(unsigned char ch);
-
-  void drainOutputQueue();
-
-  void update();
+  void flushOutput();
 
   friend MiniUart& operator<<(MiniUart& uart, const char* text) {
     uart.writeText(etl::string<STR_SZ>(text));

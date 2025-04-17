@@ -20,73 +20,47 @@ MiniUart::MiniUart() {
   this->mmio.write(AUX_MU_CNTL_REG, 3);
 }
 
-unsigned int MiniUart::isOutputQueueEmpty() {
-  return uart_output_queue_read == uart_output_queue_write;
+bool MiniUart::isOutputQueueEmpty() const {
+  return outputReadIdx == outputWriteIdx;
 }
 
-unsigned int MiniUart::isReadByteReady() {
-  return this->mmio.read(AUX_MU_LSR_REG) & 0x01;
-}
-unsigned int MiniUart::isWriteByteReady() {
-  return this->mmio.read(AUX_MU_LSR_REG) & 0x20;
+bool MiniUart::canWrite() {
+  return this->mmio.read(AUX_MU_LSR_REG) & TX_IS_CLEAR;
 }
 
-unsigned char MiniUart::readByte() {
-  while (!this->isReadByteReady())
-    ;
-  return (unsigned char)this->mmio.read(AUX_MU_IO_REG);
-}
-
-void MiniUart::writeByteBlockingActual(unsigned char ch) {
-  while (!this->isWriteByteReady())
-    ;
-  this->mmio.write(AUX_MU_IO_REG, (unsigned int)ch);
-}
-
-void MiniUart::loadOutputFifo() {
-  while (!this->isOutputQueueEmpty() && this->isWriteByteReady()) {
-    this->writeByteBlockingActual(uart_output_queue[uart_output_queue_read]);
-    uart_output_queue_read =
-        (uart_output_queue_read + 1) & (UART_MAX_QUEUE - 1);  // Don't overrun
+void MiniUart::hardwareWrite() {
+  while (!this->isOutputQueueEmpty() && this->canWrite()) {
+    this->mmio.write(AUX_MU_IO_REG, outputRingBuffer[outputReadIdx]);
+    // bitmask to deal with ring buffer wrap around
+    outputReadIdx =
+        (outputReadIdx + 1) & (UART_MAX_QUEUE - 1);  // Don't overrun
   }
 }
 
-void MiniUart::writeByteBlocking(unsigned char ch) {
+void MiniUart::writeChar(unsigned char ch) {
   unsigned int next =
-      (uart_output_queue_write + 1) & (UART_MAX_QUEUE - 1);  // Don't overrun
+      (outputWriteIdx + 1) & (UART_MAX_QUEUE - 1);  // Don't overrun
 
-  while (next == uart_output_queue_read) {
-    this->loadOutputFifo();
+  while (next == outputReadIdx) {
+    // to keep the buffer from ever being too full
+    this->hardwareWrite();
   }
-
-  uart_output_queue[uart_output_queue_write] = ch;
-  uart_output_queue_write = next;
-  this->loadOutputFifo();
+  // add to the queue to be written
+  outputRingBuffer[outputWriteIdx] = ch;
+  outputWriteIdx = next;
+  this->hardwareWrite();
 }
 
 void MiniUart::writeText(const etl::string<STR_SZ>& buffer) {
   for (const char& c : buffer) {
+    // otherwise newlines causes output to look tabbed across terminal
     if (c == '\n') {
-      this->writeByteBlocking('\r');
+      this->writeChar('\r');
     }
-    this->writeByteBlocking(c);
+    this->writeChar(c);
   }
   // force que to empty to prevent overwrites from next call to uart
-  this->drainOutputQueue();
-}
-
-void MiniUart::drainOutputQueue() {
-  while (!this->isOutputQueueEmpty()) this->loadOutputFifo();
-}
-
-void MiniUart::update() {
-  this->loadOutputFifo();
-
-  if (this->isReadByteReady()) {
-    unsigned char ch = this->readByte();
-    if (ch == '\r')
-      this->writeText("\n");
-    else
-      this->writeByteBlocking(ch);
+  while (!this->isOutputQueueEmpty()) {
+    this->hardwareWrite();
   }
 }
