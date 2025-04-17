@@ -43,7 +43,7 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
     // set cache strategy based of physical adress
     if ((pa >= reg::MAIN_PERIPHERAL_BASE) && (pa <= reg::PERIPHERALS_END)) {
       _pa |= TD_DEVICE_BLOCK_FLAGS;
-    } else if (pa == 0xE00000) {
+    } else if (pa == 0xE00000) {  // mark the mailbox non-allocating wb cache
       _pa |= TD_GPU_BLOCK_FLAGS;
     } else {
       _pa |= TD_KERNEL_BLOCK_FLAGS;
@@ -76,7 +76,8 @@ void init_mmu() {
   uint64_t next_tbl = tbl + PAGE_SIZE;
 
   // PGD to PUD mapping
-  create_table_entry(tbl, next_tbl, map_base, PGD_SHIFT, TD_KERNEL_TABLE_FLAGS);
+  create_table_entry(tbl, next_tbl, map_base, PGD_SHIFT,
+                     TD_KERNEL_TABLE_FLAGS);  // default kernel flags
 
   // move on so the PUD table being mapped from
   tbl += PAGE_SIZE;
