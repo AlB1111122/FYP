@@ -1,16 +1,17 @@
 /*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
- * borrowed heavily*/
+ * refrenced*/
 #pragma once
 #include "./gpio.h"
+#include "./mmio.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
 constexpr int STR_SZ = 1020;
+#define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
 
 class MiniUart {
  public:
   MiniUart();
-  void init();
-  void writeText(etl::string<STR_SZ> buffer);
+  void writeText(const etl::string<STR_SZ>& buffer);
 
  private:
   enum {
@@ -29,33 +30,32 @@ class MiniUart {
     AUX_MU_STAT_REG = AUX_BASE + 100,
     AUX_MU_BAUD_REG = AUX_BASE + 104,
     AUX_UART_CLOCK = 500000000,
-    UART_MAX_QUEUE = 16 * 1024
+    UART_MAX_QUEUE = 16 * 1024,
+    TX_IS_CLEAR = 0x20
   };
 
-#define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
+  unsigned char outputRingBuffer[UART_MAX_QUEUE];
+  unsigned int outputWriteIdx = 0;
+  unsigned int outputReadIdx = 0;
 
-  unsigned char uart_output_queue[UART_MAX_QUEUE];
-  unsigned int uart_output_queue_write = 0;
-  unsigned int uart_output_queue_read = 0;
+  GPIO gpio;
+  MMIO mmio;
+  bool isOutputQueueEmpty() const;
 
-  Gpio gpio;
-  unsigned int isOutputQueueEmpty();
+  bool canWrite();
 
-  unsigned int isReadByteReady();
-  unsigned int isWriteByteReady();
+  void hardwareWrite();
 
-  unsigned char readByte();
+  void writeChar(unsigned char ch);
 
-  void writeByteBlockingActual(unsigned char ch);
+  void flushOutput();
 
-  void loadOutputFifo();
-
-  void writeByteBlocking(unsigned char ch);
-
-  void drainOutputQueue();
-
-  void update();
-
-  friend MiniUart& operator<<(MiniUart& uart, const char* text);
-  friend MiniUart& operator<<(MiniUart& uart, const etl::string<STR_SZ>& text);
+  friend MiniUart& operator<<(MiniUart& uart, const char* text) {
+    uart.writeText(etl::string<STR_SZ>(text));
+    return uart;
+  }
+  friend MiniUart& operator<<(MiniUart& uart, const etl::string<STR_SZ>& text) {
+    uart.writeText(text);
+    return uart;
+  }
 };

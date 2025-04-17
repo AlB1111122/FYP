@@ -1,5 +1,6 @@
 #pragma once
 #include "gpio.h"
+#include "mmio.h"
 #include "peripheralReg.h"
 
 class ARMMailbox {
@@ -12,7 +13,7 @@ class ARMMailbox {
   volatile unsigned int __attribute__((aligned(16))) mbox[36];
 
  private:
-  Gpio gpio;
+  MMIO mmio;
   enum {
     VIDEOCORE_MBOX = (reg::PERIPHERAL_BASE + 0x0000B880),
     MBOX_READ = (VIDEOCORE_MBOX + 0x0),

@@ -13,9 +13,9 @@ extern "C" {
 
 #include "../../../include/filter.h"
 
-#define WIN_HEIGHT 720
-#define WIN_WIDTH 1280
-#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 4)
+constexpr int WIN_HEIGHT = 720;
+constexpr int WIN_WIDTH = 1280;
+constexpr int N_PIXELS = (WIN_WIDTH * WIN_HEIGHT * 4);
 
 struct frame_rate_info {
   double frame_ms;
@@ -187,7 +187,11 @@ void make_stat_file(std::chrono::system_clock::time_point start) {
 
   std::chrono::duration<double> duration = finish - start;
   std::cout << "render times:\n";
-  double total_rgb_t, total_filter_t, total_render_t, total_display_t, plm_d_t;
+  double total_rgb_t;
+  double total_filter_t;
+  double total_render_t;
+  double total_display_t;
+  double plm_d_t;
 
   std::vector<std::array<double, 5>> durations = {};
   int dropped_frames = 0;
