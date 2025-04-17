@@ -89,6 +89,7 @@ void updateVideo(videoApp_t *self, Timer &t) {
   auto now = Timer::now();
   uint64_t elapsedTime = t.toMilli(t.durationSince(self->lastTime));
   self->lastTime = now;
+  // jump to the next frame every time as not to waste cycles
   plm_decode(self->plm, (FrameRateInfo.frameMs / 1000.0));
 
   if (plm_has_ended(self->plm)) {
@@ -96,6 +97,7 @@ void updateVideo(videoApp_t *self, Timer &t) {
   }
 }
 
+// debug information
 void showVideoStats(FrameBuffer &fb) {
   etl::string<64> frameStats = "Total frames: ";
   etl::to_string(FrameRateInfo.totalFrames, frameStats,
@@ -115,6 +117,7 @@ void showVideoStats(FrameBuffer &fb) {
   fb.drawString(400, 40, plt.data(), 0x0f);
 }
 
+// UART print results in csv format
 void makeStatFile(uint64_t startTime, videoApp_t *self, Timer &t, MiniUart &mu,
                   FrameBuffer &fb) {
   double duration = t.toSec(t.durationSince(startTime));
@@ -253,6 +256,8 @@ int main() {
   etl::string<15> helloStr = "check\n";
   mu.init();
   app.fbPtr = &fb;
+
+  // let the gpu finish initializing
   auto waiter = Timer::now();
   while (t.durationSince(waiter) < 1500000) {  // wait 1.5 sec
     ;
@@ -276,23 +281,21 @@ int main() {
   uint64_t start = Timer::now();
   appPtr->lastTime = start;
 
+  // fb init results
   etl::string<64> cmpol = "";
   etl::to_string(appPtr->totalFramesCompleted, cmpol,
                  etl::format_spec().precision(6), true);
   uint32_t fbAddress =
       static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
-
   etl::string<64> fbs = "";
   etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
-
   cmpol.append(" ");
   cmpol.append(fbs);
   cmpol.append("\n");
   mu.writeText(cmpol);
   mu.writeText("check again \n");
 
-  // && (appPtr->totalFramesCompleted < 7) && (appPtr->totalFramesCompleted <
-  // 30)
+  // && (appPtr->totalFramesCompleted < 30)
   while ((!appPtr->wantsToQuit)) {
     updateVideo(appPtr, t);
   }
