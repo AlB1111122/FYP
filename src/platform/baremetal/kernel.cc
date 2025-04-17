@@ -8,15 +8,13 @@
 #include "../../../include/timer.h"
 #include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/algorithm.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/to_string.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/vector.h"
 
-#define WIN_HEIGHT 720
-#define WIN_WIDTH 1280
-#define N_PIXELS (WIN_WIDTH * WIN_HEIGHT * 4)
+int constexpr WIN_HEIGHT = 720;
+int constexpr WIN_WIDTH = 1280;
+int constexpr N_PIXELS = (WIN_WIDTH * WIN_HEIGHT * 4);
 
 struct videoApp_t {
   plm_t *plm;
@@ -56,11 +54,12 @@ void printN(T time, FrameBuffer &fb) {
 }
 
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user);
-void updateVideo(videoApp_t *self, Timer &t);
+void updateVideo(videoApp_t *self);
 void showVideoStats(FrameBuffer &fb);
 void makeStatFile(uint64_t startTime, videoApp_t *self, Timer &t, MiniUart &mu,
                   FrameBuffer &fb);
 
+// better performance with this just in bss insted of taking up stack
 uint8_t fRgbData[N_PIXELS] __attribute__((aligned(64)));
 uint8_t newRgbData[N_PIXELS] __attribute__((aligned(64)));
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
@@ -85,9 +84,8 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   self->totalFramesCompleted++;
 }
 
-void updateVideo(videoApp_t *self, Timer &t) {
+void updateVideo(videoApp_t *self) {
   auto now = Timer::now();
-  uint64_t elapsedTime = t.toMilli(t.durationSince(self->lastTime));
   self->lastTime = now;
   // jump to the next frame every time as not to waste cycles
   plm_decode(self->plm, (FrameRateInfo.frameMs / 1000.0));
@@ -121,8 +119,11 @@ void showVideoStats(FrameBuffer &fb) {
 void makeStatFile(uint64_t startTime, videoApp_t *self, Timer &t, MiniUart &mu,
                   FrameBuffer &fb) {
   double duration = t.toSec(t.durationSince(startTime));
-  double avgRgb = 0, avgFilter = 0, avgRender = 0, avgDisplay = 0,
-         avgPlmDec = 0;
+  double avgRgb = 0;
+  double avgFilter = 0;
+  double avgRender = 0;
+  double avgDisplay = 0;
+  double avgPlmDec = 0;
 
   double durations[400][5];
   int droppedFrames = 0;
@@ -297,7 +298,7 @@ int main() {
 
   // && (appPtr->totalFramesCompleted < 30)
   while ((!appPtr->wantsToQuit)) {
-    updateVideo(appPtr, t);
+    updateVideo(appPtr);
   }
   mu.writeText("\n");
   makeStatFile(start, appPtr, t, mu, fb);
