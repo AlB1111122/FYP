@@ -255,7 +255,7 @@ int main() {
   Timer t = Timer();
   FrameBuffer fb = FrameBuffer();
   etl::string<15> helloStr = "check\n";
-  mu.init();
+ // mu.init();
   app.fbPtr = &fb;
 
   // let the gpu finish initializing

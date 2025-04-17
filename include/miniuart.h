@@ -1,5 +1,5 @@
 /*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
- * borrowed heavily*/
+ * refrenced*/
 #pragma once
 #include "./gpio.h"
 #include "./mmio.h"
@@ -11,8 +11,7 @@ constexpr int STR_SZ = 1020;
 class MiniUart {
  public:
   MiniUart();
-  void init();
-  void writeText(etl::string<STR_SZ> buffer);
+  void writeText(const etl::string<STR_SZ>& buffer);
 
  private:
   enum {
@@ -57,6 +56,12 @@ class MiniUart {
 
   void update();
 
-  friend MiniUart& operator<<(MiniUart& uart, const char* text);
-  friend MiniUart& operator<<(MiniUart& uart, const etl::string<STR_SZ>& text);
+  friend MiniUart& operator<<(MiniUart& uart, const char* text) {
+    uart.writeText(etl::string<STR_SZ>(text));
+    return uart;
+  }
+  friend MiniUart& operator<<(MiniUart& uart, const etl::string<STR_SZ>& text) {
+    uart.writeText(text);
+    return uart;
+  }
 };
