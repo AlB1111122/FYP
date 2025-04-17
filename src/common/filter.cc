@@ -67,6 +67,7 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
     float toSqrt = static_cast<float>((resX * resX) + (resY * resY));
     // to make it runnable for testing on non-arm computers
 #if USE_NEON_SQRT
+    // extremely slow when not on 03
     __asm__ volatile("fsqrt %s0, %s1" : "=w"(sobelValF) : "w"(toSqrt));
 #else
     sobelValF = sqrtf(toSqrt);
