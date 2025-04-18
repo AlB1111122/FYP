@@ -483,17 +483,20 @@ int plm_seek(plm_t *self, double time, int seek_exact) {
 }
 
 plm_buffer_t *plm_buffer_create_with_filename(const char *filename) {
-  return NULL;
-  /*FILE *fh = fopen(filename, "rb");
+#if __STDC_HOSTED__ == 1
+#pragma message("compiling for linux")
+  FILE *fh = fopen(filename, "rb");
   if (!fh) {
     return NULL;
   }
-  return plm_buffer_create_with_file(fh, TRUE);*/
+  return plm_buffer_create_with_file(fh, TRUE);
+#else
+  return NULL;
+#endif
 }
 
 plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
-  return NULL;
-  /*
+#if __STDC_HOSTED__ == 1
   plm_buffer_t *self = plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
   self->fh = fh;
   self->close_when_done = close_when_done;
@@ -505,7 +508,10 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
   fseek(self->fh, 0, SEEK_SET);
 
   plm_buffer_set_load_callback(self, plm_buffer_load_file_callback, NULL);
-  return self;*/
+  return self;
+#else
+  return NULL;
+#endif
 }
 
 plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
@@ -541,9 +547,11 @@ plm_buffer_t *plm_buffer_create_for_appending(size_t initial_capacity) {
 }
 
 void plm_buffer_destroy(plm_buffer_t *self) {
+#if __STDC_HOSTED__ == 1
   if (self->fh && self->close_when_done) {
-    // fclose(self->fh);
+    fclose(self->fh);
   }
+#endif
 }
 
 size_t plm_buffer_get_size(plm_buffer_t *self) {
@@ -589,33 +597,40 @@ void plm_buffer_set_load_callback(plm_buffer_t *self,
 void plm_buffer_rewind(plm_buffer_t *self) { plm_buffer_seek(self, 0); }
 
 void plm_buffer_seek(plm_buffer_t *self, size_t pos) {
+#if __STDC_HOSTED__ == 1
+  self->has_ended = FALSE;
+
+  if (self->mode == PLM_BUFFER_MODE_FILE) {
+    fseek(self->fh, pos, SEEK_SET);
+    self->bit_index = 0;
+    self->length = 0;
+  } else if (self->mode == PLM_BUFFER_MODE_RING) {
+    if (pos != 0) {
+      // Seeking to non-0 is forbidden for dynamic-mem buffers
+      return;
+    }
+    self->bit_index = 0;
+    self->length = 0;
+    self->total_size = 0;
+  } else if (pos < self->length) {
+    self->bit_index = pos << 3;
+  }
+#else
   if (pos < self->length) {
     self->bit_index = pos << 3;
   }
-  /* self->has_ended = FALSE;
-
-   if (self->mode == PLM_BUFFER_MODE_FILE) {
-     fseek(self->fh, pos, SEEK_SET);
-     self->bit_index = 0;
-     self->length = 0;
-   } else if (self->mode == PLM_BUFFER_MODE_RING) {
-     if (pos != 0) {
-       // Seeking to non-0 is forbidden for dynamic-mem buffers
-       return;
-     }
-     self->bit_index = 0;
-     self->length = 0;
-     self->total_size = 0;
-   } else if (pos < self->length) {
-     self->bit_index = pos << 3;
-   }*/
+#endif
 }
 
 size_t plm_buffer_tell(plm_buffer_t *self) {
+#if __STDC_HOSTED__ == 1
+  return self->mode == PLM_BUFFER_MODE_FILE
+             ? ftell(self->fh) + (self->bit_index >> 3) - self->length
+             : self->bit_index >> 3;
+#else
+#pragma message("compiling on bm")
   return self->bit_index >> 3;
-  // return self->mode == PLM_BUFFER_MODE_FILE
-  //            ? ftell(self->fh) + (self->bit_index >> 3) - self->length
-  //            : self->bit_index >> 3;
+#endif
 }
 
 void plm_buffer_discard_read_bytes(plm_buffer_t *self) {
@@ -631,7 +646,8 @@ void plm_buffer_discard_read_bytes(plm_buffer_t *self) {
 }
 
 void plm_buffer_load_file_callback(plm_buffer_t *self, void *user) {
-  /*PLM_UNUSED(user);
+#if __STDC_HOSTED__ == 1
+  PLM_UNUSED(user);
 
   if (self->discard_read_bytes) {
     plm_buffer_discard_read_bytes(self);
@@ -644,7 +660,8 @@ void plm_buffer_load_file_callback(plm_buffer_t *self, void *user) {
 
   if (bytes_read == 0) {
     self->has_ended = TRUE;
-  }*/
+  }
+#endif
 }
 
 int plm_buffer_has_ended(plm_buffer_t *self) { return self->has_ended; }
@@ -1931,10 +1948,6 @@ void plm_video_decode_block(plm_video_t *self, int block) {
       plm_video_idct(s);
       PLM_BLOCK_SET(d, di, dw, si, 8, 8, plm_clamp(s[si]));
       memset(self->block_data, 0, sizeof(self->block_data));
-
-      for (int i = 0; i < 64; i++) {
-        self->block_data[i] = 0;
-      }
     }
   } else {
     // Add data to the predicted macroblock
@@ -1946,9 +1959,6 @@ void plm_video_decode_block(plm_video_t *self, int block) {
       plm_video_idct(s);
       PLM_BLOCK_SET(d, di, dw, si, 8, 8, plm_clamp(d[di] + s[si]));
       memset(self->block_data, 0, sizeof(self->block_data));
-      for (int i = 0; i < 64; i++) {
-        self->block_data[i] = 0;
-      }
     }
   }
 }
