@@ -1,5 +1,5 @@
 #include "../../../../include/asmdefs.h"
-#include "../../../../include/mm.h"
+#include "../../../../include/mmu.h"
 .section ".text.boot"  // Make sure the linker puts this at the start of the kernel image
 
 .global _start  // Execution starts here
@@ -55,10 +55,9 @@ el1_entry:
     adrp x0, id_pgd
     msr ttbr0_el1, x0
 
-    MRS X1, CPACR_EL1
-    ORR X1, X1, #(0x3 << 20)
-    MSR CPACR_EL1, X1
-    ISB
+    ldr x0, =CPACR_EL1_VAL
+    msr CPACR_EL1, x0
+    isb
 
     ldr x0, =SCTLR_VALUE_MMU_ENABLED
     msr sctlr_el1, x0
@@ -86,6 +85,7 @@ id_pgd_addr:
     adrp x0, id_pgd
     ret
 
+//from p155 of armv8 programmers guide
 .global full_cache_clean
 full_cache_clean:
     MRS X0, CLIDR_EL1

@@ -1,6 +1,6 @@
-#include "../../../include/mem.h"
+#include "../../../include/mmu.h"
 
-#include "../../../include/mm.h"
+#include "../../../include/memCtrl.h"
 #include "../../../include/peripheralReg.h"
 // cant be in class bc it needs to be called in assembly
 // assembly func defined in boot.s
@@ -61,29 +61,22 @@ void create_block_map(uint64_t pmd, uint64_t vstart, uint64_t vend,
 void init_mmu() {
   // get base address of the Page Global Directory (PGD)
   uint64_t id_pgd = id_pgd_addr();
-
   // can't use memset because MMU needs to already be on for unaligned memory
   // acess
   memzero(id_pgd, ID_MAP_TABLE_SIZE);
-
   // current virtual address being mapped from
   uint64_t map_base = 0;
-
   // tbl = the current table being mapped from. Set to current PGD table
   uint64_t tbl = id_pgd;
-
   // PUD (Page Upper Directory) (lower level table) table beign mapped to
   uint64_t next_tbl = tbl + PAGE_SIZE;
-
   // PGD to PUD mapping
   create_table_entry(tbl, next_tbl, map_base, PGD_SHIFT,
                      TD_KERNEL_TABLE_FLAGS);  // default kernel flags
-
   // move on so the PUD table being mapped from
   tbl += PAGE_SIZE;
   // to the PMD
   next_tbl += PAGE_SIZE;
-
   uint64_t block_tbl = tbl;
 
   // create 4 PUD entries, each identity map 1GB via 2MB blocks
