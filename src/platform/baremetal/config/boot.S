@@ -13,31 +13,39 @@ _start:
 1:  wfe
     b       1b
 2:  // We're on the main core!
-    //switch from EL2 down to EL1 as rpi4 boots to el2 where fast fp is not avalible
+    //disable all caches and mmu during their setup
 	ldr x0, =SCTLR_VALUE_MMU_DISABLED
+    //switch from EL2 down to EL1 as rpi4 boots to el2 where fast fp is not avalible
 	msr sctlr_el1, x0
 
+    // make aarch64 instructions avalible in el1 otherwise aarch32 only
 	ldr x0, =HCR_VALUE
 	msr hcr_el2, x0
 
+    //set eret to take us to el1
 	ldr x0, =SPSR_VALUE
 	msr spsr_el2, x0
+
     bl full_cache_clean
 
+    //define page size and va size
     ldr x0, =TCR_EL1_VAL
     msr TCR_EL1, x0
 
+    //define avalible cache policies
     ldr x0, =MAIR_VALUE
     msr MAIR_EL1, x0
     //end mmu enablement
 
+    //when exeption hits el2 jump to el1_entry func
 	adr x0, el1_entry
 	msr elr_el2, x0
 
+    //exeption
 	eret		
 
 el1_entry:
-    // Set stack to start above our code
+    // Set stack after the page tables
     ldr     x1, =LOW_MEMORY
     mov     sp, x1
 
@@ -50,15 +58,19 @@ el1_entry:
     cbnz    w2, 3b               // Loop if non-zero
 
     //mmu enablement:
+    //build the tables with the c function (defined in mmu.cc)
     bl init_mmu
 
     adrp x0, id_pgd
+    //store the base adress ot the translation table
     msr ttbr0_el1, x0
 
+    //set neon & simd fully working
     ldr x0, =CPACR_EL1_VAL
     msr CPACR_EL1, x0
     isb
 
+    //enable caches and mmu
     ldr x0, =SCTLR_VALUE_MMU_ENABLED
     msr sctlr_el1, x0
     //end mmu enablement

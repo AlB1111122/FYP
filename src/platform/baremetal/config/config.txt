@@ -60,7 +60,7 @@ gpio=22-27=np
 # Enable jtag pins (i.e. GPIO22-GPIO27)
 enble_jtag_gpio=1
 hdmi_group=2 # set up for monitor
-hdmi_mode=85 # 1280×720 resolution same as videod
+hdmi_mode=85 # 1280×720 resolution same as video
 #framebuffer_ignore_alpha=1
 #framebuffer_swap=1
 gpu_mem=32

@@ -17,6 +17,7 @@
   (SCTLR_RESERVED | SCTLR_EE_LITTLE_ENDIAN | SCTLR_I_CACHE_ENABLED | \
    SCTLR_D_CACHE_ENABLED | SCTLR_MMU_ENABLED)
 
+// make aarch64 instructions avalible in el1 otherwise aarch32 only
 #define HCR_RW (1 << 31)
 // for use on HCR_EL2, Hypervisor Configuration Register
 #define HCR_VALUE HCR_RW
@@ -27,7 +28,9 @@
 // for use on SPSR_EL2 Saved Program Status Register (EL2)
 #define SCR_VALUE (SCR_RESERVED | SCR_RW | SCR_NS)
 
+// mask interrupts to disable them untill we get to el1
 #define SPSR_MASK_ALL (7 << 6)
+// switch to el1 on eret
 #define SPSR_EL1h (5 << 0)
 // for use on ELR_EL2, Exception Link Register (EL2)
 #define SPSR_VALUE (SPSR_MASK_ALL | SPSR_EL1h)
