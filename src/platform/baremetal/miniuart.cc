@@ -12,12 +12,16 @@ MiniUart::MiniUart() {
   //  enable recive interrupt, acess baudrate reg 11000110
   this->mmio.write(AUX_MU_IIR_REG, 0xC6);
   // set the baudrate to 115200
-  this->mmio.write(AUX_MU_BAUD_REG, AUX_MU_BAUD(115200));
+  this->mmio.write(AUX_MU_BAUD_REG, calcBaudrate(115200));
   // set 14 & 15 to their alternate RX & TX functions for miniuart
   this->gpio.pinAsAlt5(14);
   this->gpio.pinAsAlt5(15);
   // enable RX & TX (miniuart pins)
   this->mmio.write(AUX_MU_CNTL_REG, 3);
+}
+
+uint32_t MiniUart::calcBaudrate(long baud) const {
+  return (AUX_UART_CLOCK / (baud * 8)) - 1;
 }
 
 bool MiniUart::isOutputQueueEmpty() const {

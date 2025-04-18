@@ -6,7 +6,6 @@
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
 constexpr int STR_SZ = 1020;
-#define AUX_MU_BAUD(baud) ((AUX_UART_CLOCK / (baud * 8)) - 1)
 
 class MiniUart {
  public:
@@ -40,6 +39,9 @@ class MiniUart {
 
   GPIO gpio;
   MMIO mmio;
+
+  uint32_t calcBaudrate(long baud) const;
+
   bool isOutputQueueEmpty() const;
 
   bool canWrite();
