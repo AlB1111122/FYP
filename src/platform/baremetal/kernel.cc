@@ -53,6 +53,7 @@ void printN(T time, FrameBuffer &fb) {
   }
 }
 
+void createApp(videoApp_t *appPtr, plm_t *plmPtr);
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user);
 void updateVideo(videoApp_t *self);
 void showVideoStats(FrameBuffer &fb);
@@ -62,6 +63,77 @@ void makeStatFile(uint64_t startTime, videoApp_t *self, Timer &t, MiniUart &mu,
 // better performance with this just in bss insted of taking up stack
 uint8_t fRgbData[N_PIXELS] __attribute__((aligned(64)));
 uint8_t newRgbData[N_PIXELS] __attribute__((aligned(64)));
+
+// assembly func defined in boot.s
+extern "C" int getEl();
+
+plm_t plmHolder;
+videoApp_t app;
+int main() {
+  MiniUart mu = MiniUart();
+  Timer t = Timer();
+  FrameBuffer fb = FrameBuffer();
+  etl::string<15> helloStr = "check\n";
+  app.fbPtr = &fb;
+
+  // let the gpu finish initializing
+  auto waiter = Timer::now();
+  while (t.durationSince(waiter) < 1500000) {  // wait 1.5 sec
+    ;
+  }
+
+  // should be 1 not 2 which it boots to automatically
+  printN(getEl(), fb);
+  mu.writeText(helloStr);
+  videoApp_t *appPtr = &app;
+  plm_t *plmPtr = &plmHolder;
+  mu.writeText(helloStr);
+
+  createApp(appPtr, plmPtr);
+
+  mu.writeText(helloStr);
+
+  showVideoStats(fb);
+
+  mu.writeText("\n");
+
+  uint64_t start = Timer::now();
+  appPtr->lastTime = start;
+
+  // fb init results
+  etl::string<64> cmpol = "";
+  etl::to_string(appPtr->totalFramesCompleted, cmpol,
+                 etl::format_spec().precision(6), true);
+  uint32_t fbAddress =
+      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
+  etl::string<64> fbs = "";
+  etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
+  cmpol.append(" ");
+  cmpol.append(fbs);
+  cmpol.append("\n");
+  mu.writeText(cmpol);
+  mu.writeText("check again \n");
+
+  while ((!appPtr->wantsToQuit)) {
+    updateVideo(appPtr);
+  }
+  mu.writeText("\n");
+  makeStatFile(start, appPtr, t, mu, fb);
+}
+
+void createApp(videoApp_t *appPtr, plm_t *plmPtr) {
+  appPtr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plmPtr);
+
+  plm_set_video_decode_callback(appPtr->plm, updateFrame, appPtr);
+  plm_set_loop(appPtr->plm, FALSE);  // don't loop video
+  plm_set_audio_enabled(appPtr->plm, FALSE);
+
+  FrameRateInfo.fps = plm_get_framerate(appPtr->plm);
+  FrameRateInfo.totalTExp = plm_get_duration(appPtr->plm);
+  FrameRateInfo.totalFrames = FrameRateInfo.totalTExp * FrameRateInfo.fps;
+  FrameRateInfo.frameMs = (1.0 / static_cast<double>(FrameRateInfo.fps)) * 1000;
+}
+
 void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   uint64_t startTime = Timer::now();
   videoApp_t *self = static_cast<videoApp_t *>(user);
@@ -230,76 +302,4 @@ void makeStatFile(uint64_t startTime, videoApp_t *self, Timer &t, MiniUart &mu,
     }
     mu << uartStr.data();
   }
-}
-
-void createApp(videoApp_t *appPtr, plm_t *plmPtr) {
-  appPtr->plm = plm_create_with_memory(soccer, soccer_sz, 0, plmPtr);
-
-  plm_set_video_decode_callback(appPtr->plm, updateFrame, appPtr);
-  plm_set_loop(appPtr->plm, FALSE);  // don't loop video
-  plm_set_audio_enabled(appPtr->plm, FALSE);
-
-  FrameRateInfo.fps = plm_get_framerate(appPtr->plm);
-  FrameRateInfo.totalTExp = plm_get_duration(appPtr->plm);
-  FrameRateInfo.totalFrames = FrameRateInfo.totalTExp * FrameRateInfo.fps;
-  FrameRateInfo.frameMs = (1.0 / static_cast<double>(FrameRateInfo.fps)) * 1000;
-}
-
-// assembly func defined in boot.s
-extern "C" int getEl();
-
-plm_t plmHolder;
-videoApp_t app;
-int main() {
-  MiniUart mu = MiniUart();
-  Timer t = Timer();
-  FrameBuffer fb = FrameBuffer();
-  etl::string<15> helloStr = "check\n";
- // mu.init();
-  app.fbPtr = &fb;
-
-  // let the gpu finish initializing
-  auto waiter = Timer::now();
-  while (t.durationSince(waiter) < 1500000) {  // wait 1.5 sec
-    ;
-  }
-
-  // should be 1 not 2 which it boots to automatically
-  printN(getEl(), fb);
-  mu.writeText(helloStr);
-  videoApp_t *appPtr = &app;
-  plm_t *plmPtr = &plmHolder;
-  mu.writeText(helloStr);
-
-  createApp(appPtr, plmPtr);
-
-  mu.writeText(helloStr);
-
-  showVideoStats(fb);
-
-  mu.writeText("\n");
-
-  uint64_t start = Timer::now();
-  appPtr->lastTime = start;
-
-  // fb init results
-  etl::string<64> cmpol = "";
-  etl::to_string(appPtr->totalFramesCompleted, cmpol,
-                 etl::format_spec().precision(6), true);
-  uint32_t fbAddress =
-      static_cast<uint32_t>(reinterpret_cast<uintptr_t>(fb.getFb()));
-  etl::string<64> fbs = "";
-  etl::to_string(fbAddress, fbs, etl::format_spec().precision(6), true);
-  cmpol.append(" ");
-  cmpol.append(fbs);
-  cmpol.append("\n");
-  mu.writeText(cmpol);
-  mu.writeText("check again \n");
-
-  // && (appPtr->totalFramesCompleted < 30)
-  while ((!appPtr->wantsToQuit)) {
-    updateVideo(appPtr);
-  }
-  mu.writeText("\n");
-  makeStatFile(start, appPtr, t, mu, fb);
 }

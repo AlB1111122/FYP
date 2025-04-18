@@ -25,7 +25,6 @@ struct frame_rate_info {
 } frame_rate_info;
 
 std::vector<std::array<std::chrono::system_clock::time_point, 5>> ttr = {};
-std::vector<double> between_update_video_loops = {};
 unsigned long total_frames_completed;
 
 struct video_app {
@@ -147,11 +146,8 @@ void updateVideo(video_app *self) {
   std::chrono::duration<double, std::milli> elapsed_tp = now - last_time;
   double elapsed_time = elapsed_tp.count();
 
-  if (elapsed_time >= frame_rate_info.frame_ms) {
-    between_update_video_loops.push_back(elapsed_time);
-    last_time = now;
-    plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
-  }
+  last_time = now;
+  plm_decode(self->plm, (frame_rate_info.frame_ms / 1000.0));
 
   if (plm_has_ended(self->plm)) {
     self->wants_to_quit = true;
@@ -187,11 +183,11 @@ void make_stat_file(std::chrono::system_clock::time_point start) {
 
   std::chrono::duration<double> duration = finish - start;
   std::cout << "render times:\n";
-  double total_rgb_t;
-  double total_filter_t;
-  double total_render_t;
-  double total_display_t;
-  double plm_d_t;
+  double total_rgb_t = 0;
+  double total_filter_t = 0;
+  double total_render_t = 0;
+  double total_display_t = 0;
+  double plm_d_t = 0;
 
   std::vector<std::array<double, 5>> durations = {};
   int dropped_frames = 0;
