@@ -511,7 +511,7 @@ plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
 plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
                                             int free_when_done) {
   plm_buffer_t *self = &static_buffer_w_memory_holder;
-  // memset(self, 0, sizeof(plm_buffer_t));
+  memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = length;
   self->length = length;
   self->total_size = length;
@@ -525,7 +525,7 @@ plm_buffer_t *plm_buffer_create_with_memory(uint8_t *bytes, size_t length,
 plm_buffer_t *plm_buffer_create_with_capacity(size_t capacity) {
   plm_buffer_t *self = &static_buffer_holder[buffer_n];
   buffer_n++;
-  ////memset(self, 0, sizeof(plm_buffer_t));
+  memset(self, 0, sizeof(plm_buffer_t));
   self->capacity = capacity;
   self->free_when_done = TRUE;
   self->mode = PLM_BUFFER_MODE_RING;
@@ -1219,7 +1219,7 @@ plm_packet_t *plm_demux_get_packet(plm_demux_t *self) {
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
   plm_video_t *self = &static_video_holder;
-  // memset(self, 0, sizeof(plm_video_t));
+  memset(self, 0, sizeof(plm_video_t));
 
   self->buffer = buffer;
   self->destroy_buffer_when_done = destroy_when_done;
@@ -1930,7 +1930,7 @@ void plm_video_decode_block(plm_video_t *self, int block) {
     } else {
       plm_video_idct(s);
       PLM_BLOCK_SET(d, di, dw, si, 8, 8, plm_clamp(s[si]));
-      // memset(self->block_data, 0, sizeof(self->block_data));
+      memset(self->block_data, 0, sizeof(self->block_data));
 
       for (int i = 0; i < 64; i++) {
         self->block_data[i] = 0;
@@ -1945,7 +1945,7 @@ void plm_video_decode_block(plm_video_t *self, int block) {
     } else {
       plm_video_idct(s);
       PLM_BLOCK_SET(d, di, dw, si, 8, 8, plm_clamp(d[di] + s[si]));
-      // memset(self->block_data, 0, sizeof(self->block_data));
+      memset(self->block_data, 0, sizeof(self->block_data));
       for (int i = 0; i < 64; i++) {
         self->block_data[i] = 0;
       }
@@ -2031,7 +2031,7 @@ PLM_DEFINE_FRAME_CONVERT_FUNCTION(plm_frame_to_abgr, 4, 3, 2, 1)
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
   plm_audio_t *self = &static_audio_holder;
-  // memset(self, 0, sizeof(plm_audio_t));
+  memset(self, 0, sizeof(plm_audio_t));
 
   self->samples.count = PLM_AUDIO_SAMPLES_PER_FRAME;
   self->buffer = buffer;
@@ -2306,7 +2306,7 @@ void plm_audio_decode_frame(plm_audio_t *self) {
           plm_audio_idct36(self->sample[ch], p, self->V[ch], self->v_pos);
 
           // Build U, windowing, calculate output
-          // memset(self->U, 0, sizeof(self->U));
+          memset(self->U, 0, sizeof(self->U));
 
           int d_index = 512 - (self->v_pos >> 1);
           int v_index = (self->v_pos % 128) >> 1;
