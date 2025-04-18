@@ -1,4 +1,4 @@
-#include "../../../include/gpio.h"
+#include "gpio.h"
 
 unsigned int GPIO::gpioCall(unsigned int pinNumber, unsigned int value,
                             unsigned int base, unsigned int fieldSz,

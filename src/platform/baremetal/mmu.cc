@@ -1,7 +1,7 @@
-#include "../../../include/mmu.h"
+#include "mmu.h"
 
-#include "../../../include/memCtrl.h"
-#include "../../../include/peripheralReg.h"
+#include "memCtrl.h"
+#include "peripheralReg.h"
 // cant be in class bc it needs to be called in assembly
 // assembly func defined in boot.s
 extern "C" uint64_t id_pgd_addr();

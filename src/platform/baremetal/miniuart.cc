@@ -1,6 +1,6 @@
-#include "../../../include/miniuart.h"
+#include "miniuart.h"
 
-#include "../../../include/peripheralReg.h"
+#include "peripheralReg.h"
 
 MiniUart::MiniUart() {
   this->mmio.write(AUX_ENABLES, 1);      // enable UART1

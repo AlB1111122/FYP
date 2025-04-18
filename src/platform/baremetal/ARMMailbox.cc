@@ -1,4 +1,4 @@
-#include "../../../include/ARMMailbox.h"
+#include "ARMMailbox.h"
 
 unsigned int ARMMailbox::writeRead(
     unsigned char channel) {  // set the values of mailbox before this func

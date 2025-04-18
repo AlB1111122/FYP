@@ -1,11 +1,11 @@
-#include "../../../include/FrameBuffer.h"
+#include "frameBuffer.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../include/gpio.h"
-#include "../../../include/memCtrl.h"
-#include "../../../include/terminal.h"
+#include "gpio.h"
+#include "memCtrl.h"
+#include "terminal.h"
 
 ARMMailbox FrameBuffer::FB_mailbox;
 

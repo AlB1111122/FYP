@@ -1,11 +1,10 @@
-#include "../../../lib/pl_mpeg/pl_mpeg.h"
+#include "pl_mpeg/pl_mpeg.h"
 
+#include <etl/absolute.h>
+#include <etl/etl_profile.h>
+#include <etl/string.h>
+#include <etl/to_string.h>
 #include <string.h>
-
-#include "/usr/share/etl/etl-20.39.4/include/etl/absolute.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/to_string.h"
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
   plm_buffer_t *buffer = plm_buffer_create_with_filename(filename);

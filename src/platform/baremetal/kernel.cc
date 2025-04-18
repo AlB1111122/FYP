@@ -2,15 +2,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../../../include/FrameBuffer.h"
 #include "../../../include/filter.h"
 #include "../../../include/miniuart.h"
 #include "../../../include/timer.h"
-#include "../../../lib/pl_mpeg/pl_mpeg.h"
 #include "../../../soccerBytes.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/etl_profile.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 #include "/usr/share/etl/etl-20.39.4/include/etl/to_string.h"
+#include "frameBuffer.h"
+#include "pl_mpeg/pl_mpeg.h"
 
 int constexpr WIN_HEIGHT = 720;
 int constexpr WIN_WIDTH = 1280;
