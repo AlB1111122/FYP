@@ -27,6 +27,16 @@ include_directories(
   include/common
 )
 
+add_compile_options(
+  -O3
+  -ftree-vectorize 
+  -march=armv8-a+simd 
+  -mcpu=cortex-a72 
+  -mtune=cortex-a72 
+  -falign-functions=32 
+  -falign-loops=32
+)
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
