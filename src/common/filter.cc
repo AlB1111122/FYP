@@ -1,8 +1,8 @@
-#include "../../include/filter.h"
+#include "filter.h"
 
 #include <math.h>
 #if __STDC_HOSTED__ != 1
-#include "../../include/errno.h"
+#include "errno.h"
 #endif
 #ifdef __ARM_NEON
 // disable warnings from arm_neon internals only

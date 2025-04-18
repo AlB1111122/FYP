@@ -1,4 +1,5 @@
-#include "../../../lib/pl_mpeg/pl_mpeg.h"
+#include "pl_mpeg.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -476,7 +477,6 @@ int plm_seek(plm_t *self, double time, int seek_exact) {
   return TRUE;
 }
 
-
 plm_buffer_t *plm_buffer_create_with_filename(const char *filename) {
   FILE *fh = fopen(filename, "rb");
   if (!fh) {
@@ -760,7 +760,6 @@ uint16_t plm_buffer_read_vlc_uint(plm_buffer_t *self,
                                   const plm_vlc_uint_t *table) {
   return (uint16_t)plm_buffer_read_vlc(self, (const plm_vlc_t *)table);
 }
-
 
 plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done) {
   plm_demux_t *self = &static_demux_holder;
@@ -1198,7 +1197,6 @@ plm_packet_t *plm_demux_get_packet(plm_demux_t *self) {
   self->next_packet.length = 0;
   return &self->current_packet;
 }
-
 
 plm_video_t *plm_video_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {
@@ -1735,7 +1733,6 @@ void plm_video_interpolate_macroblock(plm_video_t *self, plm_frame_t *s,
                                motion_v / 2, 8, TRUE);
 }
 
-
 void plm_video_process_macroblock(plm_video_t *self, uint8_t *s, uint8_t *d,
                                   int motion_h, int motion_v, int block_size,
                                   int interpolate) {
@@ -2003,7 +2000,6 @@ PLM_DEFINE_FRAME_CONVERT_FUNCTION(plm_frame_to_abgr, 4, 3, 2, 1)
 
 #undef PLM_PUT_PIXEL
 #undef PLM_DEFINE_FRAME_CONVERT_FUNCTION
-
 
 plm_audio_t *plm_audio_create_with_buffer(plm_buffer_t *buffer,
                                           int destroy_when_done) {

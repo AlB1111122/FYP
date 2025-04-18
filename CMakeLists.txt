@@ -11,6 +11,11 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories(
+    include/common
+    lib/pl_mpeg/
+)
+
 set(SOURCES
     src/platform/linux/display_sdl.cc
     src/platform/linux/pl_mpeg.cc
