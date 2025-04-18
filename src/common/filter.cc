@@ -5,7 +5,7 @@
 #include "../../include/errno.h"
 #endif
 #ifdef __ARM_NEON
-// disable warnings from arm_neon internals
+// disable warnings from arm_neon internals only
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
@@ -72,7 +72,8 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
     }
     float toSqrt = static_cast<float>((resX * resX) + (resY * resY));
     // to make it runnable for testing on non-arm computers
-#if USE_NEON_SQRT
+#if USE_NEON_SQRT && OP_FLAG
+#pragma message("neon square root")
     // extremely slow when not on O3
     __asm__ volatile("fsqrt %s0, %s1" : "=w"(sobelValF) : "w"(toSqrt));
 #else

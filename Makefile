@@ -3,6 +3,11 @@ SRC_DIR = src/platform/baremetal
 SRC_COMM_DIR = src/common
 OBJ_DIR = build/bm
 CFG_DIR = src/platform/baremetal/config
+OP_FLAG =
+OPTIMIZE_LEVEL = 3
+ifeq ($(OPTIMIZE_LEVEL), 3)
+    OP_FLAG := -DOP_FLAG
+endif
 
 CFILES = $(wildcard $(SRC_DIR)/*.cc) $(wildcard $(SRC_COMM_DIR)/*.cc)
 OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_DIR)/*.cc)) \
@@ -10,7 +15,7 @@ OFILES = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_DIR)/*.cc)
 
 LINKLOCA = -L/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/lib
 LINKFLAG = -lc -lg -lm
-COMPFLAGS = -Wall -O3 -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions -fpermissive -ftree-vectorize -march=armv8-a+simd -mcpu=cortex-a72 -mtune=cortex-a72 -falign-functions=32 -falign-loops=32
+COMPFLAGS = -Wall -O$(OPTIMIZE_LEVEL) $(OP_FLAG) -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions -fpermissive -ftree-vectorize -march=armv8-a+simd -mcpu=cortex-a72 -mtune=cortex-a72 -falign-functions=32 -falign-loops=32
 INCLFLAGS = -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/aarch64-none-elf/include -I/usr/share/etl/etl-20.39.4/include -I/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/lib/gcc/aarch64-none-elf/13.3.1/include -I./include
 GCCFLAGS = $(LINKLOCA) $(COMPFLAGS) $(INCLFLAGS)
 GCCPATH = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf/bin
