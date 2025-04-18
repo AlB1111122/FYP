@@ -1,9 +1,6 @@
 #include "pl_mpeg/pl_mpeg.h"
 
-#include <etl/absolute.h>
-#include <etl/etl_profile.h>
-#include <etl/string.h>
-#include <etl/to_string.h>
+#include <stdlib.h>
 #include <string.h>
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr) {
@@ -1684,7 +1681,7 @@ int plm_video_decode_motion_vector(plm_video_t *self, int r_size, int motion) {
 
   if ((m_code != 0) && (fscale != 1)) {
     r = plm_buffer_read(self->buffer, r_size);
-    d = ((etl::absolute(m_code) - 1) << r_size) + r + 1;
+    d = ((abs(m_code) - 1) << r_size) + r + 1;
     if (m_code < 0) {
       d = -d;
     }

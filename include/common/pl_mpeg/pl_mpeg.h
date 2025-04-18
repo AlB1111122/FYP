@@ -153,24 +153,21 @@ will realloc() the buffer with a larger size whenever needed. You can configure
 the default buffer size by defining PLM_BUFFER_DEFAULT_SIZE *before*
 including this library.
 
-You can also define PLM_MALLOC, PLM_REALLOC and PLM_FREE to provide your own
-memory management functions.
-[NOT ANYMORE!!!!!!!!!!!]
-
 See below for detailed the API documentation.
 
 */
 
-//#ifndef PL_MPEG_H
-//#define PL_MPEG_H
-#if __STDC_HOSTED__ == 1
-#include <bits/types/FILE.h>
-#else
-#pragma message("compiling on bm")
-#include <stdio.h>
-#endif
+// #ifndef PL_MPEG_H
+// #define PL_MPEG_H
+// #if __STDC_HOSTED__ == 1
+// #include <bits/types/FILE.h>
+// #else
+// #pragma message("compiling on bm")
+// #include <stdio.h>
+// #endif
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -267,18 +264,18 @@ typedef void (*plm_buffer_load_callback)(plm_buffer_t *self, void *user);
 // plm_* public API
 // High-Level API for loading/demuxing/decoding MPEG-PS data
 
-// Create a plmpeg instance with a filename. Returns NULL if the file could not
-// be opened.
+// Create a plmpeg instance with a filename. Returns NULL if the file could
+// not be opened.
 
 plm_t *plm_create_with_filename(const char *filename, plm_t *self_ptr);
 
-// Create a plmpeg instance with a file handle. Pass TRUE to close_when_done to
-// let plmpeg call fclose() on the handle when plm_destroy() is called.
+// Create a plmpeg instance with a file handle. Pass TRUE to close_when_done
+// to let plmpeg call fclose() on the handle when plm_destroy() is called.
 
 plm_t *plm_create_with_file(FILE *fh, int close_when_done, plm_t *self_ptr);
 
-// Create a plmpeg instance with a pointer to memory as source. This assumes the
-// whole file is in memory. The memory is not copied. Pass TRUE to
+// Create a plmpeg instance with a pointer to memory as source. This assumes
+// the whole file is in memory. The memory is not copied. Pass TRUE to
 // free_when_done to let plmpeg call free() on the pointer when plm_destroy()
 // is called.
 
@@ -286,8 +283,8 @@ plm_t *plm_create_with_memory(uint8_t *bytes, size_t length, int free_when_done,
                               plm_t *self_ptr);
 
 // Create a plmpeg instance with a plm_buffer as source. Pass TRUE to
-// destroy_when_done to let plmpeg call plm_buffer_destroy() on the buffer when
-// plm_destroy() is called.
+// destroy_when_done to let plmpeg call plm_buffer_destroy() on the buffer
+// when plm_destroy() is called.
 
 void plm_create_with_buffer(plm_buffer_t *buffer, int destroy_when_done,
                             plm_t *self_ptr);
@@ -305,16 +302,15 @@ void plm_destroy(plm_t *self);
 int plm_has_headers(plm_t *self);
 
 // Probe the MPEG-PS data to find the actual number of video and audio streams
-// within the buffer. For certain files (e.g. VideoCD) this can be more accurate
-// than just reading the number of streams from the headers.
-// This should only be used when the underlying plm_buffer is seekable, i.e. for
+// within the buffer. For certain files (e.g. VideoCD) this can be more
+// accurate than just reading the number of streams from the headers. This
+// should only be used when the underlying plm_buffer is seekable, i.e. for
 // files, fixed memory buffers or _for_appending buffers. If used with dynamic
 // memory buffers it will skip decoding the probesize!
-// The necessary probesize is dependent on the files you expect to read. Usually
-// a few hundred KB should be enough to find all streams.
-// Use plm_get_num_{audio|video}_streams() afterwards to get the number of
-// streams in the file.
-// Returns TRUE if any streams were found within the probesize.
+// The necessary probesize is dependent on the files you expect to read.
+// Usually a few hundred KB should be enough to find all streams. Use
+// plm_get_num_{audio|video}_streams() afterwards to get the number of streams
+// in the file. Returns TRUE if any streams were found within the probesize.
 
 int plm_probe(plm_t *self, size_t probesize);
 
@@ -398,26 +394,26 @@ void plm_set_video_decode_callback(plm_t *self, plm_video_decode_callback fp,
 void plm_set_audio_decode_callback(plm_t *self, plm_audio_decode_callback fp,
                                    void *user);
 
-// Advance the internal timer by seconds and decode video/audio up to this time.
-// This will call the video_decode_callback and audio_decode_callback any number
-// of times. A frame-skip is not implemented, i.e. everything up to current time
-// will be decoded.
+// Advance the internal timer by seconds and decode video/audio up to this
+// time. This will call the video_decode_callback and audio_decode_callback
+// any number of times. A frame-skip is not implemented, i.e. everything up to
+// current time will be decoded.
 
 void plm_decode(plm_t *self, double seconds);
 
-// Decode and return one video frame. Returns NULL if no frame could be decoded
-// (either because the source ended or data is corrupt). If you only want to
-// decode video, you should disable audio via plm_set_audio_enabled().
+// Decode and return one video frame. Returns NULL if no frame could be
+// decoded (either because the source ended or data is corrupt). If you only
+// want to decode video, you should disable audio via plm_set_audio_enabled().
 // The returned plm_frame_t is valid until the next call to plm_decode_video()
 // or until plm_destroy() is called.
 
 plm_frame_t *plm_decode_video(plm_t *self);
 
-// Decode and return one audio frame. Returns NULL if no frame could be decoded
-// (either because the source ended or data is corrupt). If you only want to
-// decode audio, you should disable video via plm_set_video_enabled().
-// The returned plm_samples_t is valid until the next call to plm_decode_audio()
-// or until plm_destroy() is called.
+// Decode and return one audio frame. Returns NULL if no frame could be
+// decoded (either because the source ended or data is corrupt). If you only
+// want to decode audio, you should disable video via plm_set_video_enabled().
+// The returned plm_samples_t is valid until the next call to
+// plm_decode_audio() or until plm_destroy() is called.
 
 plm_samples_t *plm_decode_audio(plm_t *self);
 
@@ -425,14 +421,13 @@ plm_samples_t *plm_decode_audio(plm_t *self);
 // used when the underlying plm_buffer is seekable, i.e. for files, fixed
 // memory buffers or _for_appending buffers.
 // If seek_exact is TRUE this will seek to the exact time, otherwise it will
-// seek to the last intra frame just before the desired time. Exact seeking can
-// be slow, because all frames up to the seeked one have to be decoded on top of
-// the previous intra frame.
-// If seeking succeeds, this function will call the video_decode_callback
-// exactly once with the target frame. If audio is enabled, it will also call
-// the audio_decode_callback any number of times, until the audio_lead_time is
-// satisfied.
-// Returns TRUE if seeking succeeded or FALSE if no frame could be found.
+// seek to the last intra frame just before the desired time. Exact seeking
+// can be slow, because all frames up to the seeked one have to be decoded on
+// top of the previous intra frame. If seeking succeeds, this function will
+// call the video_decode_callback exactly once with the target frame. If audio
+// is enabled, it will also call the audio_decode_callback any number of
+// times, until the audio_lead_time is satisfied. Returns TRUE if seeking
+// succeeded or FALSE if no frame could be found.
 
 int plm_seek(plm_t *self, double time, int seek_exact);
 
@@ -453,8 +448,8 @@ plm_frame_t *plm_seek_frame(plm_t *self, double time, int seek_exact);
 #define PLM_BUFFER_DEFAULT_SIZE 15970304
 #endif
 
-// Create a buffer instance with a filename. Returns NULL if the file could not
-// be opened.
+// Create a buffer instance with a filename. Returns NULL if the file could
+// not be opened.
 
 plm_buffer_t *plm_buffer_create_with_filename(const char *filename);
 
@@ -540,8 +535,8 @@ static const int PLM_DEMUX_PACKET_AUDIO_3 = 0xC2;
 static const int PLM_DEMUX_PACKET_AUDIO_4 = 0xC3;
 static const int PLM_DEMUX_PACKET_VIDEO_1 = 0xE0;
 
-// Create a demuxer with a plm_buffer as source. This will also attempt to read
-// the pack and system headers from the buffer.
+// Create a demuxer with a plm_buffer as source. This will also attempt to
+// read the pack and system headers from the buffer.
 
 plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done);
 
@@ -549,8 +544,8 @@ plm_demux_t *plm_demux_create(plm_buffer_t *buffer, int destroy_when_done);
 
 void plm_demux_destroy(plm_demux_t *self);
 
-// Returns TRUE/FALSE whether pack and system headers have been found. This will
-// attempt to read the headers if non are present yet.
+// Returns TRUE/FALSE whether pack and system headers have been found. This
+// will attempt to read the headers if non are present yet.
 
 int plm_demux_has_headers(plm_demux_t *self);
 
@@ -577,11 +572,11 @@ void plm_demux_rewind(plm_demux_t *self);
 
 int plm_demux_has_ended(plm_demux_t *self);
 
-// Seek to a packet of the specified type with a PTS just before specified time.
-// If force_intra is TRUE, only packets containing an intra frame will be
-// considered - this only makes sense when the type is PLM_DEMUX_PACKET_VIDEO_1.
-// Note that the specified time is considered 0-based, regardless of the first
-// PTS in the data source.
+// Seek to a packet of the specified type with a PTS just before specified
+// time. If force_intra is TRUE, only packets containing an intra frame will
+// be considered - this only makes sense when the type is
+// PLM_DEMUX_PACKET_VIDEO_1. Note that the specified time is considered
+// 0-based, regardless of the first PTS in the data source.
 
 plm_packet_t *plm_demux_seek(plm_demux_t *self, double time, int type,
                              int force_intra);
@@ -592,8 +587,8 @@ plm_packet_t *plm_demux_seek(plm_demux_t *self, double time, int type,
 double plm_demux_get_start_time(plm_demux_t *self, int type);
 
 // Get the duration for the specified packet type - i.e. the span between the
-// the first PTS and the last PTS in the data source. This only makes sense when
-// the underlying data source is a file or fixed memory.
+// the first PTS and the last PTS in the data source. This only makes sense
+// when the underlying data source is a file or fixed memory.
 
 double plm_demux_get_duration(plm_demux_t *self, int type);
 
@@ -663,9 +658,9 @@ plm_frame_t *plm_video_decode(plm_video_t *self);
 // Convert the YCrCb data of a frame into interleaved R G B data. The stride
 // specifies the width in bytes of the destination buffer. I.e. the number of
 // bytes from one line to the next. The stride must be at least
-// (frame->width * bytes_per_pixel). The buffer pointed to by *dest must have a
-// size of at least (stride * frame->height).
-// Note that the alpha component of the dest buffer is always left untouched.
+// (frame->width * bytes_per_pixel). The buffer pointed to by *dest must have
+// a size of at least (stride * frame->height). Note that the alpha component
+// of the dest buffer is always left untouched.
 
 void plm_frame_to_rgb(plm_frame_t *frame, uint8_t *dest, int stride);
 void plm_frame_to_bgr(plm_frame_t *frame, uint8_t *dest, int stride);
