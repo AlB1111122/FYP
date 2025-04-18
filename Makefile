@@ -23,7 +23,7 @@ LINKFLAG = -lc -lg -lm
 #will not work without them
 MANDATORY_COMP_FLAGS =  -ffreestanding -nostdinc -nostdlib -nostartfiles -mstrict-align -fno-exceptions -fpermissive
 COMPFLAGS = $(MANDATORY_COMP_FLAGS) -Wall -O$(OPTIMIZE_LEVEL) $(OP_FLAG) -ftree-vectorize -march=armv8-a+simd -mcpu=cortex-a72 -mtune=cortex-a72 -falign-functions=32 -falign-loops=32
-INCLFLAGS = -I$(CROSSCOMP_TOOLCHAIN_DIR)/aarch64-none-elf/include -I$(ETL_INSTALL_DIR)/include -I$(CROSSCOMP_TOOLCHAIN_DIR)/lib/gcc/aarch64-none-elf/13.3.1/include -I./include -I./include/common -I./lib
+INCLFLAGS = -I$(CROSSCOMP_TOOLCHAIN_DIR)/aarch64-none-elf/include -I$(ETL_INSTALL_DIR)/include -I$(CROSSCOMP_TOOLCHAIN_DIR)/lib/gcc/aarch64-none-elf/13.3.1/include -I./include -I./include/common
 GCCFLAGS = $(LINKLIBS) $(COMPFLAGS) $(INCLFLAGS)
 GCCPATH = $(CROSSCOMP_TOOLCHAIN_DIR)/bin
 
