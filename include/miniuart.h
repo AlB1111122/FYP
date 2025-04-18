@@ -1,9 +1,10 @@
 /*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
  * refrenced*/
 #pragma once
+#include <etl/string.h>
+
 #include "./gpio.h"
 #include "./mmio.h"
-#include "/usr/share/etl/etl-20.39.4/include/etl/string.h"
 
 constexpr int STR_SZ = 1020;
 

@@ -1,6 +1,6 @@
 #bm
 CROSSCOMP_TOOLCHAIN_DIR = /usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-elf
-ETL_INSTALL_DIR = /usr/share/etl/etl-20.39.4
+ETL_INSTALL_DIR = lib/etl-20.39.4
 
 SRC_DIR = src/platform/baremetal
 SRC_COMM_DIR = src/common
