@@ -1,5 +1,5 @@
 extern "C" {
-#include "../../../lib/pl_mpeg/pl_mpeg.h"
+#include "pl_mpeg/pl_mpeg.h"
 }
 #include <SDL2/SDL.h>
 #include <unistd.h>
@@ -11,7 +11,7 @@ extern "C" {
 #include <iostream>
 #include <vector>
 
-#include "../../../include/filter.h"
+#include "filter.h"
 
 constexpr int WIN_HEIGHT = 720;
 constexpr int WIN_WIDTH = 1280;

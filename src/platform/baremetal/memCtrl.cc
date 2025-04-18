@@ -1,4 +1,4 @@
-#include "../../../include/memCtrl.h"
+#include "memCtrl.h"
 
 #include <stdint.h>
 

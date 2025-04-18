@@ -1,4 +1,4 @@
-#include "../../../include/timer.h"
+#include "timer.h"
 
 #include <stdlib.h>
 
@@ -29,7 +29,7 @@ uint64_t Timer::durationSince(uint64_t earlier) const {
 }
 
 bool Timer::didCounterFlip(uint64_t earlier, uint64_t later) const {
-  // to be used in cases when it is absolutly known that the order is correct
+  // to be used in cases when it is absolutely known that the order is correct
   // and total time is less than counter flip time
   return later < earlier;
 }
