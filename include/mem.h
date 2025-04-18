@@ -1,6 +1,5 @@
 
 #pragma once
-#include "memCtrl.h"
 
 // cant be in class bc it needs to be used in assembly
 extern "C" void init_mmu();

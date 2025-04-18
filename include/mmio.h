@@ -6,5 +6,5 @@ class MMIO {
  public:
   void write(uintptr_t reg, uint32_t value);
 
-  uint32_t read(uintptr_t reg);
+  uint32_t read(uintptr_t reg) const;
 };
