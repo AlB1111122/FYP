@@ -145,7 +145,7 @@ source, these functions can be used to decode the raw data directly. Similarly,
 if you only want to analyze an MPEG-PS file or extract raw video or audio
 packets from it, you can use the plm_demux_* functions.
 
-
+removed
 This library uses malloc(), realloc() and free() to manage memory. Typically
 all allocation happens up-front when creating the interface. However, the
 default buffer size may be too small for certain inputs. In these cases plmpeg
