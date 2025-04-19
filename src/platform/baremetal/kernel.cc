@@ -143,6 +143,8 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   com::Filter::sobelEdgeDetect(newRgbData, N_PIXELS, frame->width * 4,
                                fRgbData);
   // com::Filter::grayscale(newRgbData, N_PIXELS, fRgbData);
+  // com::Filter::fisheyeTransform(newRgbData, N_PIXELS, frame->width * 4,
+  //                               fRgbData);
   uint64_t toFiltered = Timer::now();
 
   self->fbPtr->bufferCpy(fRgbData);

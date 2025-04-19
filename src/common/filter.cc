@@ -1,6 +1,7 @@
 #include "filter.h"
 
 #include <math.h>
+
 #if __STDC_HOSTED__ != 1
 #include "errno.h"
 #endif
@@ -9,7 +10,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#include <arm_neon.h>
+// #include <arm_neon.h>
 
 #pragma GCC diagnostic pop
 #define USE_NEON_SQRT 1
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+// iterative simple maths
 void com::Filter::grayscale(uint8_t *rgbData, int nPixelBits, uint8_t *newRgb) {
   for (int i = 0; i < nPixelBits; i += 4) {
     // simple avrage to get the grey
@@ -31,6 +33,7 @@ void com::Filter::grayscale(uint8_t *rgbData, int nPixelBits, uint8_t *newRgb) {
   }
 }
 
+// convolution
 void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
                                   int frameStride, uint8_t *newRgb) {
   // sobel kernel
@@ -71,7 +74,7 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
       }
     }
     float toSqrt = static_cast<float>((resX * resX) + (resY * resY));
-    // to make it runnable for testing on non-arm computers
+// to make it runnable for testing on non-arm computers
 #if USE_NEON_SQRT && OP_FLAG
 #pragma message("neon square root")
     // extremely slow when not on O3
@@ -81,11 +84,69 @@ void com::Filter::sobelEdgeDetect(uint8_t *rgbData, int nPixelBits,
 #endif
 
     int sobelVal = static_cast<int>(roundf(sobelValF));
-    if (sobelVal > 255) sobelVal = 255;
+    if (sobelVal > 255) {
+      sobelVal = 255;
+    };
 
     newRgb[i] = sobelVal;
     newRgb[i + 1] = sobelVal;
     newRgb[i + 2] = sobelVal;
     newRgb[i + 3] = 255;  // full opacity
   }
+}
+
+void com::Filter::fisheyeTransform(uint8_t *rgbData, int nPixelBits,
+                                   int frameStride, uint8_t *newRgb,
+                                   float strength) {
+  int centerX = frameStride / 8;
+  int centerY = (nPixelBits / frameStride) / 2;
+  // fit based off the smaller axis
+  int szDeterminer = 0;
+  if (centerX < centerY) {
+    szDeterminer = centerX;
+  } else {
+    szDeterminer = centerY;
+  }
+
+  for (int i = 0; i < nPixelBits; i += 4) {
+    int col = (i % frameStride) / 4;
+    int row = i / frameStride;
+
+    // euclidian distance from center
+    int dx = col - centerX;
+    int dy = row - centerY;
+    float r = 0;
+    float toSqrt = static_cast<float>(dx * dx + dy * dy);
+#if USE_NEON_SQRT && OP_FLAG
+    // extremely slow when not on O3
+    __asm__ volatile("fsqrt %s0, %s1" : "=w"(r) : "w"(toSqrt));
+#else
+    r = sqrtf(toSqrt);
+#endif
+
+    // apply strength of fisheye distortion based off dist from center
+    float dist = r / szDeterminer;
+    dist = powf(dist, strength);
+    float scaleX = (dist * dx) / r;
+    float scaleY = (dist * dy) / r;
+
+    // distorted pixel position in image
+    int newCol = static_cast<int>(centerX + scaleX * r);
+    int newRow = static_cast<int>(centerY + scaleY * r);
+
+    // ensure pixel is inside image
+    if (newCol >= 0 && newCol < frameStride / 4 && newRow >= 0 &&
+        newRow < nPixelBits / frameStride) {
+      int newIndex = (newRow * frameStride) + (newCol * 4);
+      newRgb[i] = rgbData[newIndex];
+      newRgb[i + 1] = rgbData[newIndex + 1];
+      newRgb[i + 2] = rgbData[newIndex + 2];
+      newRgb[i + 3] = 255;  // full opacity
+    }
+  }
+}
+
+extern "C" int *__errno() {
+  static int dummy_errno;
+  return &dummy_errno;
 }

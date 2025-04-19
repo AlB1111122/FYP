@@ -125,6 +125,8 @@ void updateFrame(plm_t *mpeg, plm_frame_t *frame, void *user) {
   com::Filter::sobelEdgeDetect(self->rgb_data, N_PIXELS, frame->width * 4,
                                new_rgb_data);
   // com::Filter::grayscale(self->rgb_data, N_PIXELS, new_rgb_data);
+  // com::Filter::fisheyeTransform(self->rgb_data, N_PIXELS, frame->width * 4,
+  //                               new_rgb_data);
 
   auto to_filter = std::chrono::high_resolution_clock::now();
   SDL_UpdateTexture(self->texture_rgb, NULL, new_rgb_data, frame->width * 4);
