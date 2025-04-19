@@ -3,8 +3,8 @@
 #pragma once
 #include <etl/string.h>
 
-#include "./gpio.h"
-#include "./mmio.h"
+#include "gpio.h"
+#include "mmio.h"
 
 constexpr int STR_SZ = 1020;
 

@@ -1,8 +1,8 @@
 /*https://github.com/babbleberry/rpi4-osdev/tree/master?tab=CC0-1.0-1-ov-file
  * based off*/
 #pragma once
-#include "./mmio.h"
-#include "./peripheralReg.h"
+#include "mmio.h"
+#include "peripheralReg.h"
 class GPIO {
  public:
   void pinAsAlt3(unsigned int pinNumber);
