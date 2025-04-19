@@ -61,7 +61,7 @@ Performance metrics will be written to results.csv.
 
 1. Use the rpi-imager to write 64 bit Debian to the sd card.
 2. Remove any kernel and .img files from the boot section of the newly written sd card.
-3. Compile the bare metal version of the project; go to the root of the project and run `make`.
+3. Change CROSSCOMP_TOOLCHAIN_DIR in the [Makefile](Makefile) the install path on your machine. Compile the bare metal version of the project; go to the root of the project and run `make`.
 4. Copy [the project's new kernel image](build/bm/img/kernel8.img) to the SD cards boot directory. (this may require you to make the boot direcory bigger).
 5. Overwrite the config.txt in the boot directory of the SD card with this project's [config.txt](src/platform/baremetal/config/config.txt).
 6. Unmount the SD card from the dev machine and insert it into the Raspberry Pi 4B.
